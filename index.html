@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Litre - Final Version</title>
+    <title>Litre - Smart Savings V41</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        :root { --bg: #000; --text: #fff; --card: rgba(28, 28, 30, 0.75); --border: rgba(255, 255, 255, 0.08); --subtext: #444; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; -webkit-tap-highlight-color: transparent; }
-        #splash { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: 0.8s; }
-        .dynamic-header { padding: 45px 20px 20px 20px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid var(--border); }
-        .floating-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; height: 70px; background: var(--card); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; }
+        :root { --bg: #000; --text: #fff; --card: rgba(28, 28, 30, 0.75); --border: rgba(255, 255, 255, 0.08); --subtext: #444; --settings-item: rgba(30, 30, 30, 0.8); }
+        body.light-mode { --bg: #f2f2f7; --text: #000; --card: #ffffff; --border: rgba(0, 0, 0, 0.1); --subtext: #8e8e93; --settings-item: #ffffff; }
+
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; overflow: hidden; transition: background 0.3s ease, color 0.3s ease; }
+        #splash { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: opacity 0.8s; }
+        .dynamic-header { padding: 45px 20px 20px 20px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid var(--border); transition: 0.3s; color: var(--text); }
+        .floating-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; height: 70px; background: var(--card); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
         .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); }
         .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -22,151 +24,299 @@
         .nav-item.active::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: var(--text); border-radius: 50%; }
         .glass-card { background: var(--card); border: 1px solid var(--border); }
         .silver-grad { background: linear-gradient(145deg, #FFFFFF, #C8C8C8, #808080); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #miniMap { height: 100%; width: 100%; min-height: 250px; background: #111; border-radius: 2rem; }
+        body.light-mode .silver-grad { background: none; -webkit-text-fill-color: initial; color: #000; font-weight: 800; }
+        #map, #miniMap { height: 100%; width: 100%; background: #111; }
         
-        /* Picker UI Geliştirildi */
+        .custom-pin { 
+            display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; border-radius: 10px; 
+            font-weight: 800; font-size: 11px; border: 1.5px solid #fff; color: white; box-shadow: 0 8px 16px rgba(0,0,0,0.3); white-space: nowrap;
+        }
+
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 4000; display: none; align-items: flex-end; }
+        body.light-mode .picker-overlay { background: rgba(0,0,0,0.3); }
         .picker-container { background: #1c1c1e; width: 100%; border-radius: 35px 35px 0 0; padding: 25px; border-top: 1px solid rgba(255,255,255,0.1); color: #fff; }
-        .wheel-picker { height: 180px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center; }
-        .wheel-item { height: 45px; line-height: 45px; scroll-snap-align: center; font-size: 18px; opacity: 0.3; transition: 0.2s; }
-        .wheel-item.selected { opacity: 1; font-weight: 800; font-size: 22px; color: #3b82f6; }
+        body.light-mode .picker-container { background: #f2f2f7; color: #000; border-top: 1px solid #e5e5ea; }
+        .settings-item { background: var(--settings-item); border: 1px solid var(--border); transition: 0.3s; }
+        .wheel-wrapper { position: relative; height: 220px; overflow: hidden; }
+        .wheel-selection-bar { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); height: 48px; background: rgba(255, 255, 255, 0.08); border-radius: 14px; pointer-events: none; }
+        body.light-mode .wheel-selection-bar { background: rgba(0, 0, 0, 0.05); }
+        .wheel-picker { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center; }
+        .wheel-item { height: 44px; line-height: 44px; scroll-snap-align: center; font-size: 18px; opacity: 0.25; color: var(--text); }
+        .wheel-item.selected { opacity: 1; font-weight: 700; font-size: 22px; color: var(--text); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .scan-overlay { position: fixed; inset: 0; background: #000; z-index: 4500; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .scan-frame { width: 80%; height: 50%; border: 2px solid rgba(255,255,255,0.3); border-radius: 20px; position: relative; overflow: hidden; background: #0a0a0a; }
+        .receipt-mockup { position: absolute; inset: 20px; background: #fff; color: #000; padding: 20px; font-family: 'Courier New', monospace; font-size: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0.95; }
+        .scan-laser { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: #3b82f6; box-shadow: 0 0 15px #3b82f6, 0 0 30px #3b82f6; animation: scanAnim 2.5s infinite ease-in-out; z-index: 2; }
+        @keyframes scanAnim { 0%, 100% { top: 0; } 50% { top: 100%; } }
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
 
-<div id="splash"><h1 class="text-5xl font-bold silver-grad tracking-tight">Litre</h1></div>
+<div id="splash">
+    <svg width="90" height="110" viewBox="0 0 100 120" class="mb-4">
+        <defs>
+            <linearGradient id="logoGradientDiag" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#C8C8C8;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#808080;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+        <path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoGradientDiag)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1 class="text-5xl font-bold silver-grad tracking-tight">Litre</h1>
+</div>
+
+    <div id="scanOverlay" class="scan-overlay">
+        <button onclick="closeScan()" class="absolute top-12 right-6 p-3 bg-white/10 rounded-full"><i data-lucide="x" class="text-white"></i></button>
+        <div class="scan-frame">
+            <div class="scan-laser"></div>
+            <div class="receipt-mockup">
+                <p class="text-center font-bold border-b border-black pb-1 mb-2 uppercase">Ataşehir Shell</p>
+                <p id="receiptDate">TARIH: 22.01.2026</p>
+                <p id="receiptPlate">PLAKA: 34 ABC 123</p>
+                <div class="mt-4 border-t border-dashed border-black pt-2">
+                    <p class="flex justify-between">V-POWER BENZIN <span>32.50 L</span></p>
+                    <p class="flex justify-between">BIRIM FIYAT <span id="receiptPrice">54,00 TL</span></p>
+                    <p class="flex justify-between font-bold text-sm mt-2">TOPLAM <span id="receiptTotal">1.755,00 TL</span></p>
+                </div>
+            </div>
+            <div id="scanSuccess" class="absolute inset-0 bg-black/80 hidden flex-col items-center justify-center">
+                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4"><i data-lucide="check" class="text-white w-10 h-10"></i></div>
+                <h3 class="text-xl font-bold text-white">Analiz Tamamlandı</h3>
+            </div>
+        </div>
+        <p class="text-white mt-8 font-medium animate-pulse">Faturayı çerçeveye hizalayın</p>
+    </div>
+
+    <div id="settingsOverlay" class="picker-overlay" onclick="closeSettings()">
+        <div class="picker-container" onclick="event.stopPropagation()">
+            <div class="flex justify-between mb-8 px-4"><button onclick="closeSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg">Görünüm Ayarları</h3><div class="w-12"></div></div>
+            <div class="space-y-4 pb-10">
+                <div onclick="setTheme('light')" id="lightOption" class="flex justify-between items-center p-6 settings-item rounded-[2rem] border transition-all">
+                    <div class="flex items-center gap-4"><i data-lucide="sun" id="sunIcon"></i><span class="font-bold text-lg">Aydınlık Mod</span></div>
+                    <div id="lightCheck" class="hidden w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"><i data-lucide="check" class="w-4 h-4 text-white"></i></div>
+                </div>
+                <div onclick="setTheme('dark')" id="darkOption" class="flex justify-between items-center p-6 settings-item rounded-[2rem] border transition-all border-blue-500">
+                    <div class="flex items-center gap-4"><i data-lucide="moon" id="moonIcon"></i><span class="font-bold text-lg text-white">Karanlık Mod</span></div>
+                    <div id="darkCheck" class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"><i data-lucide="check" class="w-4 h-4 text-white"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyOverlay" class="picker-overlay" onclick="closeHistory()">
+        <div class="picker-container h-[75%]" onclick="event.stopPropagation()">
+            <div class="flex justify-between mb-6 px-4"><button onclick="closeHistory()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg">Yakıt Geçmişi</h3><div class="w-12"></div></div>
+            <div id="historyList" class="space-y-4 overflow-y-auto h-full pb-24 no-scrollbar"></div>
+        </div>
+    </div>
 
     <div id="pickerOverlay" class="picker-overlay" onclick="closePicker()">
         <div class="picker-container" onclick="event.stopPropagation()">
-            <div class="flex justify-between mb-8 px-4">
-                <button onclick="closePicker()" class="text-zinc-500 font-bold">Vazgeç</button>
-                <h3 id="pickerTitle" class="font-bold text-lg text-white">Marka Seç</h3>
-                <button onclick="processSelection()" class="text-blue-500 font-bold">İlerle</button>
-            </div>
-            <div id="wheelContainer">
-                <div class="wheel-picker no-scrollbar" id="wheel" onscroll="handleWheelScroll(this)"></div>
-            </div>
-            <div id="plateInputContainer" class="hidden py-10 px-4">
-                <input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-zinc-800/50 border border-white/10 rounded-2xl p-5 text-2xl font-black text-center uppercase outline-none text-white">
-            </div>
+            <div class="flex justify-between mb-8 px-4"><button onclick="closePicker()" class="text-zinc-500 font-bold">Vazgeç</button><h3 id="pickerTitle" class="font-bold text-lg text-white">Seçiniz</h3><button id="nextBtn" onclick="processSelection()" class="text-blue-500 font-bold">Devam</button></div>
+            <div id="wheelContainer"><div class="wheel-wrapper"><div class="wheel-selection-bar"></div><div id="wheel" class="wheel-picker no-scrollbar" onscroll="handleWheelScroll(this)"></div></div></div>
+            <div id="plateInputContainer" class="hidden py-10 px-4"><input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-zinc-800/50 border border-white/10 rounded-2xl p-5 text-2xl font-black text-center uppercase tracking-widest outline-none text-current"></div>
         </div>
     </div>
 
     <div id="app-content" class="flex flex-col h-full opacity-0 transition-opacity duration-1000">
         <main class="flex-1 overflow-hidden relative">
+            
             <div id="home" class="tab-content active no-scrollbar pb-52">
-                <header class="dynamic-header"><h1 class="text-2xl font-bold tracking-tight">Litre</h1></header>
+                <header class="dynamic-header">
+                    <div class="flex items-center gap-2">
+                        <svg width="22" height="28" viewBox="0 0 100 120" id="headerLogoSvg">
+                            <defs><linearGradient id="headerLogoGradient" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" /><stop offset="50%" style="stop-color:#C8C8C8;stop-opacity:1" /><stop offset="100%" style="stop-color:#808080;stop-opacity:1" /></linearGradient></defs>
+                            <path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#headerLogoGradient)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h1 class="text-2xl font-bold tracking-tight">Litre</h1>
+                    </div>
+                </header>
                 <div class="p-6 space-y-7">
                     <h1 class="text-3xl font-bold silver-grad leading-tight">Yakınımdaki Fiyatlar</h1>
-                    <div class="w-full h-64 bg-[#111] rounded-[3.5rem] border border-white/10 overflow-hidden shadow-2xl"><div id="miniMap"></div></div>
+                    <div onclick="showTab('maps', document.getElementById('map-nav'), true)" class="w-full h-64 bg-[#111] rounded-[3.5rem] border border-white/10 relative overflow-hidden shadow-2xl active:scale-[0.98] transition-all"><div id="miniMap"></div></div>
+                    <div class="flex justify-center"><div class="flex items-center gap-2.5 px-6 py-3 glass-card rounded-full shadow-lg"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-500"></i><span class="text-[10px] font-black uppercase tracking-[0.15em]">Konum: Kartal, İstanbul</span></div></div>
+                    <div class="space-y-6">
+                        <div class="glass-card p-6 rounded-[2.5rem] flex items-start justify-between border border-white/5 shadow-xl"><div class="flex items-start gap-5"><div class="w-14 h-14 bg-[#FFD500] rounded-2xl flex items-center justify-center shrink-0 border border-zinc-800"><span class="text-[#DE2128] font-black text-[9px]">SHELL</span></div><div class="space-y-2"><h3 class="font-bold text-sm uppercase tracking-tight">Shell - İçerenköy</h3><div class="space-y-1.5 text-xs font-medium"><p class="flex justify-between w-32 opacity-60">Benzin <span class="font-bold">54,00 TL</span></p><p class="flex justify-between w-32 opacity-60">Motorin <span class="font-bold">55,90 TL</span></p><p class="flex justify-between w-32 opacity-60">LPG <span class="font-bold">27.35 TL</span></p></div></div></div><i data-lucide="chevron-right" class="w-5 h-5 opacity-20 self-center"></i></div>
+                        <div class="glass-card p-6 rounded-[2.5rem] flex items-start justify-between border border-white/5 shadow-xl"><div class="flex items-start gap-5"><div class="w-14 h-14 bg-[#005BAB] rounded-2xl flex items-center justify-center shrink-0 border border-zinc-800"><span class="text-white font-black text-[9px]">OPET</span></div><div class="space-y-2"><h3 class="font-bold text-sm uppercase tracking-tight">Opet - Kartal Sahil</h3><div class="space-y-1.5 text-xs font-medium"><p class="flex justify-between w-32 opacity-60">Benzin <span class="font-bold">54,05 TL</span></p><p class="flex justify-between w-32 opacity-60">Motorin <span class="font-bold">55,86 TL</span></p><p class="flex justify-between w-32 opacity-60">LPG <span class="font-bold">27.40 TL</span></p></div></div></div></div>
+                    </div>
                 </div>
             </div>
 
+            <div id="maps" class="tab-content h-full relative overflow-hidden">
+                <header class="absolute top-14 left-6 right-6 z-[2001]"><div class="glass-card h-14 rounded-3xl flex items-center px-6 shadow-2xl"><i data-lucide="search" class="w-4 h-4 opacity-40 mr-3"></i><input type="text" placeholder="İstasyon ara..." class="bg-transparent text-sm w-full outline-none text-current"><i data-lucide="mic" class="w-4 h-4 opacity-40 ml-2"></i></div></header>
+                <div id="map"></div>
+            </div>
+
             <div id="profile" class="tab-content no-scrollbar pb-44">
-                <div class="flex flex-col items-center pt-14 pb-8"><div class="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center text-5xl mb-4 shadow-2xl">👤</div><h2 class="text-2xl font-bold silver-grad">Volkan Yılmaz</h2></div>
-                <div class="px-6 space-y-10">
-                    
-                    <div class="glass-card p-8 rounded-[3.5rem] space-y-6 shadow-2xl border-white/10 relative overflow-hidden">
+                <div class="flex flex-col items-center pt-14 pb-8"><div class="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center text-5xl mb-4 shadow-2xl">👤</div><h2 class="text-2xl font-bold silver-grad text-center" id="userName">Volkan Yılmaz</h2><div class="mt-1.5 px-4 py-1.5 glass-card rounded-full text-[9px] font-black tracking-widest opacity-60 uppercase">Premium Member</div></div>
+                <div class="px-6 space-y-8">
+                    <div class="glass-card p-8 rounded-[3.5rem] space-y-6 shadow-2xl border-white/10">
                         <div class="flex justify-between items-center"><h3 class="text-xs font-black opacity-40 tracking-[0.2em] uppercase">Garajım</h3><i data-lucide="car-front" class="w-5 h-5 opacity-20"></i></div>
                         
-                        <div class="grid grid-cols-4 gap-1 border-b border-white/5 pb-4">
-                            <div><p class="text-[8px] opacity-40 uppercase mb-0.5">Marka</p><p id="viewMarka" class="text-[9px] font-bold truncate">Audi</p></div>
-                            <div><p class="text-[8px] opacity-40 uppercase mb-0.5">Model</p><p id="viewModel" class="text-[9px] font-bold truncate">A6</p></div>
-                            <div><p class="text-[8px] opacity-40 uppercase mb-0.5">Yıl</p><p id="viewYıl" class="text-[9px] font-bold">2023</p></div>
-                            <div class="text-right"><p class="text-[8px] opacity-40 uppercase mb-0.5">Plaka</p><p id="viewPlaka" class="text-[9px] font-bold truncate tracking-tighter">34 ABC 123</p></div>
+                        <div class="flex flex-wrap items-end gap-x-6 gap-y-2">
+                            <div><p class="text-[9px] opacity-40 uppercase mb-0.5">Marka</p><p id="viewMarka" class="text-lg font-black italic">Audi</p></div>
+                            <div><p id="viewModel" class="text-sm font-bold opacity-80">A6</p></div>
+                            <div><p id="viewYıl" class="text-sm font-medium opacity-40">2023</p></div>
+                            <div class="ml-auto bg-white/5 px-3 py-1 rounded-lg border border-white/5">
+                                <p id="viewPlaka" class="text-[11px] font-black tracking-widest uppercase">34 ABC 123</p>
+                            </div>
                         </div>
 
-                        <div class="flex justify-center py-4 min-h-[140px] relative">
-                            <img id="carImage" 
-                                 src="https://cdn.statically.io/img/www.pngmart.com/files/10/Audi-A6-PNG-File.png" 
-                                 class="w-full h-32 object-contain drop-shadow-2xl transition-opacity duration-500" 
-                                 alt="Araç Görseli"
-                                 onerror="this.src='https://www.svgrepo.com/show/491530/car.svg'; this.style.opacity='0.2';">
+                        <div class="relative py-4 flex justify-center items-center min-h-[140px]">
+                            <div class="absolute inset-0 bg-blue-500/10 blur-[60px] rounded-full"></div>
+                            <img id="carImage" src="https://www.pngplay.com/wp-content/uploads/13/Audi-A6-Transparent-Background.png" 
+                                 alt="Car" class="w-full h-32 object-contain relative z-10 drop-shadow-[0_25px_25px_rgba(0,0,0,0.6)] transition-all duration-500">
                         </div>
 
-                        <div class="pt-4 border-t border-white/5"><p class="text-[10px] opacity-40 font-black uppercase mb-1">Ocak Ayı Ortalama Masrafı</p><p class="text-2xl font-black text-blue-500 tracking-tighter">3.126,50 TL</p></div>
+                        <div class="pt-4 border-t border-white/5">
+                            <p class="text-[10px] opacity-40 font-black uppercase mb-1" id="avgMonthLabel">Ocak Ayı Ortalama Masrafı</p>
+                            <p id="viewAvgCost" class="text-2xl font-black text-blue-500 tracking-tighter">0,00 TL</p>
+                        </div>
                     </div>
 
-                    <div onclick="startVehicleFlow()" class="glass-card p-6 rounded-[2.5rem] flex items-center justify-between shadow-xl active:scale-95 transition-all">
-                        <div class="flex items-center gap-4"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-500"></i><span class="text-sm font-bold">Araç Bilgilerini Güncelle</span></div>
-                        <i data-lucide="chevron-right" class="w-4 h-4 opacity-20"></i>
+                    <div class="glass-card p-7 rounded-[3.5rem] shadow-2xl border-white/10 bg-gradient-to-br from-blue-600/10 to-transparent">
+                        <div class="flex justify-between items-center mb-6"><h3 class="text-xs font-black opacity-40 tracking-[0.2em] uppercase">Tasarruf Paneli</h3><i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i></div>
+                        <div class="space-y-6">
+                            <div><p class="text-[10px] opacity-40 uppercase mb-1">Litre ile Bu Ayki Tasarruf</p><p id="monthlySaving" class="text-3xl font-black text-green-500">142,50 TL</p></div>
+                            <div class="p-4 bg-zinc-900/30 rounded-2xl border border-white/5"><p class="text-[9px] opacity-60 leading-relaxed italic">"Piyasadaki en pahalı istasyon yerine en ucuzu seçerek bütçeni korudun."</p></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-3 rounded-[2.5rem] space-y-1 shadow-2xl">
+                        <div onclick="startVehicleFlow()" class="flex items-center justify-between p-4 rounded-2xl active:bg-zinc-100 transition-all"><div class="flex items-center gap-4"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-500"></i><span class="text-sm font-bold">Araç Bilgilerini Güncelle</span></div><i data-lucide="chevron-right" class="w-4 h-4 opacity-20"></i></div>
+                        <div onclick="openSettings()" class="flex items-center justify-between p-4 rounded-2xl active:bg-zinc-100 transition-all border-t border-white/5"><div class="flex items-center gap-4"><i data-lucide="settings-2" class="w-5 h-5 opacity-40"></i><span class="text-sm font-medium">Uygulama Ayarları</span></div><i data-lucide="chevron-right" class="w-4 h-4 opacity-20"></i></div>
+                        <div onclick="openHistory()" class="flex items-center justify-between p-4 rounded-2xl active:bg-zinc-100 transition-all border-t border-white/5"><div class="flex items-center gap-4"><i data-lucide="archive" class="w-5 h-5 opacity-40"></i><span class="text-sm font-medium">Yakıt Geçmişi</span></div><i data-lucide="chevron-right" class="w-4 h-4 opacity-20"></i></div>
                     </div>
                 </div>
             </div>
         </main>
-        
         <nav class="floating-dock">
             <button onclick="showTab('home', this)" class="nav-item active"><i data-lucide="home"></i></button>
+            <button id="map-nav" onclick="showTab('maps', this, true)" class="nav-item"><i data-lucide="map-pin"></i></button>
+            <button class="nav-item" onclick="handleScanAction()"><div class="bg-[#007AFF] p-3 rounded-2xl shadow-lg shadow-blue-500/20"><i data-lucide="camera" class="text-white"></i></div></button>
+            <button class="nav-item"><i data-lucide="clock"></i></button>
             <button onclick="showTab('profile', this)" class="nav-item"><i data-lucide="user"></i></button>
         </nav>
     </div>
 
     <script>
         lucide.createIcons();
-        const carData = { 'Audi': ['A3', 'A4', 'A6'], 'Suzuki': ['Swift', 'Vitara', 'Jimny'], 'BMW': ['320i', '520d'], 'Volkswagen': ['Golf', 'Passat'] };
-        const years = ["2026", "2025", "2024", "2023"];
-        let step = 0, selections = { Marka: 'Audi', Model: 'A6', Yıl: '2023', Plaka: '34 ABC 123' }, tempValue = 'Audi';
+        let leafletMap, miniMap, currentTheme = 'dark';
+        
+        // RESİM KÜTÜPHANESİ
+        const carImageLibrary = {
+            'Audi-A6': 'https://www.pngplay.com/wp-content/uploads/13/Audi-A6-Transparent-Background.png',
+            'Suzuki-Swift': 'https://www.pngplay.com/wp-content/uploads/13/Suzuki-Swift-Transparent-Background.png',
+            'Audi-A3': 'https://www.pngall.com/wp-content/uploads/2016/06/Audi-A3-PNG-Image.png',
+            'Varsayılan': 'https://www.pngplay.com/wp-content/uploads/13/Audi-A6-Transparent-Background.png'
+        };
+
+        let fuelRecords = [
+            { station: 'Shell - İçerenköy', date: '21.01.2026', amount: 1620.00, details: '30.00 L · 54,00 TL/L' },
+            { station: 'Opet - Kartal', date: '05.01.2026', amount: 1599.00, details: '30.00 L · 53,30 TL/L' }
+        ];
+
+        function updateGarageAnalysis() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+            const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+            document.getElementById('avgMonthLabel').innerText = monthNames[now.getMonth()] + " Ayı Ortalama Masrafı";
+            const monthRecords = fuelRecords.filter(r => {
+                const [d, m, y] = r.date.split('.');
+                return parseInt(m) === currentMonth && parseInt(y) === currentYear;
+            });
+            if(monthRecords.length === 0) {
+                document.getElementById('viewAvgCost').innerText = '0,00 TL';
+                document.getElementById('monthlySaving').innerText = '0,00 TL';
+                return;
+            }
+            const total = monthRecords.reduce((sum, r) => sum + r.amount, 0);
+            document.getElementById('viewAvgCost').innerText = total.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL';
+            const saving = total * 0.08;
+            document.getElementById('monthlySaving').innerText = saving.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL';
+        }
+
+        const tileDark = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+        const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+        const stations = [{ lat: 40.9445, lng: 29.1415, price: '53.90', color: '#22c55e' }];
+
+        function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([40.94, 29.14], 12); L.tileLayer(currentTheme === 'dark' ? tileDark : tileLight).addTo(leafletMap); stations.forEach(s => { const icon = L.divIcon({ className: '', html: `<div class="custom-pin" style="background:${s.color}">${s.price}</div>`, iconSize: [60, 30] }); L.marker([s.lat, s.lng], { icon }).addTo(leafletMap); }); }
+        function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([40.94, 29.14], 11); L.tileLayer(currentTheme === 'dark' ? tileDark : tileLight).addTo(miniMap); stations.forEach(s => { const icon = L.divIcon({ className: '', html: `<div class="custom-pin" style="background:${s.color}">${s.price}</div>`, iconSize: [40, 20] }); L.marker([s.lat, s.lng], { icon }).addTo(miniMap); }); }
+
+        function setTheme(mode) {
+            currentTheme = mode;
+            document.body.classList.toggle('light-mode', mode === 'light');
+            if(leafletMap) { leafletMap.eachLayer(l => { if(l instanceof L.TileLayer) leafletMap.removeLayer(l); }); L.tileLayer(mode === 'dark' ? tileDark : tileLight).addTo(leafletMap); }
+        }
+
+        function handleScanAction() {
+            document.getElementById('scanOverlay').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('scanSuccess').style.display = 'flex';
+                fuelRecords.unshift({ station: 'Shell - İçerenköy', date: new Date().toLocaleDateString('tr-TR'), amount: 1755.00, details: '32.50 L · 54,00 TL/L' }); 
+                updateGarageAnalysis();
+                setTimeout(closeScan, 2000);
+            }, 3000);
+        }
+
+        // ARAÇ VERİLERİ (SUZUKI EKLENDİ)
+        const carData = { 
+            'Audi': ['A3', 'A4', 'A6', 'A8', 'Q5'], 
+            'Suzuki': ['Swift', 'Vitara', 'Jimny'],
+            'BMW': ['1 Serisi', '3 Serisi', '5 Serisi'] 
+        };
+        const years = Array.from({length: 2026-1990+1}, (_, i) => (2026-i).toString());
+        let step = 0, selections = { Marka: 'Audi', Model: 'A6', Yıl: '2023', Plaka: '34 ABC 123' }, tempValue = '';
 
         function startVehicleFlow() { step = 0; document.getElementById('plateInputContainer').classList.add('hidden'); document.getElementById('wheelContainer').classList.remove('hidden'); updatePickerUI(); document.getElementById('pickerOverlay').style.display = 'flex'; }
+        function updatePickerUI() { const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 88px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); document.getElementById('pickerTitle').innerText = 'Plaka Gir'; return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 88px;"></div>'; wheel.scrollTop = 0; }
         
-        function updatePickerUI() {
-            const wheel = document.getElementById('wheel');
-            wheel.innerHTML = '<div style="height: 65px;"></div>';
-            let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : [];
-            document.getElementById('pickerTitle').innerText = step === 0 ? 'Marka' : step === 1 ? 'Model' : 'Yıl';
-            if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); document.getElementById('pickerTitle').innerText = 'Plaka'; return; }
-            data.forEach((item, i) => {
-                const div = document.createElement('div');
-                div.className = 'wheel-item' + (i === 0 ? ' selected' : '');
-                div.innerText = item;
-                wheel.appendChild(div);
-                if(i === 0) tempValue = item;
-            });
-            wheel.innerHTML += '<div style="height: 65px;"></div>';
-            wheel.scrollTop = 0;
+        function processSelection() { 
+            if(step === 0) selections.Marka = tempValue; 
+            else if(step === 1) selections.Model = tempValue; 
+            else if(step === 2) selections.Yıl = tempValue; 
+            else if(step === 3) { 
+                selections.Plaka = document.getElementById('plateInput').value || 'PLAKA YOK'; 
+                
+                // Metinleri Güncelle
+                document.getElementById('viewMarka').innerText = selections.Marka; 
+                document.getElementById('viewModel').innerText = selections.Model; 
+                document.getElementById('viewYıl').innerText = selections.Yıl; 
+                document.getElementById('viewPlaka').innerText = selections.Plaka; 
+
+                // RESİM GÜNCELLEME MANTIĞI
+                const key = `${selections.Marka}-${selections.Model}`;
+                const imgElement = document.getElementById('carImage');
+                imgElement.style.opacity = '0';
+                imgElement.style.transform = 'scale(0.8)';
+                
+                setTimeout(() => {
+                    imgElement.src = carImageLibrary[key] || carImageLibrary['Varsayılan'];
+                    imgElement.style.opacity = '1';
+                    imgElement.style.transform = 'scale(1)';
+                }, 300);
+
+                closePicker(); 
+                return; 
+            } 
+            step++; updatePickerUI(); 
         }
 
-        function handleWheelScroll(el) {
-            const items = el.getElementsByClassName('wheel-item');
-            const center = el.scrollTop + 90;
-            for (let item of items) {
-                if (Math.abs(center - item.offsetTop - 22) < 25) {
-                    item.classList.add('selected'); tempValue = item.innerText;
-                } else { item.classList.remove('selected'); }
-            }
-        }
-
-        function processSelection() {
-            if(step === 0) selections.Marka = tempValue;
-            else if(step === 1) selections.Model = tempValue;
-            else if(step === 2) selections.Yıl = tempValue;
-            else if(step === 3) { selections.Plaka = document.getElementById('plateInput').value.toUpperCase() || '34 ABC 123'; saveToProfile(); closePicker(); return; }
-            step++; updatePickerUI();
-        }
-
-        function saveToProfile() {
-            document.getElementById('viewMarka').innerText = selections.Marka;
-            document.getElementById('viewModel').innerText = selections.Model;
-            document.getElementById('viewYıl').innerText = selections.Yıl;
-            document.getElementById('viewPlaka').innerText = selections.Plaka;
-            
-            const img = document.getElementById('carImage');
-            const proxy = "https://cdn.statically.io/img/";
-            const carImages = {
-                'Suzuki': proxy + 'www.suzuki.com.tr/upload/modeller/swift/swift-spor-renk-mavi.png',
-                'Audi': proxy + 'www.pngmart.com/files/10/Audi-A6-PNG-File.png',
-                'BMW': proxy + 'www.pngmart.com/files/10/BMW-5-Series-PNG-Transparent-Image.png',
-                'Volkswagen': proxy + 'www.pngmart.com/files/10/Volkswagen-Golf-PNG-Transparent-Image.png'
-            };
-            img.style.opacity = '0';
-            setTimeout(() => { img.src = carImages[selections.Marka] || carImages['Audi']; img.style.opacity = '1'; }, 300);
-        }
-
-        function showTab(tabId, el) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+        function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + 110; for (let item of items) { if (Math.abs(center - item.offsetTop - 22) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
         function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; }
-        function initMiniMap() { let miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([40.94, 29.14], 11); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(miniMap); }
-        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('splash').style.display = 'none'; document.getElementById('app-content').style.opacity = '1'; initMiniMap(); }, 1000); });
+        function openSettings() { document.getElementById('settingsOverlay').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
+        function openHistory() { document.getElementById('historyOverlay').style.display = 'flex'; updateHistoryUI(); }
+        function closeHistory() { document.getElementById('historyOverlay').style.display = 'none'; }
+        function updateHistoryUI() { const list = document.getElementById('historyList'); list.innerHTML = fuelRecords.map(r => `<div class="p-5 glass-card rounded-[2rem] border border-white/5 mb-3"><div class="flex justify-between items-start"><div><p class="font-bold text-sm uppercase">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</p></div><p class="text-[11px] opacity-60 mt-1">${r.details}</p></div>`).join(''); }
+        function closeScan() { document.getElementById('scanOverlay').style.display = 'none'; }
+        function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); if(el) el.classList.add('active'); if(isMap) { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
+
+        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('splash').style.opacity = '0'; setTimeout(() => { document.getElementById('splash').style.display = 'none'; document.getElementById('app-content').style.opacity = '1'; initMiniMap(); updateGarageAnalysis(); }, 800); }, 2000); });
     </script>
 </body>
 </html>
