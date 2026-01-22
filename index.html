@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Litre - Production Fix V43</title>
+    <title>Litre - No-Upload Engine V44</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         :root { --bg: #000; --text: #fff; --card: rgba(28, 28, 30, 0.75); --border: rgba(255, 255, 255, 0.08); --subtext: #444; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         #splash { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: 0.8s; }
         .dynamic-header { padding: 45px 20px 20px 20px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid var(--border); }
-        .floating-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; height: 70px; background: var(--card); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; }
+        .floating-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; height: 70px; background: var(--card); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
         .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); }
         .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -33,15 +33,13 @@
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
 
-<div id="splash">
-    <h1 class="text-5xl font-bold silver-grad tracking-tight">Litre</h1>
-</div>
+<div id="splash"><h1 class="text-5xl font-bold silver-grad tracking-tight">Litre</h1></div>
 
     <div id="pickerOverlay" class="picker-overlay" onclick="closePicker()">
         <div class="picker-container" onclick="event.stopPropagation()">
             <div class="flex justify-between mb-8 px-4"><button onclick="closePicker()" class="text-zinc-500 font-bold">Vazgeç</button><h3 id="pickerTitle" class="font-bold text-lg text-white">Seçiniz</h3><button id="nextBtn" onclick="processSelection()" class="text-blue-500 font-bold">Devam</button></div>
             <div id="wheelContainer"><div class="wheel-picker no-scrollbar" id="wheel" onscroll="handleWheelScroll(this)"></div></div>
-            <div id="plateInputContainer" class="hidden py-10 px-4"><input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-zinc-800/50 border border-white/10 rounded-2xl p-5 text-2xl font-bold text-center uppercase tracking-widest outline-none text-white"></div>
+            <div id="plateInputContainer" class="hidden py-10 px-4"><input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-zinc-800/50 border border-white/10 rounded-2xl p-5 text-2xl font-bold text-center uppercase outline-none text-white"></div>
         </div>
     </div>
 
@@ -61,21 +59,18 @@
                 <div class="px-6 space-y-10">
                     
                     <div class="glass-card p-8 rounded-[3.5rem] space-y-6 shadow-2xl border-white/10 relative overflow-hidden">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-xs font-black opacity-40 tracking-[0.2em] uppercase">Garajım</h3>
-                            <i data-lucide="car-front" class="w-5 h-5 opacity-20"></i>
-                        </div>
+                        <div class="flex justify-between items-center"><h3 class="text-xs font-black opacity-40 tracking-[0.2em] uppercase">Garajım</h3><i data-lucide="car-front" class="w-5 h-5 opacity-20"></i></div>
                         
                         <div class="grid grid-cols-4 gap-2 border-b border-white/5 pb-4">
-                            <div class="overflow-hidden"><p class="text-[8px] opacity-40 uppercase mb-0.5">Marka</p><p id="viewMarka" class="text-[9px] font-bold truncate">Audi</p></div>
-                            <div class="overflow-hidden"><p class="text-[8px] opacity-40 uppercase mb-0.5">Model</p><p id="viewModel" class="text-[9px] font-bold truncate">A6</p></div>
-                            <div class="overflow-hidden"><p class="text-[8px] opacity-40 uppercase mb-0.5">Yıl</p><p id="viewYıl" class="text-[9px] font-bold">2023</p></div>
-                            <div class="text-right overflow-hidden"><p class="text-[8px] opacity-40 uppercase mb-0.5">Plaka</p><p id="viewPlaka" class="text-[9px] font-bold truncate tracking-tighter">34 ABC 123</p></div>
+                            <div><p class="text-[8px] opacity-40 uppercase mb-0.5">Marka</p><p id="viewMarka" class="text-[9px] font-bold truncate">Audi</p></div>
+                            <div><p class="text-[8px] opacity-40 uppercase mb-0.5">Model</p><p id="viewModel" class="text-[9px] font-bold truncate">A6</p></div>
+                            <div><p class="text-[8px] opacity-40 uppercase mb-0.5">Yıl</p><p id="viewYıl" class="text-[9px] font-bold">2023</p></div>
+                            <div class="text-right"><p class="text-[8px] opacity-40 uppercase mb-0.5">Plaka</p><p id="viewPlaka" class="text-[9px] font-bold truncate tracking-tighter">34 ABC 123</p></div>
                         </div>
 
-                        <div class="flex justify-center py-4 min-h-[128px]">
+                        <div class="flex justify-center py-4 min-h-[140px]">
                             <img id="carImage" 
-                                 src="https://wsrv.nl/?url=https://www.pngmart.com/files/10/Audi-A6-PNG-File.png" 
+                                 src="https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/2018_Audi_A6_Avant_Front.png/640px-2018_Audi_A6_Avant_Front.png" 
                                  class="w-full h-32 object-contain drop-shadow-2xl transition-all duration-700" 
                                  alt="Araç Görseli"
                                  onerror="this.src='https://www.svgrepo.com/show/491530/car.svg'; this.style.opacity='0.2';">
@@ -87,7 +82,7 @@
                         </div>
                     </div>
 
-                    <div onclick="startVehicleFlow()" class="glass-card p-6 rounded-[2.5rem] flex items-center justify-between shadow-xl active:scale-95 transition-all">
+                    <div onclick="startVehicleFlow()" class="glass-card p-6 rounded-[2.5rem] flex items-center justify-between shadow-xl">
                         <div class="flex items-center gap-4"><i data-lucide="plus-circle" class="w-5 h-5 text-blue-500"></i><span class="text-sm font-bold">Araç Bilgilerini Güncelle</span></div>
                         <i data-lucide="chevron-right" class="w-4 h-4 opacity-20"></i>
                     </div>
@@ -103,24 +98,11 @@
 
     <script>
         lucide.createIcons();
-        
-        const carData = { 
-            'Audi': ['A3', 'A4', 'A6'], 
-            'Suzuki': ['Swift', 'Vitara', 'Jimny'], 
-            'BMW': ['3 Serisi', '5 Serisi'], 
-            'Volkswagen': ['Golf', 'Passat'] 
-        };
-        const years = ["2025", "2024", "2023", "2022", "2021"];
+        const carData = { 'Audi': ['A3', 'A4', 'A6'], 'Suzuki': ['Swift', 'Vitara', 'Jimny'], 'BMW': ['3 Serisi', '5 Serisi'], 'Volkswagen': ['Golf', 'Passat'] };
+        const years = ["2025", "2024", "2023", "2022"];
         let step = 0, selections = { Marka: 'Audi', Model: 'A6', Yıl: '2023', Plaka: '34 ABC 123' }, tempValue = 'Audi';
 
-        function startVehicleFlow() { 
-            step = 0; 
-            document.getElementById('plateInputContainer').classList.add('hidden'); 
-            document.getElementById('wheelContainer').classList.remove('hidden'); 
-            updatePickerUI(); 
-            document.getElementById('pickerOverlay').style.display = 'flex'; 
-        }
-        
+        function startVehicleFlow() { step = 0; document.getElementById('plateInputContainer').classList.add('hidden'); updatePickerUI(); document.getElementById('pickerOverlay').style.display = 'flex'; }
         function updatePickerUI() {
             const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 88px;"></div>';
             let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : [];
@@ -131,23 +113,12 @@
         }
 
         function processSelection() {
-            if(step === 0) selections.Marka = tempValue; 
-            if(step === 1) selections.Model = tempValue; 
-            if(step === 2) selections.Yıl = tempValue;
-            if(step === 3) { 
-                selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; 
-                saveToProfile(); 
-                closePicker(); 
-                return; 
-            }
+            if(step === 0) selections.Marka = tempValue; if(step === 1) selections.Model = tempValue; if(step === 2) selections.Yıl = tempValue;
+            if(step === 3) { selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; saveToProfile(); closePicker(); return; }
             step++; updatePickerUI();
         }
 
-        function handleWheelScroll(el) { 
-            const items = el.getElementsByClassName('wheel-item'); 
-            const center = el.scrollTop + 110; 
-            for (let item of items) { if (Math.abs(center - item.offsetTop - 22) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } 
-        }
+        function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + 110; for (let item of items) { if (Math.abs(center - item.offsetTop - 22) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
 
         function saveToProfile() {
             document.getElementById('viewMarka').innerText = selections.Marka;
@@ -156,14 +127,14 @@
             document.getElementById('viewPlaka').innerText = selections.Plaka;
             
             const img = document.getElementById('carImage');
-            const proxy = "https://wsrv.nl/?url=";
+            const proxy = "https://images.weserv.nl/?url=";
             
-            // GARANTİ PNG KAYNAKLARI
+            // WIKIPEDIA + WESERV PROXY: En sağlam kombinasyon
             const carImages = {
-                'Suzuki': proxy + 'https://purepng.com/public/uploads/large/purepng.com-suzuki-swift-red-carcarvehicletransportsuzuki-961524661856y1rge.png',
-                'Audi': proxy + 'https://www.pngmart.com/files/10/Audi-A6-PNG-File.png',
-                'BMW': proxy + 'https://www.pngmart.com/files/10/BMW-5-Series-PNG-Transparent-Image.png',
-                'Volkswagen': proxy + 'https://www.pngmart.com/files/10/Volkswagen-Golf-PNG-Transparent-Image.png'
+                'Suzuki': proxy + 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/2017_Suzuki_Swift_SZ5_1.0_Front.png/640px-2017_Suzuki_Swift_SZ5_1.0_Front.png',
+                'Audi': proxy + 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/2018_Audi_A6_Avant_Front.png/640px-2018_Audi_A6_Avant_Front.png',
+                'BMW': proxy + 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/BMW_G30_LCI_transparent.png/640px-BMW_G30_LCI_transparent.png',
+                'Volkswagen': proxy + 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/VW_Golf_VIII_Front_transparent.png/640px-VW_Golf_VIII_Front_transparent.png'
             };
 
             img.style.opacity = '0';
@@ -173,27 +144,10 @@
             }, 300);
         }
 
-        function showTab(tabId, el) { 
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); 
-            document.getElementById(tabId).classList.add('active'); 
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); 
-            el.classList.add('active'); 
-        }
-
+        function showTab(tabId, el) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
         function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; }
-        
-        function initMiniMap() { 
-            let miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([40.94, 29.14], 11); 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(miniMap); 
-        }
-
-        window.addEventListener('load', () => { 
-            setTimeout(() => { 
-                document.getElementById('splash').style.display = 'none'; 
-                document.getElementById('app-content').style.opacity = '1'; 
-                initMiniMap(); 
-            }, 1500); 
-        });
+        function initMiniMap() { let miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([40.94, 29.14], 11); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(miniMap); }
+        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('splash').style.display = 'none'; document.getElementById('app-content').style.opacity = '1'; initMiniMap(); }, 1500); });
     </script>
 </body>
 </html>
