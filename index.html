@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Litre - Ironclad V45</title>
+    <title>Litre - Bulletproof V46</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -13,7 +13,7 @@
         body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         #splash { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: 0.8s; }
         .dynamic-header { padding: 45px 20px 20px 20px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid var(--border); }
-        .floating-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; height: 70px; background: var(--card); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+        .floating-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; height: 70px; background: var(--card); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 35px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; }
         .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); }
         .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -24,11 +24,11 @@
         .silver-grad { background: linear-gradient(145deg, #FFFFFF, #C8C8C8, #808080); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         #miniMap { height: 100%; width: 100%; min-height: 250px; background: #111; border-radius: 2rem; }
         
-        /* Picker UI */
+        /* Picker UI Fix */
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 4000; display: none; align-items: flex-end; }
         .picker-container { background: #1c1c1e; width: 100%; border-radius: 35px 35px 0 0; padding: 25px; border-top: 1px solid rgba(255,255,255,0.1); color: #fff; }
-        .wheel-picker { height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center; }
-        .wheel-item { height: 50px; line-height: 50px; scroll-snap-align: center; font-size: 18px; opacity: 0.3; transition: 0.2s; }
+        .wheel-picker { height: 180px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center; }
+        .wheel-item { height: 45px; line-height: 45px; scroll-snap-align: center; font-size: 18px; opacity: 0.3; transition: 0.3s; }
         .wheel-item.selected { opacity: 1; font-weight: 800; font-size: 22px; color: #3b82f6; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
@@ -41,13 +41,13 @@
         <div class="picker-container" onclick="event.stopPropagation()">
             <div class="flex justify-between mb-8 px-4">
                 <button onclick="closePicker()" class="text-zinc-500 font-bold">Vazgeç</button>
-                <h3 id="pickerTitle" class="font-bold text-lg text-white">Marka Seç</h3>
-                <button onclick="processSelection()" class="text-blue-500 font-bold">Devam</button>
+                <h3 id="pickerTitle" class="font-bold text-lg text-white">Seçim Yap</h3>
+                <button onclick="processSelection()" class="text-blue-500 font-bold">İlerle</button>
             </div>
             <div id="wheelContainer">
                 <div class="wheel-picker no-scrollbar" id="wheel" onscroll="handleWheelScroll(this)"></div>
             </div>
-            <div id="plateInputContainer" class="hidden py-10 px-4">
+            <div id="plateInputContainer" class="hidden py-8 px-4">
                 <input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-zinc-800/50 border border-white/10 rounded-2xl p-5 text-2xl font-black text-center uppercase outline-none text-white">
             </div>
         </div>
@@ -55,7 +55,6 @@
 
     <div id="app-content" class="flex flex-col h-full opacity-0 transition-opacity duration-1000">
         <main class="flex-1 overflow-hidden relative">
-            
             <div id="home" class="tab-content active no-scrollbar pb-52">
                 <header class="dynamic-header"><h1 class="text-2xl font-bold tracking-tight">Litre</h1></header>
                 <div class="p-6 space-y-7">
@@ -81,18 +80,15 @@
                             <div class="text-right"><p class="text-[8px] opacity-40 uppercase mb-0.5">Plaka</p><p id="viewPlaka" class="text-[9px] font-bold truncate tracking-tighter">34 ABC 123</p></div>
                         </div>
 
-                        <div class="flex justify-center py-4 min-h-[140px]">
+                        <div class="flex justify-center py-4 min-h-[140px] relative">
                             <img id="carImage" 
-                                 src="https://images.weserv.nl/?url=https://www.pngmart.com/files/10/Audi-A6-PNG-File.png" 
-                                 class="w-full h-32 object-contain drop-shadow-2xl transition-all duration-700" 
+                                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/2018_Audi_A6_Avant_Front.png/640px-2018_Audi_A6_Avant_Front.png" 
+                                 class="w-full h-32 object-contain drop-shadow-2xl transition-opacity duration-500" 
                                  alt="Araç Görseli"
-                                 onerror="handleImageError(this)">
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImdyYXkiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTkgMTloLTJhMyAzIDAgMCAxLTMtM1Y4YTMgMyAwIDAgMSAzLTNoMmEzIDMgMCAwIDEgMyAzdjhhMyAzIDAgMCAxLTMgM1oiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIzIi8+PC9zdmc+'; this.style.opacity='0.3';">
                         </div>
 
-                        <div class="pt-4 border-t border-white/5">
-                            <p class="text-[10px] opacity-40 font-black uppercase mb-1">Ocak Ayı Ortalama Masrafı</p>
-                            <p class="text-2xl font-black text-blue-500 tracking-tighter">3.126,50 TL</p>
-                        </div>
+                        <div class="pt-4 border-t border-white/5"><p class="text-[10px] opacity-40 font-black uppercase mb-1">Ocak Ayı Ortalama Masrafı</p><p class="text-2xl font-black text-blue-500 tracking-tighter">3.126,50 TL</p></div>
                     </div>
 
                     <div onclick="startVehicleFlow()" class="glass-card p-6 rounded-[2.5rem] flex items-center justify-between shadow-xl active:scale-95 transition-all">
@@ -111,62 +107,38 @@
 
     <script>
         lucide.createIcons();
-        
-        const carData = { 
-            'Audi': ['A3', 'A4', 'A6', 'Q7'], 
-            'Suzuki': ['Swift', 'Vitara', 'Jimny'], 
-            'BMW': ['320i', '520d', 'X5'], 
-            'Volkswagen': ['Golf', 'Polo', 'Passat'] 
-        };
-        const years = ["2025", "2024", "2023", "2022", "2021", "2020", "2019"];
-        let step = 0, selections = { Marka: 'Audi', Model: 'A6', Yıl: '2023', Plaka: '34 ABC 123' }, tempValue = '';
+        const carData = { 'Audi': ['A3', 'A4', 'A6'], 'Suzuki': ['Swift', 'Vitara', 'Jimny'], 'BMW': ['320i', '520d'], 'Volkswagen': ['Golf', 'Passat'] };
+        const years = ["2025", "2024", "2023", "2022", "2021", "2020"];
+        let step = 0, selections = { Marka: 'Audi', Model: 'A6', Yıl: '2023', Plaka: '34 ABC 123' }, tempValue = 'Audi';
 
-        function startVehicleFlow() { 
-            step = 0; 
-            document.getElementById('plateInputContainer').classList.add('hidden'); 
-            document.getElementById('wheelContainer').classList.remove('hidden'); 
-            updatePickerUI(); 
-            document.getElementById('pickerOverlay').style.display = 'flex'; 
-        }
+        function startVehicleFlow() { step = 0; document.getElementById('plateInputContainer').classList.add('hidden'); document.getElementById('wheelContainer').classList.remove('hidden'); updatePickerUI(); document.getElementById('pickerOverlay').style.display = 'flex'; }
         
         function updatePickerUI() {
             const wheel = document.getElementById('wheel');
-            wheel.innerHTML = '<div style="height: 75px;"></div>'; // Padding top
+            wheel.innerHTML = '<div style="height: 65px;"></div>';
+            let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : [];
+            document.getElementById('pickerTitle').innerText = step === 0 ? 'Marka' : step === 1 ? 'Model' : 'Yıl';
             
-            let data = [];
-            if(step === 0) { data = Object.keys(carData); document.getElementById('pickerTitle').innerText = 'Marka Seç'; }
-            else if(step === 1) { data = carData[selections.Marka]; document.getElementById('pickerTitle').innerText = 'Model Seç'; }
-            else if(step === 2) { data = years; document.getElementById('pickerTitle').innerText = 'Yıl Seç'; }
+            if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); document.getElementById('pickerTitle').innerText = 'Plaka'; return; }
             
-            if(step === 3) { 
-                document.getElementById('wheelContainer').classList.add('hidden'); 
-                document.getElementById('plateInputContainer').classList.remove('hidden'); 
-                document.getElementById('pickerTitle').innerText = 'Plaka Gir'; 
-                return; 
-            }
-
-            data.forEach((item, index) => {
+            data.forEach((item, i) => {
                 const div = document.createElement('div');
-                div.className = 'wheel-item';
+                div.className = 'wheel-item' + (i === 0 ? ' selected' : '');
                 div.innerText = item;
-                if(index === 0) { div.classList.add('selected'); tempValue = item; }
                 wheel.appendChild(div);
+                if(i === 0) tempValue = item;
             });
-            wheel.innerHTML += '<div style="height: 75px;"></div>'; // Padding bottom
+            wheel.innerHTML += '<div style="height: 65px;"></div>';
             wheel.scrollTop = 0;
         }
 
         function handleWheelScroll(el) {
             const items = el.getElementsByClassName('wheel-item');
-            const center = el.scrollTop + 100;
+            const center = el.scrollTop + 90;
             for (let item of items) {
-                const itemCenter = item.offsetTop + 25;
-                if (Math.abs(center - itemCenter) < 25) {
-                    item.classList.add('selected');
-                    tempValue = item.innerText;
-                } else {
-                    item.classList.remove('selected');
-                }
+                if (Math.abs(center - item.offsetTop - 22) < 25) {
+                    item.classList.add('selected'); tempValue = item.innerText;
+                } else { item.classList.remove('selected'); }
             }
         }
 
@@ -176,12 +148,9 @@
             else if(step === 2) selections.Yıl = tempValue;
             else if(step === 3) {
                 selections.Plaka = document.getElementById('plateInput').value.toUpperCase() || '34 ABC 123';
-                saveToProfile();
-                closePicker();
-                return;
+                saveToProfile(); closePicker(); return;
             }
-            step++;
-            updatePickerUI();
+            step++; updatePickerUI();
         }
 
         function saveToProfile() {
@@ -191,36 +160,24 @@
             document.getElementById('viewPlaka').innerText = selections.Plaka;
             
             const img = document.getElementById('carImage');
-            const proxy = "https://images.weserv.nl/?url=";
-            
             const carImages = {
-                'Suzuki': 'https://purepng.com/public/uploads/large/purepng.com-suzuki-swift-red-carcarvehicletransportsuzuki-961524661856y1rge.png',
-                'Audi': 'https://www.pngmart.com/files/10/Audi-A6-PNG-File.png',
-                'BMW': 'https://www.pngmart.com/files/10/BMW-5-Series-PNG-Transparent-Image.png',
-                'Volkswagen': 'https://www.pngmart.com/files/10/Volkswagen-Golf-PNG-Transparent-Image.png'
+                'Suzuki': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/2017_Suzuki_Swift_SZ5_1.0_Front.png/640px-2017_Suzuki_Swift_SZ5_1.0_Front.png',
+                'Audi': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/2018_Audi_A6_Avant_Front.png/640px-2018_Audi_A6_Avant_Front.png',
+                'BMW': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/BMW_G30_LCI_transparent.png/640px-BMW_G30_LCI_transparent.png',
+                'Volkswagen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/VW_Golf_VIII_Front_transparent.png/640px-VW_Golf_VIII_Front_transparent.png'
             };
 
             img.style.opacity = '0';
             setTimeout(() => {
-                const source = carImages[selections.Marka] || carImages['Audi'];
-                img.src = proxy + encodeURIComponent(source);
+                img.src = carImages[selections.Marka] || carImages['Audi'];
                 img.style.opacity = '1';
             }, 300);
         }
 
-        function handleImageError(el) {
-            // Eğer proxy patlarsa direkt Wikimedia linkine dönmeyi dene
-            if (!el.src.includes('svgrepo')) {
-                el.src = "https://www.svgrepo.com/show/491530/car.svg";
-                el.style.opacity = "0.2";
-            }
-        }
-
-        function showTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
+        function showTab(tabId, el) { 
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); 
+            document.getElementById(tabId).classList.add('active'); 
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); 
         }
 
         function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; }
@@ -233,8 +190,7 @@
         window.addEventListener('load', () => { 
             setTimeout(() => { 
                 document.getElementById('splash').style.display = 'none'; 
-                document.getElementById('app-content').style.opacity = '1'; 
-                initMiniMap(); 
+                document.getElementById('app-content').style.opacity = '1'; initMiniMap(); 
             }, 1000); 
         });
     </script>
