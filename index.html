@@ -1,137 +1,160 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Litre</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<style>
-:root {
-  --bg:#000; --text:#fff; --card:rgba(28,28,30,.75); --border:rgba(255,255,255,.08);
-}
-body {
-  background:var(--bg); color:var(--text);
-  font-family:-apple-system,system-ui,sans-serif;
-}
-.glass-card { background:var(--card); border:1px solid var(--border); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Litre - Instant Cut V68</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root { --bg: #000; --text: #fff; --card: rgba(30, 30, 32, 0.5); --border: rgba(255, 255, 255, 0.08); --subtext: #8e8e93; }
+        body.light-mode { --bg: #f2f2f7; --text: #000; --card: rgba(255, 255, 255, 0.65); --border: rgba(0, 0, 0, 0.04); --subtext: #636366; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; overflow: hidden; /* No page transition */ }
+        #splash { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: opacity 0.8s; }
+        
+        /* 📱 V68: INSTANT CUT TRANSITION (No Animation) */
+        .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); position: absolute; width: 100%; top: 0; left: 0; }
+        .tab-content.active { display: block; /* No animation here */ }
+        
+        .glass-card { background: var(--card); border: 0.5px solid var(--border); backdrop-filter: blur(35px) saturate(160%); border-radius: 2rem; }
+        .haptic-btn { transition: 0.1s; cursor: pointer; }
+        .haptic-btn:active { transform: scale(0.96); opacity: 0.8; }
+        .dynamic-header { padding: 40px 18px 15px 18px; display: flex; justify-content: center; align-items: center; border-bottom: 0.5px solid var(--border); }
+        .floating-dock { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; height: 65px; background: var(--card); backdrop-filter: blur(45px); border: 0.5px solid var(--border); border-radius: 32px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .nav-item { color: var(--subtext); transition: 0.3s; position: relative; }
+        .nav-item.active { color: var(--text); transform: translateY(-3px); }
+        .nav-item.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 3px; height: 3px; background: var(--text); border-radius: 50%; }
+        
+        #map, #miniMap { height: 100%; width: 100%; min-height: 220px; border-radius: 2rem; z-index: 1; background: #000; }
+        .apple-map-dark { filter: saturate(1.2) contrast(1.1) brightness(0.85) hue-rotate(-5deg); transition: 0.4s; }
+        body.light-mode .apple-map-dark { filter: none; }
+        .custom-dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 6px rgba(0,0,0,0.4); }
+
+        .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); z-index: 4000; display: none; align-items: flex-end; }
+        .picker-container { background: var(--card); width: 100%; border-radius: 30px 30px 0 0; padding: 25px; border-top: 0.5px solid var(--border); }
+        .wheel-wrapper { position: relative; height: 200px; overflow: hidden; }
+        .wheel-selection-bar { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); height: 48px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; pointer-events: none; }
+        .wheel-picker { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center; }
+        
+        .wheel-item { height: 44px; line-height: 44px; font-size: 16px; opacity: 0.4; color: var(--text); transition: 0.3s cubic-bezier(0.2, 1, 0.3, 1); }
+        .wheel-item.selected { opacity: 1; font-weight: 800; font-size: 24px; transform: scale(1.1); color: #fff; }
+
+        .toggle-switch { width: 44px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 20px; position: relative; transition: 0.3s; cursor: pointer; }
+        .toggle-switch.active { background: #22c55e; }
+        .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
+        .toggle-switch.active .toggle-knob { left: 22px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .news-card, .carousel-card { flex: 0 0 80%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: 0.5px solid var(--border); }
+        .silver-grad { background: linear-gradient(145deg, #FFFFFF, #808080); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        body.light-mode .silver-grad { background: none; -webkit-text-fill-color: initial; color: #000; font-weight: 800; }
+        @keyframes scanAnim { 0%, 100% { top: 0; } 50% { top: 100%; } }
+    </style>
 </head>
+<body class="max-w-md mx-auto h-screen flex flex-col">
 
-<body class="max-w-md mx-auto">
-
-<!-- PROFİL / GARAJ -->
-<div class="p-6">
-  <div class="glass-card p-8 rounded-[3rem] space-y-6">
-
-    <div class="flex justify-between items-center">
-      <h3 class="text-xs font-black opacity-40 tracking-[0.2em] uppercase">Garajım</h3>
-      <i data-lucide="car-front" class="w-5 h-5 opacity-30"></i>
-    </div>
-
-    <div class="grid grid-cols-2 gap-y-6">
-      <div>
-        <p class="text-[10px] opacity-40 uppercase">Marka</p>
-        <p id="viewMarka" class="text-lg font-bold">Audi</p>
-      </div>
-      <div>
-        <p class="text-[10px] opacity-40 uppercase">Model</p>
-        <p id="viewModel" class="text-lg font-bold">A6</p>
-      </div>
-      <div>
-        <p class="text-[10px] opacity-40 uppercase">Yıl</p>
-        <p id="viewYil" class="text-lg font-bold">2023</p>
-      </div>
-      <div>
-        <p class="text-[10px] opacity-40 uppercase">Plaka</p>
-        <p id="viewPlaka" class="text-lg font-bold">34 ABC 123</p>
-      </div>
-
-      <!-- 🔽 ARAÇ GÖRSELİ -->
-      <div class="col-span-2 flex justify-center pt-6">
-        <img
-          id="carImage"
-          src="audi_a6.png"
-          class="h-24 object-contain transition-all duration-300"
-          alt="Araç Görseli">
-      </div>
-    </div>
-
-    <button onclick="startVehicleFlow()"
-      class="w-full mt-6 py-4 rounded-2xl bg-blue-600 font-bold">
-      Araç Bilgilerini Güncelle
-    </button>
-
-  </div>
+<div id="splash">
+    <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoSplash" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#FFFFFF" /><stop offset="100%" style="stop-color:#808080" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoSplash)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1 class="text-4xl font-black silver-grad tracking-tight mt-3">Litre</h1>
 </div>
 
-<!-- SEÇİCİ -->
-<div id="picker" class="fixed inset-0 bg-black/90 hidden flex items-end">
-  <div class="bg-zinc-900 w-full rounded-t-[2rem] p-6">
-    <h3 id="pickerTitle" class="font-bold text-center mb-4">Seç</h3>
-    <div id="list" class="space-y-2"></div>
-  </div>
-</div>
+    <div id="scanOverlay" class="fixed inset-0 bg-black z-[4500] hidden flex-col items-center justify-center"><button onclick="closeScan()" class="absolute top-10 right-6 p-3 bg-white/10 rounded-full haptic-btn"><i data-lucide="x" class="text-white w-5 h-5"></i></button><div class="w-4/5 h-1/2 border border-white/20 rounded-[2.5rem] relative overflow-hidden bg-zinc-900"><div class="absolute top-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_#3b82f6] animate-[scanAnim_3s_infinite]"></div><div class="m-6 bg-white text-black p-5 rounded-lg font-mono text-[9px] opacity-90"><p class="text-center font-bold border-b border-black pb-1 mb-3 uppercase">Shell Türkiye</p><p>23.01.2026</p><p>34 ABC 123</p><div class="mt-4 border-t border-dashed border-black pt-3 font-bold flex justify-between uppercase">V-Power Benzin <span>32.50 L</span></div><p class="flex justify-between font-black text-xs mt-3 uppercase">Toplam <span>1.755,00 TL</span></p></div><div id="scanSuccess" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center text-white"><div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(34,197,94,0.5)]"><i data-lucide="check" class="w-8 h-8"></i></div><h3 class="text-xl font-bold">İşlendi</h3></div></div></div>
 
-<script>
-lucide.createIcons();
+    <div id="pickerOverlay" class="picker-overlay" onclick="closePicker()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><button onclick="closePicker()" class="text-zinc-500 font-bold">Vazgeç</button><h3 id="pickerTitle" class="font-bold text-lg">Seçiniz</h3><button id="nextBtn" onclick="processSelection()" class="text-blue-500 font-bold">Devam</button></div><div id="wheelContainer" class="wheel-wrapper"><div class="wheel-selection-bar"></div><div id="wheel" class="wheel-picker no-scrollbar" onscroll="handleWheelScroll(this)"></div></div><div id="plateInputContainer" class="hidden py-8 px-4"><input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-white/5 border border-current opacity-20 rounded-[1.8rem] p-4 text-2xl font-black text-center outline-none"></div></div></div>
+    <div id="settingsOverlay" class="picker-overlay" onclick="closeSettings()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Uygulama Ayarları</h3><div class="w-10"></div></div><div class="space-y-4 pb-12 text-current"><div class="glass-card p-6 border-blue-500/30"><p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Tema Tercihi</p><div class="flex gap-4"><button onclick="setTheme('light')" class="flex-1 p-4 rounded-2xl glass-card text-sm font-bold flex items-center justify-center gap-3 haptic-btn border-current"><i data-lucide="sun" class="w-4 h-4"></i>Aydınlık</button><button onclick="setTheme('dark')" class="flex-1 p-4 rounded-2xl glass-card text-sm font-bold flex items-center justify-center gap-3 haptic-btn border-blue-500"><i data-lucide="moon" class="w-4 h-4"></i>Karanlık</button></div></div></div></div></div>
+    <div id="notifyOverlay" class="picker-overlay" onclick="closeNotify()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeNotify()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Bildirim Ayarları</h3><div class="w-10"></div></div><div class="space-y-4 pb-12 text-current">
+        <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Fiyat Değişimleri</p><p class="text-[10px] opacity-40">Anlık zam/indirim haberleri</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
+        <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Aylık Özet Analizi</p><p class="text-[10px] opacity-40">Harcama raporu bildirimi</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
+    </div></div></div>
+    <div id="historyOverlay" class="picker-overlay" onclick="closeHistory()"><div class="picker-container h-[70%]" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><button onclick="closeHistory()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Yakıt Geçmişi</h3><div class="w-10"></div></div><div id="historyList" class="space-y-3 overflow-y-auto h-full pb-20 no-scrollbar"></div></div></div>
 
-const carData = {
-  Audi: { models: ["A6"], year: "2023", image: "audi_a6.png" },
-  Suzuki: { models: ["Swift"], year: "2021", image: "suzuki_swift.png" }
-};
+    <div id="app-content" class="flex flex-col h-full opacity-0 transition-opacity duration-1000 relative">
+        <main class="flex-1 relative">
+            <div id="home" class="tab-content active no-scrollbar pb-52">
+                <header class="dynamic-header">
+                    <div class="flex items-center gap-2">
+                        <svg width="25" height="30" viewBox="0 0 100 120"><defs><linearGradient id="logoHeader" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#FFFFFF" /><stop offset="100%" style="stop-color:#808080" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoHeader)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <h1 class="text-2xl font-black tracking-tight">Litre</h1>
+                    </div>
+                </header>
+                <div class="p-5 space-y-6"><h1 class="text-3xl font-black silver-grad leading-none">Yakınındakiler</h1><div onclick="showTab('maps', document.getElementById('map-nav'), true)" class="w-full h-64 glass-card relative overflow-hidden haptic-btn shadow-xl"><div id="miniMap" class="apple-map-dark"></div></div><div class="flex justify-center"><div class="px-6 py-3 glass-card rounded-full flex items-center gap-2 shadow-md text-current opacity-60"><i data-lucide="navigation-2" class="w-3.5 h-3.5 text-blue-500 fill-blue-500"></i><span class="text-[10px] font-bold uppercase tracking-widest">Kartal, İstanbul</span></div></div>
+                    
+                    <div class="space-y-4" id="stationList">
+                        <div class="glass-card p-5 haptic-btn"><div class="flex items-center gap-5"><div class="w-12 h-12 bg-[#FFD500] rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><span class="text-[#DE2128] font-black text-[8px]">SHELL</span></div><div class="flex-1"><h3 class="font-bold text-sm text-current">Shell - İstanbul Anadolu</h3><p class="text-[12px] font-bold text-current mt-1">Benzin: 53.92 TL · Motorin: 55.76 TL</p></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div></div>
+                        <div class="glass-card p-5 haptic-btn"><div class="flex items-center gap-5"><div class="w-12 h-12 bg-[#FFD500] rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><span class="text-[#DE2128] font-black text-[8px]">SHELL</span></div><div class="flex-1"><h3 class="font-bold text-sm text-current">Shell - İstanbul Avrupa</h3><p class="text-[12px] font-bold text-current mt-1">Benzin: 54.07 TL · Motorin: 55.91 TL</p></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div></div>
+                        <div class="glass-card p-5 haptic-btn"><div class="flex items-center gap-5"><div class="w-12 h-12 bg-[#005BAB] rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><span class="text-white font-black text-[8px]">OPET</span></div><div class="flex-1"><h3 class="font-bold text-sm text-current">Opet - İstanbul Anadolu</h3><p class="text-[12px] font-bold text-current mt-1">Benzin: 53.90 TL · Motorin: 55.74 TL</p></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div></div>
+                        <div class="glass-card p-5 haptic-btn"><div class="flex items-center gap-5"><div class="w-12 h-12 bg-[#005BAB] rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><span class="text-white font-black text-[8px]">OPET</span></div><div class="flex-1"><h3 class="font-bold text-sm text-current">Opet - İstanbul Avrupa</h3><p class="text-[12px] font-bold text-current mt-1">Benzin: 54.05 TL · Motorin: 55.86 TL</p></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div></div>
+                        <div class="glass-card p-5 haptic-btn"><div class="flex items-center gap-5"><div class="w-12 h-12 bg-[#DE2128] rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><span class="text-white font-black text-[8px]">PO</span></div><div class="flex-1"><h3 class="font-bold text-sm text-current">PO - İstanbul Anadolu</h3><p class="text-[12px] font-bold text-current mt-1">Benzin: 53.92 TL · Motorin: 57.16 TL</p></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div></div>
+                        <div class="glass-card p-5 haptic-btn"><div class="flex items-center gap-5"><div class="w-12 h-12 bg-[#DE2128] rounded-2xl flex items-center justify-center shrink-0 shadow-lg"><span class="text-white font-black text-[8px]">PO</span></div><div class="flex-1"><h3 class="font-bold text-sm text-current">PO - İstanbul Avrupa</h3><p class="text-[12px] font-bold text-current mt-1">Benzin: 53.92 TL · Motorin: 57.11 TL</p></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div></div>
+                    </div>
+                </div>
+            </div>
 
-let step = 0;
-let selections = { marka: "Audi", model: "A6" };
+            <div id="maps" class="tab-content h-full relative overflow-hidden"><header class="absolute top-12 left-5 right-5 z-[2001]"><div class="glass-card h-14 rounded-[1.8rem] flex items-center px-6 shadow-2xl"><i data-lucide="search" class="opacity-40 mr-3 text-current w-5 h-5"></i><input type="text" placeholder="İstasyon ara..." class="bg-transparent text-md w-full outline-none text-current"><i data-lucide="mic" class="opacity-40 ml-3 text-current w-5 h-5"></i></div></header><div id="map" class="apple-map-dark"></div></div>
 
-function startVehicleFlow() {
-  step = 0;
-  openPicker(Object.keys(carData));
-}
+            <div id="radar" class="tab-content no-scrollbar pb-44 px-5 pt-14"><h2 class="text-3xl font-black silver-grad mb-6">Radar</h2><div class="news-slider flex overflow-x-auto gap-4 snap-x no-scrollbar"><div class="news-card bg-gradient-to-br from-red-500/10 to-transparent min-w-[85%] snap-center border-red-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="zap" class="text-red-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-red-600 px-2 py-1 rounded-full uppercase">23.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">Benzin +1,02 TL</h4><p class="text-xs opacity-60 text-current">Fiyat güncellemesi bu gece pompada.</p></div><div class="news-card bg-gradient-to-br from-blue-500/10 to-transparent min-w-[85%] snap-center border-blue-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="gift" class="text-blue-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-blue-600 px-2 py-1 rounded-full uppercase">22.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">World 200 TL Puan</h4><p class="text-xs opacity-60 text-current">Akaryakıt alımlarına özel fırsat.</p></div></div>
+                <div class="mt-10"><h3 class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4 text-current">Bildirim Geçmişi</h3><div class="space-y-3 text-current"><div class="glass-card p-5 flex items-center gap-5 haptic-btn"><div class="bg-red-500/10 p-2.5 rounded-2xl"><i data-lucide="trending-up" class="text-red-500 w-4 h-4"></i></div><div><p class="font-bold text-sm">Benzin Zammı</p><p class="text-[10px] opacity-40">23.01.2026 · +1,02 TL</p></div></div></div></div>
+                <div class="mt-10"><h3 class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4 text-current text-current">Harcama Analizi</h3><div class="horizontal-carousel" id="monthlyAnaliz"></div></div>
+            </div>
 
-function openPicker(items) {
-  const picker = document.getElementById("picker");
-  const list = document.getElementById("list");
-  list.innerHTML = "";
+            <div id="profile" class="tab-content no-scrollbar pb-44 px-5 pt-14"><div class="flex flex-col items-center mb-10"><div class="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center text-5xl mb-5 shadow-3xl ring-1 ring-white/10 shadow-2xl text-current">👤</div><h2 class="text-2xl font-black silver-grad">Volkan Yılmaz</h2><div class="mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase opacity-60 text-current">Premium Member</div></div>
+                <div class="space-y-6 text-current">
+                    <div class="glass-card p-7 space-y-6 shadow-xl"><div class="flex justify-between items-center"><h3 class="text-[10px] font-black opacity-30 uppercase">Garajım</h3><i data-lucide="car-front" class="opacity-20 w-4 h-4"></i></div><div class="flex justify-between text-center border-b border-white/5 pb-6"><div><p class="text-[9px] opacity-40 uppercase mb-1">Marka</p><p id="viewMarka" class="text-lg font-black">Audi A6</p></div><div><p class="text-[9px] opacity-40 uppercase mb-1">Yıl</p><p id="viewYıl" class="text-lg font-black">2023</p></div><div><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p id="viewPlaka" class="text-lg font-black tracking-tighter">34 ABC 123</p></div></div>
+                        <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4"><div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p id="viewAvgCost" class="text-2xl font-black text-blue-500">0,00 TL</p></div><div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p id="viewTotalLiters" class="text-2xl font-black">0.0 L</p></div></div>
+                    </div>
+                    <div class="glass-card p-6 bg-gradient-to-br from-green-500/10 to-transparent border-green-500/10 flex justify-between items-center shadow-lg"><div><h3 class="text-[10px] font-black opacity-30 uppercase mb-1">Tasarruf Paneli</h3><p id="monthlySaving" class="text-2xl font-black text-green-500 tracking-tighter">142,50 TL</p></div><i data-lucide="trending-up" class="text-green-500 w-6 h-6 opacity-60"></i></div>
+                    <div class="glass-card p-3 space-y-0.5">
+                        <div onclick="startVehicleFlow()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn"><div class="flex items-center gap-5"><i data-lucide="plus-circle" class="text-blue-500 w-5 h-5"></i><span class="font-bold text-sm">Araç Güncelle</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                        <div onclick="openSettings()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="settings-2" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Uygulama Ayarları</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                        <div onclick="openNotify()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="bell" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Bildirim Ayarları</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                        <div onclick="openHistory()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="archive" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Yakıt Geçmişi</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <nav class="floating-dock"><button onclick="showTab('home', this)" class="nav-item active haptic-btn"><i data-lucide="home"></i></button><button id="map-nav" onclick="showTab('maps', this, true)" class="nav-item haptic-btn"><i data-lucide="map-pin"></i></button><button class="nav-item" onclick="handleScanAction()"><div class="bg-blue-600 p-4 rounded-[1.8rem] shadow-xl haptic-btn shadow-blue-500/20"><i data-lucide="camera" class="text-white w-6 h-6"></i></div></button><button onclick="showTab('radar', this)" class="nav-item haptic-btn"><i data-lucide="zap"></i></button><button onclick="showTab('profile', this)" class="nav-item haptic-btn"><i data-lucide="user"></i></button></nav>
+    </div>
 
-  items.forEach(i => {
-    const btn = document.createElement("button");
-    btn.className = "w-full py-3 bg-zinc-800 rounded-xl font-bold";
-    btn.innerText = i;
-    btn.onclick = () => selectItem(i);
-    list.appendChild(btn);
-  });
+    <script>
+        lucide.createIcons();
+        let leafletMap, miniMap, currentTheme = 'dark';
+        let fuelRecords = [{ station: 'Shell - İstanbul Anadolu', date: '23.01.2026', amount: 1755.0, details: '32.5 L · 54,0 TL/L' },{ station: 'Opet - İstanbul Anadolu', date: '05.01.2026', amount: 1599.0, details: '30.0 L · 53,3 TL/L' },{ station: 'PO - İstanbul Avrupa', date: '20.12.2025', amount: 1596.0, details: '30.0 L · 53,2 TL/L' },{ station: 'Shell - İstanbul Anadolu', date: '08.12.2025', amount: 1581.0, details: '30.0 L · 52,7 TL/L' },{ station: 'Opet - İstanbul Avrupa', date: '22.11.2025', amount: 1623.0, details: '30.0 L · 54,1 TL/L' },{ station: 'PO - İstanbul Anadolu', date: '04.11.2025', amount: 1605.0, details: '30.0 L · 53,5 TL/L' },{ station: 'Shell - İstanbul Avrupa', date: '25.10.2025', amount: 1614.0, details: '30.0 L · 53,8 TL/L' },{ station: 'Opet - İstanbul Anadolu', date: '10.10.2025', amount: 1596.0, details: '30.0 L · 53,2 TL/L' },{ station: 'PO - İstanbul Avrupa', date: '22.09.2025', amount: 1602.0, details: '30.0 L · 53,4 TL/L' },{ station: 'Shell - İstanbul Anadolu', date: '05.09.2025', amount: 1590.0, details: '30.0 L · 53,0 TL/L' },{ station: 'Opet - İstanbul Avrupa', date: '18.08.2025', amount: 1569.0, details: '30.0 L · 52,3 TL/L' },{ station: 'PO - İstanbul Anadolu', date: '02.08.2025', amount: 1563.0, details: '30.0 L · 52,1 TL/L' },{ station: 'Shell - İstanbul Avrupa', date: '26.07.2025', amount: 1572.0, details: '30.0 L · 52,4 TL/L' },{ station: 'Opet - İstanbul Anadolu', date: '12.07.2025', amount: 1557.0, details: '30.0 L · 51,9 TL/L' },{ station: 'PO - İstanbul Avrupa', date: '28.06.2025', amount: 1479.0, details: '30.0 L · 49,3 TL/L' },{ station: 'Shell - İstanbul Anadolu', date: '10.06.2025', amount: 1425.0, details: '30.0 L · 47,5 TL/L' },{ station: 'Opet - İstanbul Avrupa', date: '24.05.2025', amount: 1434.0, details: '30.0 L · 47,8 TL/L' },{ station: 'PO - İstanbul Anadolu', date: '05.05.2025', amount: 1386.0, details: '30.0 L · 46,2 TL/L' }];
+        const istanbulData = [{lat: 41.008, lng: 28.978, type: 'shell'}, {lat: 41.04, lng: 29.02, type: 'opet'}, {lat: 41.01, lng: 29.1, type: 'po'}, {lat: 40.98, lng: 29.05, type: 'shell'}, {lat: 41.08, lng: 28.95, type: 'opet'}, {lat: 40.92, lng: 29.15, type: 'po'}];
+        
+        // V68: Using a cleaner map style without debug grids
+        const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
+        const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
-  picker.classList.remove("hidden");
-}
-
-function selectItem(val) {
-  if (step === 0) {
-    selections.marka = val;
-    step = 1;
-    openPicker(carData[val].models);
-  } else {
-    selections.model = val;
-    applySelection();
-    closePicker();
-  }
-}
-
-function applySelection() {
-  const car = carData[selections.marka];
-
-  document.getElementById("viewMarka").innerText = selections.marka;
-  document.getElementById("viewModel").innerText = selections.model;
-  document.getElementById("viewYil").innerText = car.year;
-  document.getElementById("viewPlaka").innerText = "34 ABC 123";
-
-  document.getElementById("carImage").src = car.image;
-}
-
-function closePicker() {
-  document.getElementById("picker").classList.add("hidden");
-}
-</script>
-
+        function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); const tile = currentTheme === 'dark' ? tileDark : tileLight; L.tileLayer(tile).addTo(mapObj); const el = document.getElementById(elementId); if(currentTheme === 'dark') { el.style.filter = 'invert(100%) hue-rotate(180deg) brightness(1.1) saturate(1.4) contrast(0.9)'; el.style.background = '#0a1016'; } else { el.style.filter = 'none'; el.style.background = '#fff'; } }
+        function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); istanbulData.forEach(s => { const color = s.type === 'shell' ? '#FFD500' : s.type === 'opet' ? '#005BAB' : '#DE2128'; L.marker([s.lat, s.lng], { icon: L.divIcon({ className: '', html: `<div class="custom-dot" style="background:${color}"></div>`, iconSize: [10, 10] }) }).addTo(leafletMap); }); }
+        function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
+        function setTheme(mode) { currentTheme = mode; document.body.classList.toggle('light-mode', mode === 'light'); updateMapLayer(leafletMap, 'map'); updateMapLayer(miniMap, 'miniMap'); }
+        function toggleSwitch(el) { el.classList.toggle('active'); }
+        function updateGarageAnalysis() { const now = new Date(); const m = now.getMonth() + 1; const y = now.getFullYear(); const names = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]; const monthRecs = fuelRecords.filter(r => { const p = r.date.split('.'); return parseInt(p[1]) === m && parseInt(p[2]) === y; }); const tA = monthRecs.reduce((s, r) => s + r.amount, 0); const tL = monthRecs.reduce((s, r) => s + parseFloat(r.details), 0); document.getElementById('viewAvgCost').innerText = tA.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; document.getElementById('viewTotalLiters').innerText = tL.toFixed(1) + ' L'; document.getElementById('monthlySaving').innerText = (tA * 0.08).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; const trend = document.getElementById('monthlyAnaliz'); trend.innerHTML = ''; const summary = {}; fuelRecords.forEach(r => { const p = r.date.split('.'); const key = `${p[1]}.${p[2]}`; if(!summary[key]) summary[key] = { n: names[parseInt(p[1])-1], t: 0, l: 0 }; summary[key].t += r.amount; summary[key].l += parseFloat(r.details); }); Object.values(summary).forEach(mo => trend.innerHTML += `<div class="carousel-card p-6 min-w-[240px] shadow-lg border border-white/5"><p class="text-blue-500 font-black mb-3 uppercase text-xs">${mo.n}</p><p class="text-2xl font-black text-current">${mo.t.toLocaleString('tr-TR')} TL</p><p class="text-sm font-bold text-current mt-2 opacity-80">${mo.l.toFixed(1)} Litre Toplam</p></div>`); }
+        
+        const carData = { 'Audi': ['A3', 'A4', 'A6', 'A8', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi'], 'BYD': ['Seal', 'Atto 3'], 'Chevrolet': ['Cruze'], 'Fiat': ['Egea', '500'], 'Ford': ['Focus'], 'Hyundai': ['i20'], 'Mercedes-Benz': ['C-Serisi'], 'Porsche': ['911'], 'Suzuki': ['Swift'], 'Tesla': ['Model 3'], 'Toyota': ['Corolla'], 'Volkswagen': ['Golf'], 'Volvo': ['XC90'] };
+        const years = Array.from({length: 37}, (_, i) => (2026-i).toString());
+        let step = 0, selections = { Marka: 'Audi', Model: 'A6', Yıl: '2023', Plaka: '34 ABC 123' }, tempValue = '';
+        function startVehicleFlow() { step = 0; document.getElementById('plateInputContainer').classList.add('hidden'); document.getElementById('wheelContainer').classList.remove('hidden'); updatePickerUI(); document.getElementById('pickerOverlay').style.display = 'flex'; }
+        function updatePickerUI() { const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); document.getElementById('pickerTitle').innerText = 'Plaka Gir'; return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
+        function processSelection() { if(step === 0) selections.Marka = tempValue; if(step === 1) selections.Model = tempValue; if(step === 2) selections.Yıl = tempValue; if(step === 3) { selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; document.getElementById('viewMarka').innerText = selections.Marka; document.getElementById('viewYıl').innerText = selections.Yıl; document.getElementById('viewPlaka').innerText = selections.Plaka; closePicker(); return; } step++; updatePickerUI(); }
+        
+        /* 🎡 V68: PRECISION WHEEL SCROLL LISTENER */
+        function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + (el.clientHeight / 2); for (let item of items) { const itemCenter = item.offsetTop + (item.clientHeight / 2); if (Math.abs(center - itemCenter) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
+        
+        function handleScanAction() { document.getElementById('scanOverlay').style.display = 'flex'; setTimeout(() => { document.getElementById('scanSuccess').style.display = 'flex'; const newRec = { station: 'Shell - İstanbul Anadolu', date: new Date().toLocaleDateString('tr-TR'), amount: 1755.0, details: '32.5 L · 54,0 TL/L' }; fuelRecords.unshift(newRec); updateGarageAnalysis(); setTimeout(() => { document.getElementById('scanOverlay').style.display = 'none'; document.getElementById('scanSuccess').style.display = 'none'; }, 2000); }, 3000); }
+        function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
+        function closeScan() { document.getElementById('scanOverlay').style.display = 'none'; }
+        function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; }
+        function openHistory() { document.getElementById('historyOverlay').style.display = 'flex'; updateHistoryUI(); }
+        function closeHistory() { document.getElementById('historyOverlay').style.display = 'none'; }
+        function updateHistoryUI() { const list = document.getElementById('historyList'); list.innerHTML = fuelRecords.map(r => `<div class="p-5 glass-card mb-3 shadow-lg text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); }
+        function openSettings() { document.getElementById('settingsOverlay').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
+        function openNotify() { document.getElementById('notifyOverlay').style.display = 'flex'; }
+        function closeNotify() { document.getElementById('notifyOverlay').style.display = 'none'; }
+        window.addEventListener('load', () => { setTimeout(() => { document.getElementById('splash').style.display = 'none'; document.getElementById('app-content').style.opacity = '1'; initMiniMap(); updateGarageAnalysis(); }, 2000); });
+    </script>
 </body>
 </html>
