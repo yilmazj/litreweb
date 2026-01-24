@@ -538,5 +538,57 @@
         });
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
+
+<script>
+let map, miniMap;
+let userMarkerMain, userMarkerMini;
+
+/* Apple Maps tarzı kullanıcı ikonu */
+const appleUserIcon = L.divIcon({
+    className: 'user-location-marker',
+    html: `
+        <div class="location-container">
+            <div class="user-pulse"></div>
+            <div class="user-dot"></div>
+        </div>
+    `,
+    iconSize: [60, 60],
+    iconAnchor: [30, 30]
+});
+
+/* Haritalar hazırsa marker koy */
+function updateUserLocation(lat, lng) {
+    if (map) {
+        if (!userMarkerMain) {
+            userMarkerMain = L.marker([lat, lng], { icon: appleUserIcon }).addTo(map);
+        } else {
+            userMarkerMain.setLatLng([lat, lng]);
+        }
+    }
+
+    if (miniMap) {
+        if (!userMarkerMini) {
+            userMarkerMini = L.marker([lat, lng], { icon: appleUserIcon }).addTo(miniMap);
+        } else {
+            userMarkerMini.setLatLng([lat, lng]);
+        }
+    }
+}
+
+/* Konum takibi */
+if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(
+        pos => {
+            const { latitude, longitude } = pos.coords;
+            updateUserLocation(latitude, longitude);
+
+            if (map) map.setView([latitude, longitude], 15);
+            if (miniMap) miniMap.setView([latitude, longitude], 14);
+        },
+        err => console.warn("Konum alınamadı:", err),
+        { enableHighAccuracy: true }
+    );
+}
+</script>
 </body>
 </html>
