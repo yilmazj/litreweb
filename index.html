@@ -10,22 +10,28 @@
 <meta name="apple-mobile-web-app-title" content="Litre">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#000000">
-    <title>Litre - V77 Fresh Start</title>
+    <title>Litre - V80 GOLD MASTER</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        /* NATIVE FEEL CSS */
+        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+        input { user-select: text; -webkit-user-select: text; } /* Inputs exception */
+        
         :root { --bg: #000; --text: #fff; --card: rgba(30, 30, 32, 0.5); --border: rgba(255, 255, 255, 0.08); --subtext: #8e8e93; }
         body.light-mode { --bg: #f2f2f7; --text: #000; --card: rgba(255, 255, 255, 0.65); --border: rgba(0, 0, 0, 0.04); --subtext: #636366; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; overflow: hidden; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; }
         #splash { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: opacity 0.8s; }
         
         /* Onboarding Styles */
         #onboarding { position: fixed; inset: 0; background: #000; z-index: 4500; display: flex; flex-direction: column; padding: 30px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .onboard-step { display: none; flex-direction: column; height: 100%; justify-content: center; animation: fadeIn 0.5s; }
         .onboard-step.active { display: flex; }
-        .onboard-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 18px; color: white; width: 100%; font-size: 18px; outline: none; margin-bottom: 15px; }
+        .onboard-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 18px; color: white; width: 100%; font-size: 18px; outline: none; margin-bottom: 15px; transition: 0.3s; }
+        .onboard-input:focus { border-color: #3b82f6; background: rgba(59,130,246,0.1); }
+        .onboard-input.error { border-color: #ef4444; background: rgba(239,68,68,0.1); }
         .onboard-btn { background: #3b82f6; color: white; font-weight: 800; padding: 18px; border-radius: 16px; width: 100%; margin-top: 20px; text-align: center; }
 
         .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); position: absolute; width: 100%; top: 0; left: 0; }
@@ -44,16 +50,18 @@
         .apple-map-dark { filter: saturate(1.2) contrast(1.1) brightness(0.85) hue-rotate(-5deg); transition: 0.4s; }
         body.light-mode .apple-map-dark { filter: none; }
         
-        /* V77: iPhone Location Dot */
-        .user-location-dot { width: 16px; height: 16px; background: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(59,130,246,0.5); position: relative; }
-        .user-location-pulse { position: absolute; width: 44px; height: 44px; background: rgba(59,130,246,0.2); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-ring 2s infinite; pointer-events: none; }
-        @keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+        /* V80: Compass & Location Styles */
+        .user-location-dot { width: 18px; height: 18px; background: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(59,130,246,0.5); position: relative; z-index: 1000; }
+        .user-location-arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 15px solid rgba(59,130,246,0.5); border-radius: 4px; opacity: 0.8; transition: transform 0.1s; transform-origin: bottom center; }
+        .user-location-pulse { position: absolute; width: 60px; height: 60px; background: rgba(59,130,246,0.3); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-ring 2s infinite; pointer-events: none; }
+        @keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+
+        .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: 0.5px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); z-index: 5000; display: none; align-items: flex-end; }
         .picker-container { background: var(--card); width: 100%; border-radius: 30px 30px 0 0; padding: 25px; border-top: 0.5px solid var(--border); max-height: 85vh; display: flex; flex-direction: column; }
         .wheel-wrapper { position: relative; height: 200px; overflow: hidden; }
         .wheel-selection-bar { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); height: 48px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; pointer-events: none; }
-        
         .wheel-picker { height: 100%; overflow-y: scroll; overflow-x: hidden; scroll-snap-type: y mandatory; text-align: center; touch-action: pan-y; }
         .wheel-item { height: 44px; line-height: 44px; font-size: 16px; opacity: 0.4; color: var(--text); transition: 0.3s cubic-bezier(0.2, 1, 0.3, 1); }
         .wheel-item.selected { opacity: 1; font-weight: 800; font-size: 24px; transform: scale(1.1); color: #fff; }
@@ -83,6 +91,9 @@
         
         .action-btn-small { background: rgba(255,255,255,0.1); padding: 8px; border-radius: 10px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .action-btn-small:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+
+        #cameraView { position: absolute; inset: 0; object-fit: cover; z-index: 0; display: none; }
+        .camera-overlay-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -93,7 +104,7 @@
         <h1 class="text-4xl font-black mb-2">Hoş Geldin!</h1>
         <p class="text-zinc-400 mb-10">Litre ile tasarrufa başlamak için seni tanıyalım.</p>
         <input type="text" id="regName" placeholder="Adın Soyadın" class="onboard-input">
-        <input type="email" id="regEmail" placeholder="E-posta Adresin" class="onboard-input">
+        <input type="email" id="regEmail" placeholder="ornek@gmail.com" class="onboard-input">
         <button onclick="nextStep(1)" class="onboard-btn">Devam Et</button>
     </div>
     <div id="step2" class="onboard-step">
@@ -105,7 +116,7 @@
             </div>
             <p class="font-bold text-lg" id="onboardCarText">Araç Seçimi Yap</p>
         </div>
-        <button id="finishOnboardBtn" onclick="finishOnboarding()" class="onboard-btn opacity-50 pointer-events-none mt-10">Kayıt Tamamla</button>
+        <button id="finishOnboardBtn" onclick="finishOnboarding()" class="onboard-btn opacity-50 pointer-events-none mt-10">Kayıt Ol ve Başla</button>
     </div>
 </div>
 
@@ -114,7 +125,33 @@
     <h1 class="text-4xl font-black silver-grad tracking-tight mt-3">Litre</h1>
 </div>
 
-    <div id="scanOverlay" class="fixed inset-0 bg-black z-[4500] hidden flex-col items-center justify-center"><button onclick="closeScan()" class="absolute top-10 right-6 p-3 bg-white/10 rounded-full haptic-btn"><i data-lucide="x" class="text-white w-5 h-5"></i></button><div class="w-4/5 h-1/2 border border-white/20 rounded-[2.5rem] relative overflow-hidden bg-zinc-900"><div class="absolute top-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_#3b82f6] animate-[scanAnim_3s_infinite]"></div><div class="m-6 bg-white text-black p-5 rounded-lg font-mono text-[9px] opacity-90"><p class="text-center font-bold border-b border-black pb-1 mb-3 uppercase">Shell Türkiye</p><p>23.01.2026</p><p>34 ABC 123</p><div class="mt-4 border-t border-dashed border-black pt-3 font-bold flex justify-between uppercase">V-Power Benzin <span>32.50 L</span></div><p class="flex justify-between font-black text-xs mt-3 uppercase">Toplam <span>1.755,00 TL</span></p></div><div id="scanSuccess" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center text-white"><div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(34,197,94,0.5)]"><i data-lucide="check" class="w-8 h-8"></i></div><h3 class="text-xl font-bold">İşlendi</h3></div></div></div>
+    <div id="scanOverlay" class="fixed inset-0 bg-black z-[4500] hidden flex-col items-center justify-center">
+        <video id="cameraView" autoplay playsinline></video>
+        <div class="camera-overlay-ui">
+            <div class="flex justify-end"><button onclick="closeScan()" class="p-3 bg-black/40 backdrop-blur-md rounded-full haptic-btn"><i data-lucide="x" class="text-white w-6 h-6"></i></button></div>
+            <div class="w-full h-1/2 border-2 border-white/30 rounded-[2rem] relative overflow-hidden">
+                <div class="absolute top-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_#3b82f6] animate-[scanAnim_3s_infinite]"></div>
+                <div class="absolute inset-0 flex items-center justify-center"><p class="text-white/50 text-xs font-bold uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full">Fişi Çerçeveye Hizala</p></div>
+            </div>
+            <div class="flex justify-center pb-10">
+                <button onclick="captureReceipt()" class="w-20 h-20 bg-white rounded-full border-4 border-zinc-300 shadow-2xl flex items-center justify-center haptic-btn active:scale-90 transition-transform">
+                    <div class="w-16 h-16 bg-white border-2 border-black rounded-full"></div>
+                </button>
+            </div>
+        </div>
+        <div id="scanSuccess" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center text-white z-20">
+            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(34,197,94,0.5)]"><i data-lucide="check" class="w-8 h-8"></i></div>
+            <h3 class="text-xl font-bold mb-2">Okundu!</h3>
+            <div class="bg-white/10 p-4 rounded-2xl text-center">
+                <p class="font-bold text-sm">HIRFANLI PETROL</p>
+                <p class="text-xs opacity-70">1.850,53 TL</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="navPickerOverlay" class="picker-overlay" onclick="closeNavPicker()"><div class="picker-container pb-10" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Harita Seçin</h3><button onclick="closeNavPicker()" class="text-zinc-500 font-bold">Vazgeç</button></div><div class="space-y-3"><button id="btnAppleMaps" class="w-full glass-card p-5 flex items-center justify-start gap-4 haptic-btn text-current font-bold"><img src="https://upload.wikimedia.org/wikipedia/commons/1/17/AppleMaps_logo.svg" class="w-8 h-8 rounded-lg">Apple Maps</button><button id="btnGoogleMaps" class="w-full glass-card p-5 flex items-center justify-start gap-4 haptic-btn text-current font-bold"><img src="https://upload.wikimedia.org/wikipedia/commons/a/aa/Google_Maps_icon_%282020%29.svg" class="w-8 h-8">Google Maps</button></div></div></div>
+
+    <div id="permModal" class="picker-overlay" onclick="closePermModal()"><div class="picker-container pb-10" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current" id="permTitle">İzin Gerekli</h3><button onclick="closePermModal()" class="text-zinc-500 font-bold">Kapat</button></div><div class="p-4 text-center"><div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><i id="permIcon" data-lucide="camera" class="w-8 h-8"></i></div><p class="text-current opacity-80 mb-6" id="permText">Kamerayı kullanabilmek için tarayıcı ayarlarından izin vermeniz gerekiyor.</p><button onclick="closePermModal()" class="w-full bg-blue-600 p-4 rounded-2xl text-white font-bold">Tamam</button></div></div></div>
 
     <div id="priceReportOverlay" class="fixed inset-0 bg-black/90 z-[5000] hidden flex-col items-center justify-center backdrop-blur-md">
         <div id="reportLoading" class="flex flex-col items-center">
@@ -186,6 +223,7 @@
                     <div id="mapSearchResults"></div>
                 </header>
                 <div id="map" class="apple-map-dark"></div>
+                <button onclick="recenterUser()" class="find-me-btn haptic-btn"><i data-lucide="crosshair" class="w-6 h-6 text-blue-500"></i></button>
             </div>
 
             <div id="radar" class="tab-content no-scrollbar pb-44 px-5 pt-14"><h2 class="text-3xl font-black silver-grad mb-6">Radar</h2><div class="news-slider flex overflow-x-auto gap-4 snap-x no-scrollbar"><div class="news-card bg-gradient-to-br from-red-500/10 to-transparent min-w-[85%] snap-center border-red-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="zap" class="text-red-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-red-600 px-2 py-1 rounded-full uppercase">23.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">Benzin +1,02 TL</h4><p class="text-xs opacity-60 text-current">Fiyat güncellemesi bu gece pompada.</p></div><div class="news-card bg-gradient-to-br from-blue-500/10 to-transparent min-w-[85%] snap-center border-blue-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="gift" class="text-blue-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-blue-600 px-2 py-1 rounded-full uppercase">22.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">World 200 TL Puan</h4><p class="text-xs opacity-60 text-current">Akaryakıt alımlarına özel fırsat.</p></div></div>
@@ -207,6 +245,10 @@
                         <div onclick="openNotify()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="bell" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Bildirim Ayarları</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                         <div onclick="openHistory()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="archive" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Yakıt Geçmişi</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                     </div>
+                    <div onclick="logout()" class="p-5 rounded-2xl flex items-center justify-center gap-2 haptic-btn mt-6 border border-red-500/30 bg-red-500/10">
+                        <i data-lucide="log-out" class="text-red-500 w-5 h-5"></i>
+                        <span class="font-bold text-sm text-red-500">Oturumu Kapat</span>
+                    </div>
                 </div>
             </div>
         </main>
@@ -216,11 +258,12 @@
     <script>
         lucide.createIcons();
         let leafletMap, miniMap, currentTheme = 'dark';
-        
-        // V77: Empty History for New User
         let fuelRecords = [];
-        
-        const istanbulData = [{lat: 41.008, lng: 28.978, type: 'shell'}, {lat: 41.04, lng: 29.02, type: 'opet'}, {lat: 41.01, lng: 29.1, type: 'po'}, {lat: 40.98, lng: 29.05, type: 'shell'}, {lat: 41.08, lng: 28.95, type: 'opet'}, {lat: 40.92, lng: 29.15, type: 'po'}];
+        let videoStream = null;
+        let userMarker = null;
+        let miniUserMarker = null;
+        let lastKnownUserPos = null;
+        let currentNavTarget = null;
         
         const cities = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"];
 
@@ -233,10 +276,11 @@
             'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' },
             'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' },
             'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' },
-            'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }
+            'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' },
+            'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } 
         };
 
-        const cityCoordinates = { "İstanbul": [41.0082, 28.9784], "Ankara": [39.9334, 32.8597], "İzmir": [38.4192, 27.1287] }; // Shortened for demo, keep full list in production
+        const cityCoordinates = { "İstanbul": [41.0082, 28.9784], "Ankara": [39.9334, 32.8597], "İzmir": [38.4192, 27.1287] };
 
         const carData = { 'Audi': ['A3', 'A4', 'A6', 'A8', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi'], 'BYD': ['Seal', 'Atto 3'], 'Chevrolet': ['Cruze'], 'Fiat': ['Egea', '500'], 'Ford': ['Focus'], 'Hyundai': ['i20'], 'Mercedes-Benz': ['C-Serisi'], 'Porsche': ['911'], 'Suzuki': ['Swift'], 'Tesla': ['Model 3'], 'Toyota': ['Corolla'], 'Volkswagen': ['Golf'], 'Volvo': ['XC90'] };
         const years = Array.from({length: 37}, (_, i) => (2026-i).toString());
@@ -245,7 +289,6 @@
         let step = 0, selections = savedGarage || { Marka: 'Audi', Model: 'A6', Yıl: '2023', Plaka: '34 ABC 123' }, tempValue = '';
         let isOnboarding = false;
 
-        // --- ONBOARDING LOGIC V77 ---
         function checkOnboarding() {
             const user = localStorage.getItem('litre_user');
             if(!user) {
@@ -256,13 +299,99 @@
                 document.getElementById('profileName').innerText = u.name;
                 document.getElementById('onboarding').style.display = 'none';
                 renderGarageUI();
+                requestPermissions(); 
+            }
+        }
+
+        // V80: LOGOUT
+        function logout() {
+            if(confirm('Oturumu kapatmak istediğinize emin misiniz? Tüm yerel veriler silinecek.')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function requestPermissions() {
+            if('geolocation' in navigator) {
+                navigator.geolocation.watchPosition((pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    lastKnownUserPos = [lat, lng];
+                    
+                    const userIcon = L.divIcon({
+                        className: 'user-location-marker',
+                        html: `<div class="user-location-dot" id="userDot"><div class="user-location-arrow" id="userArrow"></div><div class="user-location-pulse"></div></div>`,
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    });
+
+                    if(leafletMap) {
+                        if(!userMarker) {
+                            userMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 1000 }).addTo(leafletMap);
+                            leafletMap.setView(lastKnownUserPos, 15);
+                        } else {
+                            userMarker.setLatLng(lastKnownUserPos);
+                        }
+                    }
+                    if(miniMap) {
+                        if(!miniUserMarker) {
+                            miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 1000 }).addTo(miniMap);
+                            miniMap.setView(lastKnownUserPos, 15);
+                        } else {
+                            miniUserMarker.setLatLng(lastKnownUserPos);
+                        }
+                    }
+                }, (err) => { console.log("Konum izni verilmedi"); }, { enableHighAccuracy: true });
+            }
+
+            // V80: Compass Logic
+            if(window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', function(event) {
+                    if(event.webkitCompassHeading) {
+                        rotateUserMarker(event.webkitCompassHeading);
+                    } else if(event.alpha) {
+                        rotateUserMarker(360 - event.alpha);
+                    }
+                });
+            }
+
+            navigator.mediaDevices.getUserMedia({ video: true }).then(s => { s.getTracks().forEach(t => t.stop()); }).catch(e => {});
+        }
+
+        function rotateUserMarker(deg) {
+            // We rotate the arrow inside the marker, NOT the map
+            const arrows = document.querySelectorAll('#userArrow');
+            arrows.forEach(arrow => {
+                arrow.style.transform = `translateX(-50%) rotate(${deg}deg)`;
+            });
+        }
+
+        // V80: Find Me
+        function recenterUser() {
+            if(lastKnownUserPos && leafletMap) {
+                leafletMap.flyTo(lastKnownUserPos, 16);
+            } else {
+                alert("Konumunuz henüz belirlenemedi.");
             }
         }
 
         function nextStep(stepNum) {
             if(stepNum === 1) {
                 const name = document.getElementById('regName').value;
-                if(!name) return alert('Lütfen ismini gir.');
+                // V80: Strong Email Validation
+                const email = document.getElementById('regEmail').value;
+                const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                
+                if(!name) { 
+                    document.getElementById('regName').classList.add('error');
+                    return; 
+                }
+                if(!emailRegex.test(email)) {
+                    document.getElementById('regEmail').classList.add('error');
+                    alert("Lütfen geçerli bir e-posta adresi girin (örn: ornek@gmail.com)");
+                    return;
+                }
+
                 document.getElementById('step1').classList.remove('active');
                 document.getElementById('step2').classList.add('active');
             }
@@ -273,17 +402,13 @@
             const email = document.getElementById('regEmail').value;
             localStorage.setItem('litre_user', JSON.stringify({ name, email }));
             document.getElementById('profileName').innerText = name;
-            
-            // Close Onboarding
+            requestPermissions();
             document.getElementById('onboarding').style.transform = 'translateY(100%)';
             setTimeout(() => { document.getElementById('onboarding').style.display = 'none'; }, 500);
-            
-            // Render UI
             saveGarageData();
             isOnboarding = false;
         }
 
-        // Modified Flow for Onboarding Picker
         function startVehicleFlow(fromOnboard = false) { 
             step = 0; 
             document.getElementById('plateInputContainer').classList.add('hidden'); 
@@ -301,8 +426,6 @@
                 selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; 
                 saveGarageData(); 
                 closePicker(); 
-                
-                // If in onboarding mode, enable Finish button
                 if(document.getElementById('pickerOverlay').dataset.onboard === "true") {
                     document.getElementById('onboardCarText').innerText = `${selections.Marka} ${selections.Model}`;
                     const btn = document.getElementById('finishOnboardBtn');
@@ -315,18 +438,8 @@
             updatePickerUI(); 
         }
 
-        function saveGarageData() {
-            localStorage.setItem('garage', JSON.stringify(selections));
-            renderGarageUI();
-        }
-
-        function renderGarageUI() {
-            if(selections) {
-                document.getElementById('viewMarka').innerText = selections.Marka + ' ' + selections.Model;
-                document.getElementById('viewYıl').innerText = selections.Yıl;
-                document.getElementById('viewPlaka').innerText = selections.Plaka;
-            }
-        }
+        function saveGarageData() { localStorage.setItem('garage', JSON.stringify(selections)); renderGarageUI(); }
+        function renderGarageUI() { if(selections) { document.getElementById('viewMarka').innerText = selections.Marka + ' ' + selections.Model; document.getElementById('viewYıl').innerText = selections.Yıl; document.getElementById('viewPlaka').innerText = selections.Plaka; } }
 
         function getPricesForCity(city) {
             if(city === 'İstanbul') {
@@ -368,9 +481,6 @@
             list.innerHTML = '';
             data.forEach(item => {
                 const style = stationLogos[item.brand];
-                const navQuery = `${item.name.replace(' ', '+')}+${cityName}`;
-                const navLink = `https://www.google.com/maps/search/?api=1&query=${navQuery}`;
-                
                 list.innerHTML += `
                     <div class="glass-card p-5 haptic-btn station-card" data-price="${item.benzin}" data-dist="${item.dist}">
                         <div class="flex items-start gap-4">
@@ -386,9 +496,9 @@
                                     <div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.lpg}</div></div>
                                 </div>
                                 <div class="flex gap-2">
-                                    <a href="${navLink}" target="_blank" class="flex-1 action-btn-small text-current">
+                                    <button onclick="openNavPicker('${item.name}')" class="flex-1 action-btn-small text-current">
                                         <i data-lucide="navigation-2" class="w-4 h-4 mr-2 text-blue-500"></i><span class="text-xs font-bold">Yol Tarifi</span>
-                                    </a>
+                                    </button>
                                     <button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current">
                                         <i data-lucide="share" class="w-4 h-4 opacity-60"></i>
                                     </button>
@@ -401,61 +511,79 @@
             lucide.createIcons();
         }
 
+        // V80: Navigation Picker
+        function openNavPicker(target) {
+            currentNavTarget = target;
+            const q = target.replace(' ', '+');
+            document.getElementById('btnAppleMaps').onclick = () => window.open(`http://maps.apple.com/?q=${q}`, '_blank');
+            document.getElementById('btnGoogleMaps').onclick = () => window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank');
+            document.getElementById('navPickerOverlay').style.display = 'flex';
+        }
+        function closeNavPicker() { document.getElementById('navPickerOverlay').style.display = 'none'; }
+
         function sharePrice(station, price) {
             if (navigator.share) {
                 navigator.share({ title: 'Ucuz Yakıt Buldum!', text: `${station} istasyonunda benzin sadece ${price} TL!`, url: window.location.href });
-            } else {
-                alert('Panoya kopyalandı!');
-            }
+            } else { alert('Panoya kopyalandı!'); }
         }
 
-        // V77: Add User Location Dot Logic
-        function addUserLocation(mapObj) {
-            if(!mapObj) return;
-            // Simulated Location (Istanbul Center)
-            const userPos = [41.0082, 28.9784]; 
-            const userIcon = L.divIcon({
-                className: 'user-location-marker',
-                html: `<div class="user-location-dot"><div class="user-location-pulse"></div></div>`,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            });
-            L.marker(userPos, { icon: userIcon, zIndexOffset: 1000 }).addTo(mapObj);
+        function handleScanAction() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then((stream) => {
+                    videoStream = stream;
+                    document.getElementById('cameraView').srcObject = stream;
+                    document.getElementById('cameraView').style.display = 'block';
+                    document.getElementById('scanOverlay').style.display = 'flex';
+                })
+                .catch((err) => { showPermModal('camera', 'Fiş taramak için kamera izni vermeniz gerekiyor.'); });
         }
+
+        function closeScan() {
+            document.getElementById('scanOverlay').style.display = 'none';
+            if(videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; }
+        }
+
+        function captureReceipt() {
+            const scanOverlay = document.getElementById('scanOverlay');
+            scanOverlay.querySelector('.animate-[scanAnim_3s_infinite]').style.animationDuration = '0.5s'; 
+            setTimeout(() => {
+                document.getElementById('scanSuccess').style.display = 'flex';
+                const newRec = { station: 'HIRFANLI PETROL', date: '28.07.2023', amount: 1850.53, details: '50.63 L · 36,55 TL/L' };
+                fuelRecords.unshift(newRec);
+                updateGarageAnalysis();
+                setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 2000);
+            }, 1500);
+        }
+
+        function showPermModal(icon, text) { document.getElementById('permIcon').setAttribute('data-lucide', icon); document.getElementById('permText').innerText = text; document.getElementById('permModal').style.display = 'flex'; lucide.createIcons(); }
+        function closePermModal() { document.getElementById('permModal').style.display = 'none'; }
 
         function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); const tile = currentTheme === 'dark' ? tileDark : tileLight; L.tileLayer(tile).addTo(mapObj); const el = document.getElementById(elementId); if(currentTheme === 'dark') { el.style.filter = 'invert(100%) hue-rotate(180deg) brightness(1.1) saturate(1.4) contrast(0.9)'; el.style.background = '#0a1016'; } else { el.style.filter = 'none'; el.style.background = '#fff'; } }
-        function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); addUserLocation(leafletMap); }
-        function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); addUserLocation(miniMap); }
+        function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); }
+        function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function setTheme(mode) { currentTheme = mode; document.body.classList.toggle('light-mode', mode === 'light'); updateMapLayer(leafletMap, 'map'); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
         
         function updateGarageAnalysis() { 
-            if(fuelRecords.length === 0) {
-                document.getElementById('monthlyAnaliz').innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Henüz veri yok.</p>';
-                document.getElementById('viewAvgCost').innerText = "0,00 TL";
-                document.getElementById('viewTotalLiters').innerText = "0.0 L";
-                return;
-            }
-            // Existing logic if records exist...
+            if(fuelRecords.length === 0) { document.getElementById('monthlyAnaliz').innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Henüz veri yok.</p>'; document.getElementById('viewAvgCost').innerText = "0,00 TL"; document.getElementById('viewTotalLiters').innerText = "0.0 L"; return; }
+            const totalAmount = fuelRecords.reduce((sum, r) => sum + r.amount, 0);
+            const totalLiters = fuelRecords.reduce((sum, r) => sum + parseFloat(r.details.split(' ')[0]), 0);
+            document.getElementById('viewAvgCost').innerText = totalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL';
+            document.getElementById('viewTotalLiters').innerText = totalLiters.toFixed(1) + ' L';
+            document.getElementById('monthlySaving').innerText = (totalAmount * 0.05).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
+            const list = document.getElementById('historyList');
+            list.innerHTML = fuelRecords.map(r => `<div class="p-5 glass-card mb-3 shadow-lg text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join('');
+            const trend = document.getElementById('monthlyAnaliz'); trend.innerHTML = ''; trend.innerHTML += `<div class="carousel-card p-6 min-w-[240px] shadow-lg border border-white/5"><p class="text-blue-500 font-black mb-3 uppercase text-xs">TEMMUZ 2023</p><p class="text-2xl font-black text-current">${totalAmount.toLocaleString('tr-TR')} TL</p><p class="text-sm font-bold text-current mt-2 opacity-80">${totalLiters.toFixed(1)} Litre Toplam</p></div>`;
         }
         
-        // Wheel and Common Logic
         function updatePickerUI() { const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); document.getElementById('pickerTitle').innerText = 'Plaka Gir'; return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
         function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + (el.clientHeight / 2); for (let item of items) { const itemCenter = item.offsetTop + (item.clientHeight / 2); if (Math.abs(center - itemCenter) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
-        function handleScanAction() { document.getElementById('scanOverlay').style.display = 'flex'; setTimeout(() => { document.getElementById('scanSuccess').style.display = 'flex'; const newRec = { station: 'Shell - İstanbul Anadolu', date: new Date().toLocaleDateString('tr-TR'), amount: 1755.0, details: '32.5 L · 54,0 TL/L' }; fuelRecords.unshift(newRec); updateGarageAnalysis(); setTimeout(() => { document.getElementById('scanOverlay').style.display = 'none'; document.getElementById('scanSuccess').style.display = 'none'; }, 2000); }, 3000); }
+        
         function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
-        function closeScan() { document.getElementById('scanOverlay').style.display = 'none'; }
         function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; }
-        function openHistory() { document.getElementById('historyOverlay').style.display = 'flex'; updateHistoryUI(); }
+        function openHistory() { document.getElementById('historyOverlay').style.display = 'flex'; updateGarageAnalysis(); }
         function closeHistory() { document.getElementById('historyOverlay').style.display = 'none'; }
-        function updateHistoryUI() { 
-            const list = document.getElementById('historyList'); 
-            if(fuelRecords.length === 0) {
-                list.innerHTML = '<p class="text-center opacity-40 mt-10">Henüz yakıt geçmişi yok.</p>';
-                return;
-            }
-            list.innerHTML = fuelRecords.map(r => `<div class="p-5 glass-card mb-3 shadow-lg text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); 
-        }
+        
         function openSettings() { document.getElementById('settingsOverlay').style.display = 'flex'; }
         function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
         function openNotify() { document.getElementById('notifyOverlay').style.display = 'flex'; }
@@ -478,17 +606,8 @@
             document.getElementById('selectedCity').innerText = name; 
             closeCityPicker(); 
             document.getElementById('stationList').style.opacity = '0.5';
-            
-            if(cityCoordinates[name]) {
-                if(leafletMap) leafletMap.setView(cityCoordinates[name], 10);
-                if(miniMap) miniMap.setView(cityCoordinates[name], 10);
-            }
-
-            setTimeout(() => {
-                const data = getPricesForCity(name);
-                renderStationList(data, name);
-                document.getElementById('stationList').style.opacity = '1';
-            }, 300);
+            if(cityCoordinates[name]) { if(leafletMap) leafletMap.setView(cityCoordinates[name], 10); if(miniMap) miniMap.setView(cityCoordinates[name], 10); }
+            setTimeout(() => { const data = getPricesForCity(name); renderStationList(data, name); document.getElementById('stationList').style.opacity = '1'; }, 300);
         }
         
         function handleMapSearch() {
@@ -499,9 +618,7 @@
             const matches = cities.filter(c => c.toLowerCase().includes(val));
             if(matches.length > 0) {
                 results.innerHTML = '';
-                matches.forEach(c => {
-                    results.innerHTML += `<div class="map-search-item" onclick="flyToCity('${c}')"><div class="map-search-icon"><i data-lucide="map-pin" class="text-white w-4 h-4"></i></div><div><p class="font-bold text-md text-current">${c}</p><p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Şehir Merkezi</p></div></div>`;
-                });
+                matches.forEach(c => { results.innerHTML += `<div class="map-search-item" onclick="flyToCity('${c}')"><div class="map-search-icon"><i data-lucide="map-pin" class="text-white w-4 h-4"></i></div><div><p class="font-bold text-md text-current">${c}</p><p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Şehir Merkezi</p></div></div>`; });
                 lucide.createIcons();
                 results.style.display = 'block';
             } else { results.style.display = 'none'; }
@@ -543,7 +660,7 @@
             initMiniMap();
             updateGarageAnalysis();
             selectCity('İstanbul'); 
-            checkOnboarding(); // Check if new user
+            checkOnboarding(); 
 
             setTimeout(() => { 
                 document.getElementById('splash').style.display = 'none'; 
