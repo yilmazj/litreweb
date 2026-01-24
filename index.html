@@ -8,7 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Litre">
-<link rel="apple-touch-icon" href="icon-192.png">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTIwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImRyb3BHcmFkIiB4MT0iMCUiIHkxPSIxMDAlIiB4Mj0iMTAwJSIgeTI9IjAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMmY3Y2Y2IiAvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzNiODJmNiIgLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cGF0aCBkPSJNIDUwIDI1IEMgNTAgMjUsIDE1IDcwLCAxNSA5MCBBIDM1IDM1IDAgMCAwIDg1IDkwIEMgODUgNzAsIDUwIDI1LCA1MCAyNSBaIiBmaWxsPSJ1cmwoI2Ryb3BHcmFkKSIvPjwvc3ZnPg==">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTIwIiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjogIzE4MTgxYjsgYm9yZGVyLXJhZGl1czDogMjAlOyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJkcm9wR3JhZCIgeDE9IjAlIiB5MT0iMTAwJSIgeDI9IjEwMCUiIHkyPSIwJSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzJmN2NmNiIgLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMzYjgyZjYiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHBhdGggZD0iTSA1MCAyNSBDIDUwIDI1LCAxNSA3MCwgMTUgOTAgQSAzNSAzNSAwIDAgMCA4NSA5MCBDIDg1IDcwLCA1MCAyNSwgNTAgMjUgWiIgZmlsbD0idXJsKCNkcm9wR3JhZCkiLz48L3N2Zz4=">
+
 <meta id="metaThemeColor" name="theme-color" content="#f2f2f7">
     <title>Litre - V89 Smart Theme</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -95,7 +98,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .news-card, .carousel-card { flex: 0 0 80%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: var(--glass-border); transition: background-color 0.3s, border-color 0.3s; }
         
-        /* FIX: display inline-block eklendi ki dikdörtgen kutu oluşmasın */
         .silver-grad { 
             background: linear-gradient(145deg, #000, #666); 
             -webkit-background-clip: text; 
@@ -435,7 +437,21 @@
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
         function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Tarayıcınız sesli aramayı desteklemiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; const input = document.getElementById('mapSearchInput'); input.value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); const match = cities.find(c => c.toLowerCase() === text.toLowerCase()); if(match) { flyToCity(match); } }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; recognition.onend = () => { micIcon.classList.remove('mic-active'); }; }
         function nextStep(stepNum) { if(stepNum === 1) { const name = document.getElementById('regName').value; const email = document.getElementById('regEmail').value; const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/; if(!name) { document.getElementById('regName').classList.add('error'); return; } if(!emailRegex.test(email)) { document.getElementById('regEmail').classList.add('error'); alert("Lütfen geçerli bir e-posta adresi girin (örn: ornek@gmail.com)"); return; } document.getElementById('step1').classList.remove('active'); document.getElementById('step2').classList.add('active'); } }
-        function finishOnboarding() { const name = document.getElementById('regName').value; const email = document.getElementById('regEmail').value; localStorage.setItem('litre_user', JSON.stringify({ name, email })); document.getElementById('profileName').innerText = name; requestPermissions(); document.getElementById('onboarding').style.transform = 'translateY(100%)'; setTimeout(() => { document.getElementById('onboarding').style.display = 'none'; }, 500); saveGarageData(); isOnboarding = false; }
+        
+        // BUG FIX: PWA'da kaydetme sonrası takılma sorununu çözmek için sayfayı reload ediyoruz.
+        function finishOnboarding() { 
+            const name = document.getElementById('regName').value; 
+            const email = document.getElementById('regEmail').value; 
+            
+            // Veriyi kaydet
+            localStorage.setItem('litre_user', JSON.stringify({ name, email })); 
+            saveGarageData(); 
+            
+            // UI Geçişi yerine direkt reload en temiz çözüm (PWA stuck fix)
+            // checkOnboarding() fonksiyonu sayfa açılışında veriyi görüp zaten içeri alacak.
+            window.location.reload();
+        }
+
         function startVehicleFlow(fromOnboard = false) { step = 0; document.getElementById('plateInputContainer').classList.add('hidden'); document.getElementById('wheelContainer').classList.remove('hidden'); updatePickerUI(); document.getElementById('pickerOverlay').style.display = 'flex'; if(fromOnboard) document.getElementById('pickerOverlay').dataset.onboard = "true"; }
         function updatePickerUI() { const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; document.getElementById('pickerTitle').innerText = titles[step]; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
         function processSelection() { if(step === 0) selections.Marka = tempValue; if(step === 1) selections.Model = tempValue; if(step === 2) selections.Yıl = tempValue; if(step === 3) { selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; saveGarageData(); closePicker(); if(document.getElementById('pickerOverlay').dataset.onboard === "true") { document.getElementById('onboardCarText').innerText = `${selections.Marka} ${selections.Model}`; const btn = document.getElementById('finishOnboardBtn'); btn.classList.remove('opacity-50', 'pointer-events-none'); document.getElementById('pickerOverlay').dataset.onboard = "false"; } return; } step++; updatePickerUI(); }
