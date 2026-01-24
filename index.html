@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Litre">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#000000">
-    <title>Litre - V84 Final Polish</title>
+    <title>Litre - V85 Live Map</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -51,14 +51,52 @@
         .apple-map-dark { filter: saturate(1.2) contrast(1.1) brightness(0.85) hue-rotate(-5deg); transition: 0.4s; }
         body.light-mode .apple-map-dark { filter: none; }
         
-        /* V84: Explicit User Location Dot Style */
-        .user-location-marker { z-index: 99999 !important; }
-        .user-location-dot { width: 18px; height: 18px; background: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(59,130,246,0.8); position: relative; }
-        .user-location-arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 15px solid rgba(59,130,246,0.8); border-radius: 4px; transition: transform 0.1s; transform-origin: bottom center; }
-        .user-location-pulse { position: absolute; width: 60px; height: 60px; background: rgba(59,130,246,0.4); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-ring 2s infinite; pointer-events: none; }
-        @keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+        /* V85: Apple Maps Style Location Dot & Beam */
+        .user-location-marker { z-index: 10000 !important; pointer-events: none; }
+        .location-container { position: relative; display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; }
+        
+        /* The Blue Dot */
+        .user-dot { 
+            width: 20px; height: 20px; 
+            background: #2f7cf6; 
+            border: 3.5px solid white; 
+            border-radius: 50%; 
+            box-shadow: 0 0 8px rgba(0,0,0,0.25);
+            z-index: 2;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* The Pulse Ring */
+        .user-pulse {
+            width: 60px; height: 60px;
+            background: rgba(47, 124, 246, 0.2);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s infinite ease-out;
+            z-index: 0;
+        }
+        
+        /* The Flashlight Beam */
+        .user-beam {
+            position: absolute;
+            bottom: 50%; left: 50%;
+            width: 0; height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 50px solid rgba(47, 124, 246, 0.25);
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg); /* Rotation applied via JS */
+            filter: blur(4px);
+            z-index: 1;
+            transition: transform 0.1s linear;
+        }
 
-        /* V84: Find Me Button Restored */
+        @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+
         .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: 0.5px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); z-index: 5000; display: none; align-items: flex-end; }
@@ -99,6 +137,10 @@
         .camera-overlay-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
         
         .shutter-btn { w-20 h-20 bg-white rounded-full border-4 border-zinc-300 shadow-2xl flex items-center justify-center haptic-btn active:scale-90 transition-transform; }
+        
+        /* Voice Anim */
+        .mic-active { color: #ef4444; animation: pulse-red 1s infinite; }
+        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -236,7 +278,7 @@
                     <div class="glass-card h-14 rounded-[1.8rem] flex items-center px-6 shadow-2xl relative">
                         <i data-lucide="search" class="opacity-40 mr-3 text-current w-5 h-5"></i>
                         <input type="text" id="mapSearchInput" onkeyup="handleMapSearch()" placeholder="İstasyon veya şehir ara..." class="bg-transparent text-md w-full outline-none text-current">
-                        <i data-lucide="mic" class="opacity-40 ml-3 text-current w-5 h-5"></i>
+                        <i id="micIcon" onclick="startVoiceSearch()" data-lucide="mic" class="opacity-40 ml-3 text-current w-5 h-5 cursor-pointer"></i>
                     </div>
                     <div id="mapSearchResults"></div>
                 </header>
@@ -328,12 +370,10 @@
             }
         }
 
-        // V84: FIXED MAPS & CROSSHAIR
+        // V85: Live Map Logic with View Cone
         function requestPermissions() {
             if('geolocation' in navigator) {
-                // Initial locate with high zoom
                 leafletMap.locate({setView: true, maxZoom: 16});
-                
                 navigator.geolocation.watchPosition((pos) => {
                     const lat = pos.coords.latitude;
                     const lng = pos.coords.longitude;
@@ -341,21 +381,25 @@
                     
                     const userIcon = L.divIcon({
                         className: 'user-location-marker',
-                        html: `<div class="user-location-dot" id="userDot"><div class="user-location-arrow" id="userArrow"></div><div class="user-location-pulse"></div></div>`,
-                        iconSize: [20, 20],
-                        iconAnchor: [10, 10]
+                        html: `<div class="location-container">
+                                 <div class="user-beam" id="userBeam"></div>
+                                 <div class="user-pulse"></div>
+                                 <div class="user-dot"></div>
+                               </div>`,
+                        iconSize: [100, 100],
+                        iconAnchor: [50, 50]
                     });
 
                     if(leafletMap) {
                         if(!userMarker) {
-                            userMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 99999 }).addTo(leafletMap);
+                            userMarker = L.marker(lastKnownUserPos, { icon: userIcon }).addTo(leafletMap);
                         } else {
                             userMarker.setLatLng(lastKnownUserPos);
                         }
                     }
                     if(miniMap) {
                         if(!miniUserMarker) {
-                            miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 99999 }).addTo(miniMap);
+                            miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon }).addTo(miniMap);
                             miniMap.setView(lastKnownUserPos, 15);
                         } else {
                             miniUserMarker.setLatLng(lastKnownUserPos);
@@ -366,17 +410,15 @@
 
             if(window.DeviceOrientationEvent) {
                 window.addEventListener('deviceorientation', function(event) {
-                    if(event.webkitCompassHeading) { rotateUserMarker(event.webkitCompassHeading); } 
-                    else if(event.alpha) { rotateUserMarker(360 - event.alpha); }
+                    if(event.webkitCompassHeading) { rotateUserBeam(event.webkitCompassHeading); } 
+                    else if(event.alpha) { rotateUserBeam(360 - event.alpha); }
                 });
             }
-
-            navigator.mediaDevices.getUserMedia({ video: true }).then(s => { s.getTracks().forEach(t => t.stop()); }).catch(e => {});
         }
 
-        function rotateUserMarker(deg) {
-            const arrows = document.querySelectorAll('#userArrow');
-            arrows.forEach(arrow => { arrow.style.transform = `translateX(-50%) rotate(${deg}deg)`; });
+        function rotateUserBeam(deg) {
+            const beams = document.querySelectorAll('#userBeam');
+            beams.forEach(beam => { beam.style.transform = `translateX(-50%) rotate(${deg}deg)`; });
         }
 
         function recenterUser() {
@@ -384,12 +426,45 @@
             else { leafletMap.locate({setView: true, maxZoom: 16}); }
         }
 
+        // V85: Voice Search Logic
+        function startVoiceSearch() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Tarayıcınız sesli aramayı desteklemiyor.");
+                return;
+            }
+            
+            const micIcon = document.getElementById('micIcon');
+            micIcon.classList.add('mic-active');
+            
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'tr-TR';
+            recognition.start();
+            
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                const input = document.getElementById('mapSearchInput');
+                input.value = text;
+                micIcon.classList.remove('mic-active');
+                
+                // Trigger Search
+                handleMapSearch();
+                
+                // Auto-select first result if clear match
+                const match = cities.find(c => c.toLowerCase() === text.toLowerCase());
+                if(match) {
+                    flyToCity(match);
+                }
+            };
+            
+            recognition.onerror = () => { micIcon.classList.remove('mic-active'); };
+            recognition.onend = () => { micIcon.classList.remove('mic-active'); };
+        }
+
         function nextStep(stepNum) {
             if(stepNum === 1) {
                 const name = document.getElementById('regName').value;
                 const email = document.getElementById('regEmail').value;
                 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-                
                 if(!name) { document.getElementById('regName').classList.add('error'); return; }
                 if(!emailRegex.test(email)) {
                     document.getElementById('regEmail').classList.add('error');
@@ -425,15 +500,10 @@
         function updatePickerUI() { 
             const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"];
             document.getElementById('pickerTitle').innerText = titles[step];
-
             const wheel = document.getElementById('wheel'); 
             wheel.innerHTML = '<div style="height: 75px;"></div>'; 
             let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; 
-            if(step === 3) { 
-                document.getElementById('wheelContainer').classList.add('hidden'); 
-                document.getElementById('plateInputContainer').classList.remove('hidden'); 
-                return; 
-            } 
+            if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); return; } 
             data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); 
             wheel.innerHTML += '<div style="height: 75px;"></div>'; 
             wheel.scrollTop = 0; 
@@ -532,7 +602,6 @@
             lucide.createIcons();
         }
 
-        // V84: ORIGINAL LOGOS & FIXED LINKS
         function openNavPicker(target) {
             currentNavTarget = target;
             const q = encodeURIComponent(target);
@@ -582,12 +651,8 @@
                 'tur',
                 { logger: m => console.log(m) }
             ).then(({ data: { text } }) => {
-                console.log(text);
-                
                 if (text.toUpperCase().includes('PETROL') || text.toUpperCase().includes('TOPLAM') || text.toUpperCase().includes('TL')) {
                     const totalMatch = text.match(/TOPLAM\s*[*]*([\d.,]+)/i) || text.match(/[\d.,]+\s*TL/i);
-                    const literMatch = text.match(/([\d.,]+)\s*LT/i);
-                    
                     const total = totalMatch ? totalMatch[1] : '1.850,53';
                     const amount = parseFloat(total.replace('.','').replace(',','.'));
                     
