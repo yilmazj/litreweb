@@ -358,7 +358,6 @@
         let lastKnownUserPos = null;
         let currentNavTarget = null;
         
-        // HATA DÜZELTİLDİ: Bu değişkenler carData'nın DIŞINA alındı.
         let pickingSubModel = false;
         const subCarData = {
             'Mercedes-Benz': {
@@ -403,7 +402,6 @@
             'Volkswagen': ['Polo', 'Golf', 'Passat', 'Jetta', 'Tiguan'], 'Volvo': ['S60', 'S90', 'XC40', 'XC60', 'XC90']
         };
 
-        // GÜNCELLENDİ: 81 İlin Koordinatları
         const cityCoordinates = {
             "Adana": [37.0000, 35.3213], "Adıyaman": [37.7648, 38.2786], "Afyonkarahisar": [38.7507, 30.5567], "Ağrı": [39.7191, 43.0503], "Aksaray": [38.3687, 34.0370],
             "Amasya": [40.6499, 35.8353], "Ankara": [39.9334, 32.8597], "Antalya": [36.8969, 30.7133], "Ardahan": [41.1105, 42.7022], "Artvin": [41.1828, 41.8183],
@@ -526,7 +524,7 @@
             
             // Eğer ara katmandaysak (Seri seçimi)
             if (pickingSubModel) {
-                document.getElementById('pickerTitle').innerText = "Serisini Seç"; // DÜZELTME YAPILDI
+                document.getElementById('pickerTitle').innerText = "Serisini Seç"; 
                 const wheel = document.getElementById('wheel');
                 wheel.innerHTML = '<div style="height: 75px;"></div>';
                 
@@ -560,8 +558,14 @@
         function processSelection() { 
             // 1. Önce özel durum: Alt model (Seri) seçimi yapıldıysa
             if (pickingSubModel) {
-                // Modeli güncelle: "A Serisi" yerine "A Serisi A180" yapıyoruz
-                selections.Model = selections.Model + ' ' + tempValue;
+                // BMW ve Mercedes için sadece alt modeli kaydet (Örn: A180, 120i)
+                if (selections.Marka === 'BMW' || selections.Marka === 'Mercedes-Benz') {
+                    selections.Model = tempValue; 
+                } else {
+                    // Diğerleri için birleştir (Örn: A Serisi A180 - şimdilik sadece bu iki marka var ama olsun)
+                    selections.Model = selections.Model + ' ' + tempValue;
+                }
+                
                 pickingSubModel = false; // Özel moddan çık
                 step++; // Yıl seçimine geç
                 updatePickerUI();
@@ -611,15 +615,13 @@
         function handleScanAction() { navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => { videoStream = stream; document.getElementById('cameraView').srcObject = stream; document.getElementById('cameraView').style.display = 'block'; document.getElementById('scanOverlay').style.display = 'flex'; }).catch((err) => { showPermModal('camera', 'Fiş taramak için kamera izni vermeniz gerekiyor.'); }); }
         function closeScan() { document.getElementById('scanOverlay').style.display = 'none'; if(videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; } }
         
-        // YENİ: Hata ekranından sonra kamerayı tekrar dener
         function retryScan() {
             document.getElementById('scanError').style.display = 'none';
             document.getElementById('scanUI').style.display = 'flex';
             const video = document.getElementById('cameraView');
-            video.play().catch(e => console.log(e)); // Force resume
+            video.play().catch(e => console.log(e)); 
         }
 
-        // GÜNCELLENEN takePhoto fonksiyonu
         function takePhoto() { 
             const video = document.getElementById('cameraView'); 
             const canvas = document.getElementById('cameraCanvas'); 
@@ -629,7 +631,7 @@
             canvas.height = video.videoHeight; 
             context.drawImage(video, 0, 0, canvas.width, canvas.height); 
             
-            video.pause(); // Görüntüyü dondur
+            video.pause(); 
             document.getElementById('scanUI').style.display = 'none'; 
             document.getElementById('scanProcessing').style.display = 'flex'; 
             
@@ -656,13 +658,11 @@
                         showTab('radar', document.querySelector('.nav-item:nth-child(4)')); 
                     }, 3000); 
                 } else { 
-                    // BAŞARISIZ DURUM - ALERT YERİNE HATA EKRANI
                     document.getElementById('scanProcessing').style.display = 'none'; 
-                    document.getElementById('scanError').style.display = 'flex'; // Hata ekranını aç
+                    document.getElementById('scanError').style.display = 'flex'; 
                     lucide.createIcons();
                 } 
             }).catch(err => {
-                // Tesseract Hatası
                 document.getElementById('scanProcessing').style.display = 'none'; 
                 document.getElementById('scanError').style.display = 'flex'; 
                 lucide.createIcons();
