@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Litre">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#000000">
-    <title>Litre - V83 Stability Fix</title>
+    <title>Litre - V84 Final Polish</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -51,13 +51,14 @@
         .apple-map-dark { filter: saturate(1.2) contrast(1.1) brightness(0.85) hue-rotate(-5deg); transition: 0.4s; }
         body.light-mode .apple-map-dark { filter: none; }
         
-        /* Z-Index Fix */
-        .user-location-marker { z-index: 9999 !important; }
+        /* V84: Explicit User Location Dot Style */
+        .user-location-marker { z-index: 99999 !important; }
         .user-location-dot { width: 18px; height: 18px; background: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(59,130,246,0.8); position: relative; }
         .user-location-arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 15px solid rgba(59,130,246,0.8); border-radius: 4px; transition: transform 0.1s; transform-origin: bottom center; }
         .user-location-pulse { position: absolute; width: 60px; height: 60px; background: rgba(59,130,246,0.4); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-ring 2s infinite; pointer-events: none; }
         @keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
 
+        /* V84: Find Me Button Restored */
         .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: 0.5px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); z-index: 5000; display: none; align-items: flex-end; }
@@ -132,7 +133,6 @@
     <div id="scanOverlay" class="fixed inset-0 bg-black z-[4500] hidden flex-col items-center justify-center">
         <video id="cameraView" autoplay playsinline></video>
         <canvas id="cameraCanvas" class="hidden"></canvas>
-        
         <div id="scanUI" class="camera-overlay-ui">
             <div class="flex justify-end"><button onclick="closeScan()" class="p-3 bg-black/40 backdrop-blur-md rounded-full haptic-btn"><i data-lucide="x" class="text-white w-6 h-6"></i></button></div>
             <div class="w-full h-1/2 border-2 border-white/30 rounded-[2rem] relative overflow-hidden">
@@ -144,13 +144,11 @@
                 </button>
             </div>
         </div>
-
         <div id="scanProcessing" class="absolute inset-0 bg-black/80 z-20 hidden flex-col items-center justify-center text-white backdrop-blur-sm">
             <div class="spinner w-12 h-12 mb-4"></div>
             <h3 class="text-xl font-bold animate-pulse">Fiş Analiz Ediliyor...</h3>
             <p class="text-xs opacity-60 mt-2">Yapay zeka verileri okuyor</p>
         </div>
-
         <div id="scanSuccess" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center text-white z-30">
             <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(34,197,94,0.5)]"><i data-lucide="check" class="w-10 h-10"></i></div>
             <h3 class="text-2xl font-bold mb-2">Başarılı!</h3>
@@ -164,12 +162,10 @@
 
     <div id="navPickerOverlay" class="picker-overlay" onclick="closeNavPicker()"><div class="picker-container pb-10" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Harita Seçin</h3><button onclick="closeNavPicker()" class="text-zinc-500 font-bold">Vazgeç</button></div><div class="space-y-3">
         <button id="btnAppleMaps" class="w-full glass-card p-5 flex items-center justify-start gap-4 haptic-btn text-current font-bold">
-            <svg viewBox="0 0 100 100" class="w-8 h-8 rounded-lg shadow-sm"><rect width="100" height="100" fill="#f5f5f7"/><path d="M30 30 L70 30 L70 70 L30 70 Z" fill="none" stroke="#000" stroke-width="5"/><circle cx="50" cy="50" r="15" fill="#007AFF"/></svg>
-            Apple Maps
+            <img src="https://upload.wikimedia.org/wikipedia/en/2/2c/Apple_Maps_icon.svg" class="w-8 h-8 rounded-lg shadow-sm">Apple Maps
         </button>
         <button id="btnGoogleMaps" class="w-full glass-card p-5 flex items-center justify-start gap-4 haptic-btn text-current font-bold">
-            <svg viewBox="0 0 100 100" class="w-8 h-8"><path d="M50 5 L15 30 L15 80 L50 95 L85 80 L85 30 Z" fill="#fff"/><path d="M50 20 L25 40 L50 60 L75 40 Z" fill="#34A853"/><path d="M50 60 L25 40 L25 70 L50 85 Z" fill="#FBBC05"/><path d="M50 60 L75 40 L75 70 L50 85 Z" fill="#4285F4"/><path d="M50 20 L75 40 L50 60 Z" fill="#EA4335"/></svg>
-            Google Maps
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/aa/Google_Maps_icon_%282020%29.svg" class="w-8 h-8">Google Maps
         </button>
     </div></div></div>
 
@@ -332,9 +328,10 @@
             }
         }
 
+        // V84: FIXED MAPS & CROSSHAIR
         function requestPermissions() {
             if('geolocation' in navigator) {
-                // Initial locate
+                // Initial locate with high zoom
                 leafletMap.locate({setView: true, maxZoom: 16});
                 
                 navigator.geolocation.watchPosition((pos) => {
@@ -351,14 +348,14 @@
 
                     if(leafletMap) {
                         if(!userMarker) {
-                            userMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 9999 }).addTo(leafletMap);
+                            userMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 99999 }).addTo(leafletMap);
                         } else {
                             userMarker.setLatLng(lastKnownUserPos);
                         }
                     }
                     if(miniMap) {
                         if(!miniUserMarker) {
-                            miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 9999 }).addTo(miniMap);
+                            miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 99999 }).addTo(miniMap);
                             miniMap.setView(lastKnownUserPos, 15);
                         } else {
                             miniUserMarker.setLatLng(lastKnownUserPos);
@@ -535,12 +532,11 @@
             lucide.createIcons();
         }
 
-        // V83: FIXED GOOGLE MAPS LINK
+        // V84: ORIGINAL LOGOS & FIXED LINKS
         function openNavPicker(target) {
             currentNavTarget = target;
             const q = encodeURIComponent(target);
             document.getElementById('btnAppleMaps').onclick = () => window.open(`http://maps.apple.com/?q=${q}`, '_blank');
-            // Using standard Universal Link which triggers app on mobile
             document.getElementById('btnGoogleMaps').onclick = () => window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank');
             document.getElementById('navPickerOverlay').style.display = 'flex';
         }
@@ -722,7 +718,6 @@
             closeSortPicker();
         }
 
-        // V83: FORCE UNLOCK SPLASH
         window.addEventListener('load', () => { 
             try {
                 initMiniMap();
@@ -731,7 +726,6 @@
                 checkOnboarding(); 
             } catch(e) { console.error(e); }
             
-            // Guaranteed unlock regardless of errors
             setTimeout(() => { 
                 document.getElementById('splash').style.display = 'none'; 
                 document.getElementById('app-content').style.opacity = '1'; 
