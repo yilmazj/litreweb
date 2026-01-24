@@ -361,6 +361,36 @@
         let currentNavTarget = null;
         
         const carData = {
+            // carData'nın hemen altına bunu yapıştır
+const subCarData = {
+    'Mercedes-Benz': {
+        'A Serisi': ['A160', 'A180', 'A200', 'A250'],
+        'B Serisi': ['B180', 'B200'],
+        'C Serisi': ['C180', 'C200', 'C220d', 'C300'],
+        'E Serisi': ['E180', 'E200', 'E220d', 'E300'],
+        'S Serisi': ['S320', 'S350', 'S400'],
+        'CLA': ['CLA180', 'CLA200', 'CLA250'], // Kodda 'CLA' geçiyor olabilir, kontrol et
+        'CLA Serisi': ['CLA180', 'CLA200', 'CLA250'], 
+        'CLS Serisi': ['CLS250', 'CLS350'],
+        'GLA Serisi': ['GLA180', 'GLA200', 'GLA250'],
+        'GLC Serisi': ['GLC200', 'GLC220d', 'GLC300'],
+        'GLE Serisi': ['GLE250d', 'GLE300d', 'GLE350']
+    },
+    'BMW': {
+        '1 Serisi': ['116i', '118i', '120i'],
+        '2 Serisi': ['218i', '220i'],
+        '3 Serisi': ['316i', '318i', '320i', '330i'],
+        '4 Serisi': ['420i', '430i'],
+        '5 Serisi': ['520i', '530i'],
+        '7 Serisi': ['730i', '740i'],
+        'X1 Serisi': ['sDrive16i', 'sDrive18i', 'sDrive20i'],
+        'X3 Serisi': ['20i', '30i'],
+        'X5 Serisi': ['25d', '30d', '40i']
+    }
+};
+
+// Bu değişkeni de global olarak tanımla (step değişkeninin olduğu yere)
+let pickingSubModel = false; 
             'Audi': ['A3', 'A4', 'A6', 'Q2', 'Q3', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi', 'X1', 'X3'],
             'Chevrolet': ['Aveo', 'Cruze', 'Captiva', 'Spark', 'Camaro'], 'Citroen': ['C3', 'C4', 'C5 Aircross', 'Berlingo', 'C-Elysee'],
             'Dacia': ['Sandero', 'Logan', 'Duster', 'Jogger', 'Lodgy'], 'Fiat': ['Egea', 'Linea', 'Punto', 'Doblo', 'Fiorino'],
@@ -473,8 +503,84 @@
         }
 
         function startVehicleFlow(fromOnboard = false) { step = 0; document.getElementById('plateInputContainer').classList.add('hidden'); document.getElementById('wheelContainer').classList.remove('hidden'); updatePickerUI(); document.getElementById('pickerOverlay').style.display = 'flex'; if(fromOnboard) document.getElementById('pickerOverlay').dataset.onboard = "true"; }
-        function updatePickerUI() { const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; document.getElementById('pickerTitle').innerText = titles[step]; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
-        function processSelection() { if(step === 0) selections.Marka = tempValue; if(step === 1) selections.Model = tempValue; if(step === 2) selections.Yıl = tempValue; if(step === 3) { selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; saveGarageData(); closePicker(); if(document.getElementById('pickerOverlay').dataset.onboard === "true") { document.getElementById('onboardCarText').innerText = `${selections.Marka} ${selections.Model}`; const btn = document.getElementById('finishOnboardBtn'); btn.classList.remove('opacity-50', 'pointer-events-none'); document.getElementById('pickerOverlay').dataset.onboard = "false"; } return; } step++; updatePickerUI(); }
+        function updatePickerUI() { 
+    const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; 
+    
+    // Eğer ara katmandaysak (Versiyon seçimi)
+    if (pickingSubModel) {
+        document.getElementById('pickerTitle').innerText = "Versiyon Seç";
+        const wheel = document.getElementById('wheel');
+        wheel.innerHTML = '<div style="height: 75px;"></div>';
+        
+        // Seçilen markanın ve modelin alt listesini getir
+        const subs = subCarData[selections.Marka][selections.Model];
+        
+        subs.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`);
+        wheel.innerHTML += '<div style="height: 75px;"></div>';
+        wheel.scrollTop = 0;
+        return; // Fonksiyonu burada kesiyoruz, aşağıya inmesin
+    }
+
+    // Normal akış
+    document.getElementById('pickerTitle').innerText = titles[step]; 
+    const wheel = document.getElementById('wheel'); 
+    wheel.innerHTML = '<div style="height: 75px;"></div>'; 
+    
+    let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; 
+    
+    if(step === 3) { 
+        document.getElementById('wheelContainer').classList.add('hidden'); 
+        document.getElementById('plateInputContainer').classList.remove('hidden'); 
+        return; 
+    } 
+    
+    data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); 
+    wheel.innerHTML += '<div style="height: 75px;"></div>'; 
+    wheel.scrollTop = 0; 
+}
+function processSelection() { 
+    // 1. Önce özel durum: Alt model (Versiyon) seçimi yapıldıysa
+    if (pickingSubModel) {
+        // Modeli güncelle: "A Serisi" yerine "A Serisi A180" yapıyoruz
+        selections.Model = selections.Model + ' ' + tempValue;
+        pickingSubModel = false; // Özel moddan çık
+        step++; // Yıl seçimine geç
+        updatePickerUI();
+        return;
+    }
+
+    // 2. Normal Adımlar
+    if(step === 0) selections.Marka = tempValue; 
+    
+    if(step === 1) { 
+        selections.Model = tempValue; 
+        
+        // KRİTİK NOKTA: Seçilen aracın alt modeli var mı kontrol et
+        if (subCarData[selections.Marka] && subCarData[selections.Marka][selections.Model]) {
+            pickingSubModel = true; // Özel moda gir
+            updatePickerUI(); // Arayüzü güncelle (Versiyon listesini göster)
+            return; // Adım sayısını (step) arttırmadan çık, çünkü daha işimiz bitmedi
+        }
+    } 
+    
+    if(step === 2) selections.Yıl = tempValue; 
+    
+    if(step === 3) { 
+        selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; 
+        saveGarageData(); 
+        closePicker(); 
+        if(document.getElementById('pickerOverlay').dataset.onboard === "true") { 
+            document.getElementById('onboardCarText').innerText = `${selections.Marka} ${selections.Model}`; 
+            const btn = document.getElementById('finishOnboardBtn'); 
+            btn.classList.remove('opacity-50', 'pointer-events-none'); 
+            document.getElementById('pickerOverlay').dataset.onboard = "false"; 
+        } 
+        return; 
+    } 
+    
+    step++; 
+    updatePickerUI(); 
+}
         function saveGarageData() { localStorage.setItem('garage', JSON.stringify(selections)); renderGarageUI(); }
         function renderGarageUI() { if(selections) { document.getElementById('viewMarka').innerText = selections.Marka + ' ' + selections.Model; document.getElementById('viewYıl').innerText = selections.Yıl; document.getElementById('viewPlaka').innerText = selections.Plaka; } }
         function getPricesForCity(city) { if(city === 'İstanbul') { return [ { brand: 'Shell', name: 'Shell - İstanbul Avrupa', benzin: 54.07, motorin: 57.34, lpg: 29.29, dist: 3.5 }, { brand: 'Shell', name: 'Shell - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 1.2 }, { brand: 'Opet', name: 'Opet - İstanbul Avrupa', benzin: 54.05, motorin: 57.28, lpg: 29.29, dist: 5.1 }, { brand: 'Opet', name: 'Opet - İstanbul Anadolu', benzin: 53.90, motorin: 57.16, lpg: 28.69, dist: 0.8 }, { brand: 'PO', name: 'PO - İstanbul Avrupa', benzin: 54.10, motorin: 57.34, lpg: 29.29, dist: 4.8 }, { brand: 'PO', name: 'PO - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 2.2 }, { brand: 'Total', name: 'Total - İstanbul Avrupa', benzin: 54.07, motorin: 57.35, lpg: 29.57, dist: 6.2 }, { brand: 'Total', name: 'Total - İstanbul Anadolu', benzin: 53.88, motorin: 57.16, lpg: 28.69, dist: 2.8 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Avrupa', benzin: 50.87, motorin: 52.57, lpg: 28.93, dist: 4.1 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Anadolu', benzin: 50.80, motorin: 52.50, lpg: 28.85, dist: 7.1 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Avrupa', benzin: 54.04, motorin: 57.27, lpg: 29.41, dist: 5.5 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Anadolu', benzin: 53.89, motorin: 57.15, lpg: 28.95, dist: 8.5 }, ]; } const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; let cityStations = []; const seed = city.length * 0.05; Object.keys(basePrices).forEach(brand => { if(Math.random() > 0.9 && city !== 'Ankara' && city !== 'İzmir') return; const pDiff = (Math.random() * 0.5) - 0.1 + seed; cityStations.push({ brand: brand, name: `${brand === 'Türkiye Petrolleri' ? 'TP' : brand} - ${city} Merkez`, benzin: (basePrices[brand] + pDiff).toFixed(2), motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2), lpg: (29.00 + pDiff).toFixed(2), dist: (Math.random() * 5 + 0.5).toFixed(1) }); }); return cityStations.sort((a,b) => a.dist - b.dist); }
