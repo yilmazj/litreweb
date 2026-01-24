@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Litre">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#ffffff">
-    <title>Litre - V88 Light Default</title>
+    <title>Litre - V88 Dark Mode Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -20,26 +20,28 @@
     <style>
         /* NATIVE FEEL CSS */
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
-        input { user-select: text; -webkit-user-select: text; }
+        input { user-select: text; -webkit-user-select: text; background: transparent; }
         
-        /* THEME VARIABLES - DEFAULT LIGHT */
+        /* THEME VARIABLES */
         :root { 
             --bg: #f2f2f7; 
             --text: #000; 
             --card: rgba(255, 255, 255, 0.75); 
             --border: rgba(0, 0, 0, 0.05); 
-            --subtext: #636366; 
+            --subtext: #636366;
+            --input-bg: rgba(128,128,128,0.1);
         }
         
         body.dark-mode { 
-            --bg: #000; 
-            --text: #fff; 
-            --card: rgba(30, 30, 32, 0.6); 
-            --border: rgba(255, 255, 255, 0.08); 
-            --subtext: #8e8e93; 
+            --bg: #000000; 
+            --text: #ffffff; 
+            --card: rgba(28, 28, 30, 0.65); 
+            --border: rgba(255, 255, 255, 0.1); 
+            --subtext: #8e8e93;
+            --input-bg: rgba(255,255,255,0.1);
         }
 
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; transition: background-color 0.3s; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
         
         #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: opacity 0.8s; }
         
@@ -47,25 +49,24 @@
         .onboard-step { display: none; flex-direction: column; height: 100%; justify-content: center; animation: fadeIn 0.5s; }
         .onboard-step.active { display: flex; }
         
-        /* Inputs adapted for both themes */
-        .onboard-input { background: rgba(128,128,128,0.1); border: 1px solid rgba(128,128,128,0.2); border-radius: 16px; padding: 18px; color: var(--text); width: 100%; font-size: 18px; outline: none; margin-bottom: 15px; transition: 0.3s; }
+        .onboard-input { background: var(--input-bg); border: 1px solid var(--border); border-radius: 16px; padding: 18px; color: var(--text); width: 100%; font-size: 18px; outline: none; margin-bottom: 15px; transition: 0.3s; }
         .onboard-input:focus { border-color: #3b82f6; background: rgba(59,130,246,0.1); }
         .onboard-input.error { border-color: #ef4444; background: rgba(239,68,68,0.1); }
         .onboard-btn { background: #3b82f6; color: white; font-weight: 800; padding: 18px; border-radius: 16px; width: 100%; margin-top: 20px; text-align: center; }
 
-        .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); position: absolute; width: 100%; top: 0; left: 0; }
+        .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); position: absolute; width: 100%; top: 0; left: 0; transition: background-color 0.3s; }
         .tab-content.active { display: block; }
         
-        .glass-card { background: var(--card); border: 0.5px solid var(--border); backdrop-filter: blur(25px) saturate(160%); border-radius: 2rem; }
+        .glass-card { background: var(--card); border: 0.5px solid var(--border); backdrop-filter: blur(25px) saturate(160%); border-radius: 2rem; transition: background-color 0.3s, border-color 0.3s; }
         .haptic-btn { transition: 0.1s; cursor: pointer; }
         .haptic-btn:active { transform: scale(0.96); opacity: 0.8; }
-        .dynamic-header { padding: 40px 18px 15px 18px; display: flex; justify-content: center; align-items: center; border-bottom: 0.5px solid var(--border); }
-        .floating-dock { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; height: 65px; background: var(--card); backdrop-filter: blur(45px); border: 0.5px solid var(--border); border-radius: 32px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .dynamic-header { padding: 40px 18px 15px 18px; display: flex; justify-content: center; align-items: center; border-bottom: 0.5px solid var(--border); transition: border-color 0.3s; }
+        .floating-dock { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; height: 65px; background: var(--card); backdrop-filter: blur(45px); border: 0.5px solid var(--border); border-radius: 32px; display: flex; justify-content: space-around; align-items: center; z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.15); transition: background-color 0.3s, border-color 0.3s; }
         .nav-item { color: var(--subtext); transition: 0.3s; position: relative; }
         .nav-item.active { color: var(--text); transform: translateY(-3px); }
         .nav-item.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 3px; height: 3px; background: var(--text); border-radius: 50%; }
         
-        #map, #miniMap { height: 100%; width: 100%; min-height: 220px; border-radius: 2rem; z-index: 1; background: #f2f2f7; }
+        #map, #miniMap { height: 100%; width: 100%; min-height: 220px; border-radius: 2rem; z-index: 1; background: var(--bg); transition: background-color 0.3s; }
         
         /* Map Styles */
         .google-dark-mode .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
@@ -79,40 +80,40 @@
         .user-beam { position: absolute; bottom: 50%; left: 50%; width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent; border-top: 60px solid rgba(47, 124, 246, 0.25); transform-origin: bottom center; transform: translateX(-50%) rotate(0deg); z-index: 80; transition: transform 0.1s linear; }
         @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
 
-        .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: 0.5px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: 0.5px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
 
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); z-index: 5000; display: none; align-items: flex-end; }
-        .picker-container { background: var(--card); width: 100%; border-radius: 30px 30px 0 0; padding: 25px; border-top: 0.5px solid var(--border); max-height: 85vh; display: flex; flex-direction: column; }
+        .picker-container { background: var(--card); width: 100%; border-radius: 30px 30px 0 0; padding: 25px; border-top: 0.5px solid var(--border); max-height: 85vh; display: flex; flex-direction: column; transition: background-color 0.3s, border-color 0.3s; }
         .wheel-wrapper { position: relative; height: 200px; overflow: hidden; }
-        .wheel-selection-bar { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); height: 48px; background: rgba(128, 128, 128, 0.1); border-radius: 12px; pointer-events: none; }
+        .wheel-selection-bar { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); height: 48px; background: var(--input-bg); border-radius: 12px; pointer-events: none; transition: background-color 0.3s; }
         .wheel-picker { height: 100%; overflow-y: scroll; overflow-x: hidden; scroll-snap-type: y mandatory; text-align: center; touch-action: pan-y; }
         .wheel-item { height: 44px; line-height: 44px; font-size: 16px; opacity: 0.4; color: var(--text); transition: 0.3s cubic-bezier(0.2, 1, 0.3, 1); }
         .wheel-item.selected { opacity: 1; font-weight: 800; font-size: 24px; transform: scale(1.1); color: var(--text); }
 
-        .toggle-switch { width: 44px; height: 24px; background: rgba(128,128,128,0.2); border-radius: 20px; position: relative; transition: 0.3s; cursor: pointer; }
+        .toggle-switch { width: 44px; height: 24px; background: var(--input-bg); border-radius: 20px; position: relative; transition: 0.3s; cursor: pointer; }
         .toggle-switch.active { background: #22c55e; }
         .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
         .toggle-switch.active .toggle-knob { left: 22px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .news-card, .carousel-card { flex: 0 0 80%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: 0.5px solid var(--border); }
+        .news-card, .carousel-card { flex: 0 0 80%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: 0.5px solid var(--border); transition: background-color 0.3s, border-color 0.3s; }
         .silver-grad { background: linear-gradient(145deg, #000, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         body.dark-mode .silver-grad { background: linear-gradient(145deg, #fff, #999); -webkit-text-fill-color: transparent; }
-        @keyframes scanAnim { 0%, 100% { top: 0; } 50% { top: 100%; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .profile-icon { background: var(--input-bg); color: var(--text); transition: background-color 0.3s, color 0.3s; }
 
-        .city-item { padding: 15px; border-bottom: 1px solid rgba(128,128,128,0.1); cursor: pointer; transition: 0.2s; }
-        .city-item:active { background: rgba(128,128,128,0.1); }
-        .search-input { background: rgba(128,128,128,0.1); border-radius: 12px; width: 100%; padding: 12px 40px 12px 15px; color: var(--text); outline: none; font-size: 16px; }
+        .city-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+        .city-item:active { background: var(--input-bg); }
+        .search-input { background: var(--input-bg); border-radius: 12px; width: 100%; padding: 12px 40px 12px 15px; color: var(--text); outline: none; font-size: 16px; transition: background-color 0.3s; }
         
         .spinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        #mapSearchResults { position: absolute; top: 70px; left: 20px; right: 20px; background: var(--card); border: 0.5px solid var(--border); border-radius: 1.5rem; backdrop-filter: blur(45px); max-height: 300px; overflow-y: auto; display: none; z-index: 3000; }
-        .map-search-item { padding: 15px 20px; border-bottom: 1px solid rgba(128,128,128,0.1); display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        #mapSearchResults { position: absolute; top: 70px; left: 20px; right: 20px; background: var(--card); border: 0.5px solid var(--border); border-radius: 1.5rem; backdrop-filter: blur(45px); max-height: 300px; overflow-y: auto; display: none; z-index: 3000; transition: background-color 0.3s, border-color 0.3s; }
+        .map-search-item { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .map-search-item:last-child { border-bottom: none; }
         .map-search-icon { width: 32px; height: 32px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         
-        .action-btn-small { background: rgba(128,128,128,0.1); padding: 8px; border-radius: 10px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .action-btn-small { background: var(--input-bg); padding: 8px; border-radius: 10px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .action-btn-small:active { transform: scale(0.9); background: rgba(128,128,128,0.2); }
 
         #cameraView { position: absolute; inset: 0; object-fit: cover; z-index: 0; display: none; }
@@ -147,7 +148,7 @@
 </div>
 
 <div id="splash">
-    <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoSplash" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#000" /><stop offset="100%" style="stop-color:#666" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoSplash)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoSplash" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoSplash)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <h1 class="text-4xl font-black silver-grad tracking-tight mt-3">Litre</h1>
 </div>
 
@@ -223,7 +224,7 @@
             <div id="home" class="tab-content active no-scrollbar pb-52">
                 <header class="dynamic-header">
                     <div class="flex items-center gap-2">
-                        <svg width="25" height="30" viewBox="0 0 100 120"><defs><linearGradient id="logoHeader" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#000" /><stop offset="100%" style="stop-color:#666" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoHeader)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <svg width="25" height="30" viewBox="0 0 100 120"><defs><linearGradient id="logoHeader" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoHeader)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         <h1 class="text-2xl font-black tracking-tight">Litre</h1>
                     </div>
                 </header>
@@ -271,7 +272,7 @@
                 </div></div>
             </div>
 
-            <div id="profile" class="tab-content no-scrollbar pb-44 px-5 pt-14"><div class="flex flex-col items-center mb-10"><div class="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center text-5xl mb-5 shadow-3xl ring-1 ring-white/10 shadow-2xl text-current">👤</div><h2 class="text-2xl font-black silver-grad" id="profileName">Misafir</h2><div class="mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase opacity-60 text-current">Free Member</div></div>
+            <div id="profile" class="tab-content no-scrollbar pb-44 px-5 pt-14"><div class="flex flex-col items-center mb-10"><div class="w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-5 shadow-3xl ring-1 ring-white/10 shadow-2xl text-current profile-icon">👤</div><h2 class="text-2xl font-black silver-grad" id="profileName">Misafir</h2><div class="mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase opacity-60 text-current">Free Member</div></div>
                 <div class="space-y-6 text-current">
                     <div class="glass-card p-7 space-y-6 shadow-xl"><div class="flex justify-between items-center"><h3 class="text-[10px] font-black opacity-30 uppercase">Garajım</h3><i data-lucide="car-front" class="opacity-20 w-4 h-4"></i></div><div class="flex justify-between text-center border-b border-white/5 pb-6"><div><p class="text-[9px] opacity-40 uppercase mb-1">Marka</p><p id="viewMarka" class="text-lg font-black">-</p></div><div><p class="text-[9px] opacity-40 uppercase mb-1">Yıl</p><p id="viewYıl" class="text-lg font-black">-</p></div><div><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p id="viewPlaka" class="text-lg font-black tracking-tighter">-</p></div></div>
                         <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current"><div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p id="viewAvgCost" class="text-2xl font-black text-blue-500">0,00 TL</p></div><div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p id="viewTotalLiters" class="text-2xl font-black">0.0 L</p></div></div>
