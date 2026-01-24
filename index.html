@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Litre">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#000000">
-    <title>Litre - V86 Blue Dot Fix</title>
+    <title>Litre - V85 True Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -22,9 +22,9 @@
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
         input { user-select: text; -webkit-user-select: text; }
         
-        :root { --bg: #000; --text: #fff; --card: rgba(30, 30, 32, 0.5); --border: rgba(255, 255, 255, 0.08); --subtext: #8e8e93; }
-        body.light-mode { --bg: #f2f2f7; --text: #000; --card: rgba(255, 255, 255, 0.65); --border: rgba(0, 0, 0, 0.04); --subtext: #636366; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; }
+        :root { --bg: #000; --text: #fff; --card: rgba(28, 28, 30, 0.6); --border: rgba(255, 255, 255, 0.1); --subtext: #8e8e93; }
+        body.light-mode { --bg: #f2f2f7; --text: #000; --card: rgba(255, 255, 255, 0.75); --border: rgba(0, 0, 0, 0.05); --subtext: #636366; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
         #splash { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: opacity 0.8s; }
         
         #onboarding { position: fixed; inset: 0; background: #000; z-index: 4500; display: flex; flex-direction: column; padding: 30px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -38,7 +38,7 @@
         .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); position: absolute; width: 100%; top: 0; left: 0; }
         .tab-content.active { display: block; }
         
-        .glass-card { background: var(--card); border: 0.5px solid var(--border); backdrop-filter: blur(35px) saturate(160%); border-radius: 2rem; }
+        .glass-card { background: var(--card); border: 0.5px solid var(--border); backdrop-filter: blur(20px) saturate(180%); border-radius: 2rem; }
         .haptic-btn { transition: 0.1s; cursor: pointer; }
         .haptic-btn:active { transform: scale(0.96); opacity: 0.8; }
         .dynamic-header { padding: 40px 18px 15px 18px; display: flex; justify-content: center; align-items: center; border-bottom: 0.5px solid var(--border); }
@@ -49,48 +49,43 @@
         
         #map, #miniMap { height: 100%; width: 100%; min-height: 220px; border-radius: 2rem; z-index: 1; background: #000; }
         
-        /* V86 FIX: APPLY FILTER ONLY TO TILES, NOT MARKERS */
-        .apple-map-dark .leaflet-tile-pane { filter: saturate(1.2) contrast(1.1) brightness(0.85) hue-rotate(-5deg) invert(100%); }
-        body.light-mode .apple-map-dark .leaflet-tile-pane { filter: none; }
+        /* V85 FIX: LOCATION DOT VISIBILITY */
+        .leaflet-div-icon { background: transparent !important; border: none !important; }
         
-        /* V86 FIX: FORCE VISIBILITY & Z-INDEX */
-        .user-location-marker { z-index: 999999 !important; pointer-events: none; }
-        .location-container { position: relative; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; }
-        
-        .user-dot { 
-            width: 22px; height: 22px; 
-            background: #2f7cf6; 
-            border: 4px solid white; 
-            border-radius: 50%; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            z-index: 10;
+        .user-dot {
+            width: 24px; height: 24px;
+            background-color: #007AFF;
+            border: 4px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
+            z-index: 500; /* High z-index inside the pane */
         }
         
         .user-pulse {
-            width: 50px; height: 50px;
-            background: rgba(47, 124, 246, 0.3);
+            width: 60px; height: 60px;
+            background-color: rgba(0, 122, 255, 0.2);
             border-radius: 50%;
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            animation: pulse 2s infinite ease-out;
-            z-index: 1;
+            animation: pulse 2s infinite;
+            z-index: 400;
         }
         
         .user-beam {
             position: absolute;
             bottom: 50%; left: 50%;
             width: 0; height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-top: 60px solid rgba(47, 124, 246, 0.25);
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-top: 100px solid rgba(0, 122, 255, 0.15);
             transform-origin: bottom center;
             transform: translateX(-50%) rotate(0deg);
-            filter: blur(5px);
-            z-index: 2;
+            z-index: 300;
+            pointer-events: none;
             transition: transform 0.1s linear;
         }
 
@@ -276,7 +271,7 @@
                     <div class="glass-card h-14 rounded-[1.8rem] flex items-center px-6 shadow-2xl relative">
                         <i data-lucide="search" class="opacity-40 mr-3 text-current w-5 h-5"></i>
                         <input type="text" id="mapSearchInput" onkeyup="handleMapSearch()" placeholder="İstasyon veya şehir ara..." class="bg-transparent text-md w-full outline-none text-current">
-                        <i id="micIcon" onclick="startVoiceSearch()" data-lucide="mic" class="opacity-40 ml-3 text-current w-5 h-5 cursor-pointer"></i>
+                        <i data-lucide="mic" class="opacity-40 ml-3 text-current w-5 h-5"></i>
                     </div>
                     <div id="mapSearchResults"></div>
                 </header>
@@ -325,7 +320,8 @@
         
         const cities = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"];
 
-        const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
+        // V85 CHANGE: TRUE DARK MAP SOURCE & NO FILTER ON TILES
+        const tileDark = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'; 
         const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
         const stationLogos = {
@@ -368,10 +364,8 @@
             }
         }
 
-        // V86: FIXED PERMISSIONS & DARK MODE FILTER TARGETING
         function requestPermissions() {
             if('geolocation' in navigator) {
-                // Initial locate
                 leafletMap.locate({setView: true, maxZoom: 16});
                 
                 navigator.geolocation.watchPosition((pos) => {
@@ -379,6 +373,7 @@
                     const lng = pos.coords.longitude;
                     lastKnownUserPos = [lat, lng];
                     
+                    // V85 FIX: Use marker pane to avoid z-index fighting with tiles
                     const userIcon = L.divIcon({
                         className: 'user-location-marker',
                         html: `<div class="location-container">
@@ -390,16 +385,22 @@
                         iconAnchor: [30, 30]
                     });
 
+                    // We create a custom pane for user marker to ensure it's ALWAYS on top
                     if(leafletMap) {
+                        if(!leafletMap.getPane('userMarkerPane')) {
+                            leafletMap.createPane('userMarkerPane');
+                            leafletMap.getPane('userMarkerPane').style.zIndex = 650; // Above markers
+                        }
+                        
                         if(!userMarker) {
-                            userMarker = L.marker(lastKnownUserPos, { icon: userIcon }).addTo(leafletMap);
+                            userMarker = L.marker(lastKnownUserPos, { icon: userIcon, pane: 'userMarkerPane' }).addTo(leafletMap);
                         } else {
                             userMarker.setLatLng(lastKnownUserPos);
                         }
                     }
                     if(miniMap) {
                         if(!miniUserMarker) {
-                            miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon }).addTo(miniMap);
+                            miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 99999 }).addTo(miniMap);
                             miniMap.setView(lastKnownUserPos, 15);
                         } else {
                             miniUserMarker.setLatLng(lastKnownUserPos);
@@ -685,7 +686,15 @@
         function showPermModal(icon, text) { document.getElementById('permIcon').setAttribute('data-lucide', icon); document.getElementById('permText').innerText = text; document.getElementById('permModal').style.display = 'flex'; lucide.createIcons(); }
         function closePermModal() { document.getElementById('permModal').style.display = 'none'; }
 
-        function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); const tile = currentTheme === 'dark' ? tileDark : tileLight; L.tileLayer(tile).addTo(mapObj); const el = document.getElementById(elementId); if(currentTheme === 'dark') { el.style.filter = 'invert(100%) hue-rotate(180deg) brightness(1.1) saturate(1.4) contrast(0.9)'; el.style.background = '#0a1016'; } else { el.style.filter = 'none'; el.style.background = '#fff'; } }
+        // V85 UPDATE: Handle Map Layers Correctly
+        function updateMapLayer(mapObj, elementId) { 
+            if(!mapObj) return; 
+            mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); 
+            const tile = currentTheme === 'dark' ? tileDark : tileLight; 
+            L.tileLayer(tile).addTo(mapObj); 
+            // V86: No more filter inversion hacks
+        }
+
         function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); }
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function setTheme(mode) { currentTheme = mode; document.body.classList.toggle('light-mode', mode === 'light'); updateMapLayer(leafletMap, 'map'); updateMapLayer(miniMap, 'miniMap'); }
@@ -782,7 +791,6 @@
             closeSortPicker();
         }
 
-        // V86: SAFE INIT - NO SPLASH LOCK
         window.addEventListener('load', () => { 
             try {
                 initMiniMap();
@@ -791,7 +799,6 @@
                 checkOnboarding(); 
             } catch(e) { console.error(e); }
             
-            // Unconditional unlock
             setTimeout(() => { 
                 document.getElementById('splash').style.display = 'none'; 
                 document.getElementById('app-content').style.opacity = '1'; 
