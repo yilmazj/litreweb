@@ -506,9 +506,9 @@ let pickingSubModel = false;
         function updatePickerUI() { 
     const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; 
     
-    // Eğer ara katmandaysak (Versiyon seçimi)
+    // Eğer ara katmandaysak (Seri seçimi)
     if (pickingSubModel) {
-        document.getElementById('pickerTitle').innerText = "Versiyon Seç";
+        document.getElementById('pickerTitle').innerText = "Serisini Seç";
         const wheel = document.getElementById('wheel');
         wheel.innerHTML = '<div style="height: 75px;"></div>';
         
@@ -539,7 +539,7 @@ let pickingSubModel = false;
     wheel.scrollTop = 0; 
 }
 function processSelection() { 
-    // 1. Önce özel durum: Alt model (Versiyon) seçimi yapıldıysa
+    // 1. Önce özel durum: Alt model (Seri) seçimi yapıldıysa
     if (pickingSubModel) {
         // Modeli güncelle: "A Serisi" yerine "A Serisi A180" yapıyoruz
         selections.Model = selections.Model + ' ' + tempValue;
@@ -558,7 +558,7 @@ function processSelection() {
         // KRİTİK NOKTA: Seçilen aracın alt modeli var mı kontrol et
         if (subCarData[selections.Marka] && subCarData[selections.Marka][selections.Model]) {
             pickingSubModel = true; // Özel moda gir
-            updatePickerUI(); // Arayüzü güncelle (Versiyon listesini göster)
+            updatePickerUI(); // Arayüzü güncelle (Seri listesini göster)
             return; // Adım sayısını (step) arttırmadan çık, çünkü daha işimiz bitmedi
         }
     } 
