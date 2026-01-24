@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Litre">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" content="#ffffff">
+<meta id="metaThemeColor" name="theme-color" content="#f2f2f7">
     <title>Litre - V89 Smart Theme</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -94,8 +94,21 @@
         .toggle-switch.active .toggle-knob { left: 22px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .news-card, .carousel-card { flex: 0 0 80%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: var(--glass-border); transition: background-color 0.3s, border-color 0.3s; }
-        .silver-grad { background: linear-gradient(145deg, #000, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        body.dark-mode .silver-grad { background: linear-gradient(145deg, #fff, #999); -webkit-text-fill-color: transparent; }
+        
+        /* FIX: display inline-block eklendi ki dikdörtgen kutu oluşmasın */
+        .silver-grad { 
+            background: linear-gradient(145deg, #000, #666); 
+            -webkit-background-clip: text; 
+            background-clip: text;
+            -webkit-text-fill-color: transparent; 
+            display: inline-block;
+        }
+        body.dark-mode .silver-grad { 
+            background: linear-gradient(145deg, #fff, #999); 
+            -webkit-background-clip: text; 
+            background-clip: text;
+            -webkit-text-fill-color: transparent; 
+        }
         
         .profile-icon { background: var(--input-bg); color: var(--text); transition: background-color 0.3s, color 0.3s; }
 
@@ -385,6 +398,14 @@
             }
 
             document.body.classList.toggle('dark-mode', isDark);
+            
+            // FIX: Meta tag color'ı dinamik olarak değiştiriyoruz
+            const metaThemeColor = document.getElementById('metaThemeColor');
+            if(metaThemeColor) {
+                // Dark mode ise Siyah, değilse açık gri (var--bg)
+                metaThemeColor.setAttribute("content", isDark ? "#000000" : "#f2f2f7");
+            }
+
             updateMapLayer(leafletMap, 'map'); 
             updateMapLayer(miniMap, 'miniMap');
         }
