@@ -23,6 +23,7 @@
     <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 
     <script>
+        // Dinamik Manifest Oluşturma
         const manifest = {
             "name": "Litre",
             "short_name": "Litre",
@@ -46,6 +47,7 @@
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
         input { user-select: text; -webkit-user-select: text; background: transparent; }
         
+        /* THEME VARIABLES */
         :root { 
             --bg: #f2f2f7; 
             --text: #000; 
@@ -92,47 +94,15 @@
         .nav-item.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 3px; height: 3px; background: var(--text); border-radius: 50%; }
         
         #map, #miniMap { height: 100%; width: 100%; min-height: 220px; border-radius: 2rem; z-index: 1; background: var(--bg); transition: background-color 0.3s; }
+        .google-dark-mode .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
+        body:not(.dark-mode) .google-dark-mode .leaflet-tile-pane { filter: none; }
         
-        /* APPLE MAPS TARZI KONUM İŞARETÇİSİ DÜZELTMESİ */
-        .user-location-marker { 
-            background: transparent !important;
-            border: none !important;
-            pointer-events: none;
-        }
-        .location-container { 
-            position: relative; 
-            width: 40px; 
-            height: 40px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-        }
-        /* Mavi Nokta (Apple Style) */
-        .user-dot { 
-            width: 18px; 
-            height: 18px; 
-            background: #007AFF; 
-            border: 3px solid white; 
-            border-radius: 50%; 
-            box-shadow: 0 0 5px rgba(0,0,0,0.25); 
-            z-index: 20; 
-            position: absolute;
-        }
-        /* Nefes Alan Hale */
-        .user-pulse { 
-            width: 40px; 
-            height: 40px; 
-            background: rgba(0, 122, 255, 0.2); 
-            border-radius: 50%; 
-            position: absolute; 
-            animation: pulseApple 2s infinite ease-in-out; 
-            z-index: 10; 
-        }
-        @keyframes pulseApple { 
-            0% { transform: scale(0.5); opacity: 0; } 
-            50% { opacity: 0.5; } 
-            100% { transform: scale(1.2); opacity: 0; } 
-        }
+        .user-location-marker { z-index: 999999 !important; pointer-events: none; }
+        .location-container { position: relative; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; }
+        .user-dot { width: 18px; height: 18px; background: #2f7cf6; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 100; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .user-pulse { width: 50px; height: 50px; background: rgba(47, 124, 246, 0.4); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse 2s infinite ease-out; z-index: 90; }
+        .user-beam { position: absolute; bottom: 50%; left: 50%; width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent; border-top: 60px solid rgba(47, 124, 246, 0.25); transform-origin: bottom center; transform: translateX(-50%) rotate(0deg); z-index: 80; transition: transform 0.1s linear; }
+        @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
 
         .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
 
@@ -247,6 +217,14 @@
                 <p class="text-sm opacity-70 mb-2" id="resDate">...</p>
                 <p class="text-3xl font-black text-blue-400" id="resTotal">...</p>
             </div>
+        </div>
+        <div id="scanError" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center text-white z-40 backdrop-blur-md">
+            <div class="w-20 h-20 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mb-6 border border-red-500/50">
+                <i data-lucide="alert-circle" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-2xl font-black mb-2">Fiş Algılanamadı</h3>
+            <p class="text-white/60 text-sm font-bold mb-8 text-center px-10">Görselde fiş metni okunamadı. Işığın iyi olduğundan emin ol.</p>
+            <button onclick="retryScan()" class="bg-white text-black font-black py-4 px-10 rounded-2xl haptic-btn active:scale-95 transition-transform">Tekrar Dene</button>
         </div>
     </div>
 
@@ -374,7 +352,7 @@
 
     <script>
         lucide.createIcons();
-        let leafletMap, miniMap, currentTheme = 'system';
+        let leafletMap, miniMap, currentTheme = 'system'; // Default System
         let fuelRecords = [];
         let videoStream = null;
         let userMarker = null;
@@ -400,11 +378,8 @@
 
         const cityCoordinates = { "İstanbul": [41.0082, 28.9784], "Ankara": [39.9334, 32.8597], "İzmir": [38.4192, 27.1287] };
         const cities = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"];
-        
-        // CartoDB Dark Matter (Native Dark Mode)
-        const tileDark = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'; 
-        // CartoDB Voyager/Light
-        const tileLight = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
+        const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
         const stationLogos = {
             'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' },
@@ -468,49 +443,24 @@
                 leafletMap.locate({setView: true, maxZoom: 16});
                 navigator.geolocation.watchPosition((pos) => {
                     const lat = pos.coords.latitude; const lng = pos.coords.longitude; lastKnownUserPos = [lat, lng];
-                    
-                    // Apple Style Marker HTML
-                    const userIcon = L.divIcon({ 
-                        className: 'user-location-marker', 
-                        html: `<div class="location-container"><div class="user-pulse"></div><div class="user-dot"></div></div>`, 
-                        iconSize: [40, 40], 
-                        iconAnchor: [20, 20] 
-                    });
-
+                    const userIcon = L.divIcon({ className: 'user-location-marker', html: `<div class="location-container"><div class="user-beam" id="userBeam"></div><div class="user-pulse"></div><div class="user-dot"></div></div>`, iconSize: [60, 60], iconAnchor: [30, 30] });
                     if(leafletMap) {
-                        // Create a pane with VERY high z-index to ensure visibility
-                        if(!leafletMap.getPane('userMarkerPane')) { 
-                            leafletMap.createPane('userMarkerPane'); 
-                            leafletMap.getPane('userMarkerPane').style.zIndex = 9000; 
-                        }
-                        if(!userMarker) { 
-                            userMarker = L.marker(lastKnownUserPos, { icon: userIcon, pane: 'userMarkerPane' }).addTo(leafletMap); 
-                        } else { 
-                            userMarker.setLatLng(lastKnownUserPos); 
-                        }
+                        if(!leafletMap.getPane('userMarkerPane')) { leafletMap.createPane('userMarkerPane'); leafletMap.getPane('userMarkerPane').style.zIndex = 650; }
+                        if(!userMarker) { userMarker = L.marker(lastKnownUserPos, { icon: userIcon, pane: 'userMarkerPane' }).addTo(leafletMap); } else { userMarker.setLatLng(lastKnownUserPos); }
                     }
                     if(miniMap) {
-                        if(!miniUserMarker) { 
-                            miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 99999 }).addTo(miniMap); 
-                            miniMap.setView(lastKnownUserPos, 15); 
-                        } else { 
-                            miniUserMarker.setLatLng(lastKnownUserPos); 
-                        }
+                        if(!miniUserMarker) { miniUserMarker = L.marker(lastKnownUserPos, { icon: userIcon, zIndexOffset: 99999 }).addTo(miniMap); miniMap.setView(lastKnownUserPos, 15); } else { miniUserMarker.setLatLng(lastKnownUserPos); }
                     }
                 }, (err) => { console.log("Konum izni verilmedi"); }, { enableHighAccuracy: true });
             }
+            if(window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', function(event) {
+                    if(event.webkitCompassHeading) { rotateUserBeam(event.webkitCompassHeading); } else if(event.alpha) { rotateUserBeam(360 - event.alpha); }
+                });
+            }
         }
-        
-        function recenterUser() { 
-            if(lastKnownUserPos && leafletMap) { 
-                leafletMap.flyTo(lastKnownUserPos, 16); 
-                // Force Update Marker if it was hidden
-                if(userMarker) userMarker.setLatLng(lastKnownUserPos);
-            } else { 
-                leafletMap.locate({setView: true, maxZoom: 16}); 
-            } 
-        }
-
+        function rotateUserBeam(deg) { const beams = document.querySelectorAll('#userBeam'); beams.forEach(beam => { beam.style.transform = `translateX(-50%) rotate(${deg}deg)`; }); }
+        function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
         function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Tarayıcınız sesli aramayı desteklemiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; const input = document.getElementById('mapSearchInput'); input.value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); const match = cities.find(c => c.toLowerCase() === text.toLowerCase()); if(match) { flyToCity(match); } }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; recognition.onend = () => { micIcon.classList.remove('mic-active'); }; }
         function nextStep(stepNum) { if(stepNum === 1) { const name = document.getElementById('regName').value; const email = document.getElementById('regEmail').value; const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/; if(!name) { document.getElementById('regName').classList.add('error'); return; } if(!emailRegex.test(email)) { document.getElementById('regEmail').classList.add('error'); alert("Lütfen geçerli bir e-posta adresi girin (örn: ornek@gmail.com)"); return; } document.getElementById('step1').classList.remove('active'); document.getElementById('step2').classList.add('active'); } }
         
@@ -534,16 +484,75 @@
         function sharePrice(station, price) { if (navigator.share) { navigator.share({ title: 'Ucuz Yakıt Buldum!', text: `${station} istasyonunda benzin sadece ${price} TL!`, url: window.location.href }); } else { alert('Panoya kopyalandı!'); } }
         function handleScanAction() { navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => { videoStream = stream; document.getElementById('cameraView').srcObject = stream; document.getElementById('cameraView').style.display = 'block'; document.getElementById('scanOverlay').style.display = 'flex'; }).catch((err) => { showPermModal('camera', 'Fiş taramak için kamera izni vermeniz gerekiyor.'); }); }
         function closeScan() { document.getElementById('scanOverlay').style.display = 'none'; if(videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; } }
-        function takePhoto() { const video = document.getElementById('cameraView'); const canvas = document.getElementById('cameraCanvas'); const context = canvas.getContext('2d'); canvas.width = video.videoWidth; canvas.height = video.videoHeight; context.drawImage(video, 0, 0, canvas.width, canvas.height); video.pause(); document.getElementById('scanUI').style.display = 'none'; document.getElementById('scanProcessing').style.display = 'flex'; Tesseract.recognize(canvas, 'tur', { logger: m => console.log(m) }).then(({ data: { text } }) => { if (text.toUpperCase().includes('PETROL') || text.toUpperCase().includes('TOPLAM') || text.toUpperCase().includes('TL')) { const totalMatch = text.match(/TOPLAM\s*[*]*([\d.,]+)/i) || text.match(/[\d.,]+\s*TL/i); const total = totalMatch ? totalMatch[1] : '1.850,53'; const amount = parseFloat(total.replace('.','').replace(',','.')); document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanSuccess').style.display = 'flex'; document.getElementById('resStation').innerText = "HIRFANLI PETROL"; document.getElementById('resDate').innerText = "28.07.2023"; document.getElementById('resTotal').innerText = total + " TL"; const newRec = { station: 'HIRFANLI PETROL', date: '28.07.2023', amount: amount, details: '50.63 L · 36,55 TL/L' }; fuelRecords.unshift(newRec); updateGarageAnalysis(); setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); } else { document.getElementById('scanProcessing').style.display = 'none'; alert("Fiş algılanamadı! Lütfen bir akaryakıt fişi taratın."); document.getElementById('scanUI').style.display = 'flex'; video.play(); } }); }
+        
+        // YENİ: Hata ekranından sonra kamerayı tekrar dener
+        function retryScan() {
+            document.getElementById('scanError').style.display = 'none';
+            document.getElementById('scanUI').style.display = 'flex';
+            const video = document.getElementById('cameraView');
+            video.play().catch(e => console.log(e)); // Force resume
+        }
+
+        // GÜNCELLENEN takePhoto fonksiyonu
+        function takePhoto() { 
+            const video = document.getElementById('cameraView'); 
+            const canvas = document.getElementById('cameraCanvas'); 
+            const context = canvas.getContext('2d'); 
+            
+            canvas.width = video.videoWidth; 
+            canvas.height = video.videoHeight; 
+            context.drawImage(video, 0, 0, canvas.width, canvas.height); 
+            
+            video.pause(); // Görüntüyü dondur
+            document.getElementById('scanUI').style.display = 'none'; 
+            document.getElementById('scanProcessing').style.display = 'flex'; 
+            
+            Tesseract.recognize(canvas, 'tur', { logger: m => console.log(m) }).then(({ data: { text } }) => { 
+                if (text.toUpperCase().includes('PETROL') || text.toUpperCase().includes('TOPLAM') || text.toUpperCase().includes('TL')) { 
+                    const totalMatch = text.match(/TOPLAM\s*[*]*([\d.,]+)/i) || text.match(/[\d.,]+\s*TL/i); 
+                    const total = totalMatch ? totalMatch[1] : '1.850,53'; 
+                    const amount = parseFloat(total.replace('.','').replace(',','.')); 
+                    
+                    document.getElementById('scanProcessing').style.display = 'none'; 
+                    document.getElementById('scanSuccess').style.display = 'flex'; 
+                    document.getElementById('resStation').innerText = "HIRFANLI PETROL"; 
+                    document.getElementById('resDate').innerText = "28.07.2023"; 
+                    document.getElementById('resTotal').innerText = total + " TL"; 
+                    
+                    const newRec = { station: 'HIRFANLI PETROL', date: '28.07.2023', amount: amount, details: '50.63 L · 36,55 TL/L' }; 
+                    fuelRecords.unshift(newRec); 
+                    updateGarageAnalysis(); 
+                    
+                    setTimeout(() => { 
+                        closeScan(); 
+                        document.getElementById('scanSuccess').style.display = 'none'; 
+                        document.getElementById('scanUI').style.display = 'flex'; 
+                        showTab('radar', document.querySelector('.nav-item:nth-child(4)')); 
+                    }, 3000); 
+                } else { 
+                    // BAŞARISIZ DURUM - ALERT YERİNE HATA EKRANI
+                    document.getElementById('scanProcessing').style.display = 'none'; 
+                    document.getElementById('scanError').style.display = 'flex'; // Hata ekranını aç
+                    lucide.createIcons();
+                } 
+            }).catch(err => {
+                // Tesseract Hatası
+                document.getElementById('scanProcessing').style.display = 'none'; 
+                document.getElementById('scanError').style.display = 'flex'; 
+                lucide.createIcons();
+            }); 
+        }
+
         function showPermModal(icon, text) { document.getElementById('permIcon').setAttribute('data-lucide', icon); document.getElementById('permText').innerText = text; document.getElementById('permModal').style.display = 'flex'; lucide.createIcons(); }
         function closePermModal() { document.getElementById('permModal').style.display = 'none'; }
         
         function updateMapLayer(mapObj, elementId) { 
             if(!mapObj) return; 
             mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); 
-            // Direkt Native Dark Tile kullanıyoruz, invert yok
             const tile = document.body.classList.contains('dark-mode') ? tileDark : tileLight; 
             L.tileLayer(tile).addTo(mapObj); 
+            const el = document.getElementById(elementId); 
+            if(document.body.classList.contains('dark-mode')) { el.classList.add('google-dark-mode'); } else { el.classList.remove('google-dark-mode'); }
         }
 
         function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); }
@@ -572,7 +581,7 @@
 
         window.addEventListener('load', () => { 
             try {
-                initTheme(); 
+                initTheme();
                 initMiniMap();
                 updateGarageAnalysis();
                 selectCity('İstanbul'); 
