@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Litre">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#000000">
-    <title>Litre - V80 GOLD MASTER</title>
+    <title>Litre - V81 Camera & Map Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -18,7 +18,7 @@
     <style>
         /* NATIVE FEEL CSS */
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
-        input { user-select: text; -webkit-user-select: text; } /* Inputs exception */
+        input { user-select: text; -webkit-user-select: text; }
         
         :root { --bg: #000; --text: #fff; --card: rgba(30, 30, 32, 0.5); --border: rgba(255, 255, 255, 0.08); --subtext: #8e8e93; }
         body.light-mode { --bg: #f2f2f7; --text: #000; --card: rgba(255, 255, 255, 0.65); --border: rgba(0, 0, 0, 0.04); --subtext: #636366; }
@@ -50,7 +50,6 @@
         .apple-map-dark { filter: saturate(1.2) contrast(1.1) brightness(0.85) hue-rotate(-5deg); transition: 0.4s; }
         body.light-mode .apple-map-dark { filter: none; }
         
-        /* V80: Compass & Location Styles */
         .user-location-dot { width: 18px; height: 18px; background: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(59,130,246,0.5); position: relative; z-index: 1000; }
         .user-location-arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 15px solid rgba(59,130,246,0.5); border-radius: 4px; opacity: 0.8; transition: transform 0.1s; transform-origin: bottom center; }
         .user-location-pulse { position: absolute; width: 60px; height: 60px; background: rgba(59,130,246,0.3); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse-ring 2s infinite; pointer-events: none; }
@@ -94,6 +93,9 @@
 
         #cameraView { position: absolute; inset: 0; object-fit: cover; z-index: 0; display: none; }
         .camera-overlay-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
+        
+        /* Shutter Button */
+        .shutter-btn { w-20 h-20 bg-white rounded-full border-4 border-zinc-300 shadow-2xl flex items-center justify-center haptic-btn active:scale-90 transition-transform; }
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -127,24 +129,32 @@
 
     <div id="scanOverlay" class="fixed inset-0 bg-black z-[4500] hidden flex-col items-center justify-center">
         <video id="cameraView" autoplay playsinline></video>
-        <div class="camera-overlay-ui">
+        <canvas id="cameraCanvas" style="display:none;"></canvas>
+        
+        <div id="scanUI" class="camera-overlay-ui">
             <div class="flex justify-end"><button onclick="closeScan()" class="p-3 bg-black/40 backdrop-blur-md rounded-full haptic-btn"><i data-lucide="x" class="text-white w-6 h-6"></i></button></div>
             <div class="w-full h-1/2 border-2 border-white/30 rounded-[2rem] relative overflow-hidden">
-                <div class="absolute top-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_#3b82f6] animate-[scanAnim_3s_infinite]"></div>
                 <div class="absolute inset-0 flex items-center justify-center"><p class="text-white/50 text-xs font-bold uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full">Fişi Çerçeveye Hizala</p></div>
             </div>
             <div class="flex justify-center pb-10">
-                <button onclick="captureReceipt()" class="w-20 h-20 bg-white rounded-full border-4 border-zinc-300 shadow-2xl flex items-center justify-center haptic-btn active:scale-90 transition-transform">
+                <button onclick="takePhoto()" class="w-20 h-20 bg-white rounded-full border-4 border-zinc-300 shadow-2xl flex items-center justify-center haptic-btn active:scale-90 transition-transform">
                     <div class="w-16 h-16 bg-white border-2 border-black rounded-full"></div>
                 </button>
             </div>
         </div>
-        <div id="scanSuccess" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center text-white z-20">
-            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(34,197,94,0.5)]"><i data-lucide="check" class="w-8 h-8"></i></div>
-            <h3 class="text-xl font-bold mb-2">Okundu!</h3>
-            <div class="bg-white/10 p-4 rounded-2xl text-center">
-                <p class="font-bold text-sm">HIRFANLI PETROL</p>
-                <p class="text-xs opacity-70">1.850,53 TL</p>
+
+        <div id="scanProcessing" class="absolute inset-0 bg-black/80 z-20 hidden flex-col items-center justify-center text-white backdrop-blur-sm">
+            <div class="spinner w-12 h-12 mb-4"></div>
+            <h3 class="text-xl font-bold animate-pulse">Analiz Ediliyor...</h3>
+        </div>
+
+        <div id="scanSuccess" class="absolute inset-0 bg-black/90 hidden flex-col items-center justify-center text-white z-30">
+            <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(34,197,94,0.5)]"><i data-lucide="check" class="w-10 h-10"></i></div>
+            <h3 class="text-2xl font-bold mb-2">İşlem Tamamlandı</h3>
+            <div class="bg-white/10 p-6 rounded-2xl text-center mt-4 w-64">
+                <p class="font-bold text-lg mb-1">HIRFANLI PETROL</p>
+                <p class="text-sm opacity-70 mb-2">28.07.2023</p>
+                <p class="text-3xl font-black text-blue-400">1.850,53 TL</p>
             </div>
         </div>
     </div>
@@ -265,7 +275,19 @@
         let lastKnownUserPos = null;
         let currentNavTarget = null;
         
-        const cities = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"];
+        // V81: 81 Cities Coordinates
+        const cityCoordinates = {
+            "Adana": [37.0000, 35.3213], "Adıyaman": [37.7648, 38.2786], "Afyonkarahisar": [38.7507, 30.5567], "Ağrı": [39.7191, 43.0503], "Aksaray": [38.3687, 34.0370], "Amasya": [40.6499, 35.8353], "Ankara": [39.9334, 32.8597], "Antalya": [36.8969, 30.7133], "Ardahan": [41.1105, 42.7022], "Artvin": [41.1828, 41.8183], 
+            "Aydın": [37.8560, 27.8416], "Balıkesir": [39.6484, 27.8826], "Bartın": [41.6344, 32.3375], "Batman": [37.8812, 41.1351], "Bayburt": [40.2552, 40.2249], "Bilecik": [40.1451, 29.9799], "Bingöl": [38.8851, 40.4966], "Bitlis": [38.4006, 42.1095], "Bolu": [40.7392, 31.6087], "Burdur": [37.7204, 30.2908], 
+            "Bursa": [40.1885, 29.0610], "Çanakkale": [40.1553, 26.4142], "Çankırı": [40.6013, 33.6134], "Çorum": [40.5506, 34.9556], "Denizli": [37.7765, 29.0864], "Diyarbakır": [37.9144, 40.2306], "Düzce": [40.8438, 31.1565], "Edirne": [41.6768, 26.5603], "Elazığ": [38.6810, 39.2264], "Erzincan": [39.7500, 39.5000], 
+            "Erzurum": [39.9043, 41.2679], "Eskişehir": [39.7667, 30.5256], "Gaziantep": [37.0662, 37.3833], "Giresun": [40.9128, 38.3895], "Gümüşhane": [40.4600, 39.4814], "Hakkari": [37.5833, 43.7333], "Hatay": [36.4018, 36.3498], "Iğdır": [39.9975, 44.0717], "Isparta": [37.7648, 30.5566], "İstanbul": [41.0082, 28.9784], 
+            "İzmir": [38.4192, 27.1287], "Kahramanmaraş": [37.5858, 36.9371], "Karabük": [41.2061, 32.6204], "Karaman": [37.1759, 33.2287], "Kars": [40.6172, 43.0956], "Kastamonu": [41.3887, 33.7827], "Kayseri": [38.7312, 35.4787], "Kırıkkale": [39.8468, 33.5153], "Kırklareli": [41.7333, 27.2167], "Kırşehir": [39.1425, 34.1709], 
+            "Kilis": [36.7184, 37.1212], "Kocaeli": [40.8533, 29.8815], "Konya": [37.8667, 32.4833], "Kütahya": [39.4167, 29.9833], "Malatya": [38.3552, 38.3095], "Manisa": [38.6191, 27.4289], "Mardin": [37.3212, 40.7245], "Mersin": [36.8000, 34.6333], "Muğla": [37.2153, 28.3636], "Muş": [38.9462, 41.7539], 
+            "Nevşehir": [38.6939, 34.6857], "Niğde": [37.9667, 34.6833], "Ordu": [40.9839, 37.8764], "Osmaniye": [37.0742, 36.2476], "Rize": [41.0201, 40.5234], "Sakarya": [40.7569, 30.3783], "Samsun": [41.2928, 36.3313], "Siirt": [37.9333, 41.9500], "Sinop": [42.0231, 35.1531], "Sivas": [39.7477, 37.0179], 
+            "Şanlıurfa": [37.1591, 38.7969], "Şırnak": [37.5164, 42.4611], "Tekirdağ": [40.9833, 27.5167], "Tokat": [40.3167, 36.5500], "Trabzon": [41.0015, 39.7178], "Tunceli": [39.1079, 39.5401], "Uşak": [38.6823, 29.4082], "Van": [38.4891, 43.4089], "Yalova": [40.6500, 29.2667], "Yozgat": [39.8181, 34.8147], "Zonguldak": [41.4564, 31.7987]
+        };
+        
+        const cities = Object.keys(cityCoordinates);
 
         const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
         const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
@@ -279,8 +301,6 @@
             'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' },
             'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } 
         };
-
-        const cityCoordinates = { "İstanbul": [41.0082, 28.9784], "Ankara": [39.9334, 32.8597], "İzmir": [38.4192, 27.1287] };
 
         const carData = { 'Audi': ['A3', 'A4', 'A6', 'A8', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi'], 'BYD': ['Seal', 'Atto 3'], 'Chevrolet': ['Cruze'], 'Fiat': ['Egea', '500'], 'Ford': ['Focus'], 'Hyundai': ['i20'], 'Mercedes-Benz': ['C-Serisi'], 'Porsche': ['911'], 'Suzuki': ['Swift'], 'Tesla': ['Model 3'], 'Toyota': ['Corolla'], 'Volkswagen': ['Golf'], 'Volvo': ['XC90'] };
         const years = Array.from({length: 37}, (_, i) => (2026-i).toString());
@@ -303,7 +323,6 @@
             }
         }
 
-        // V80: LOGOUT
         function logout() {
             if(confirm('Oturumu kapatmak istediğinize emin misiniz? Tüm yerel veriler silinecek.')) {
                 localStorage.clear();
@@ -344,14 +363,10 @@
                 }, (err) => { console.log("Konum izni verilmedi"); }, { enableHighAccuracy: true });
             }
 
-            // V80: Compass Logic
             if(window.DeviceOrientationEvent) {
                 window.addEventListener('deviceorientation', function(event) {
-                    if(event.webkitCompassHeading) {
-                        rotateUserMarker(event.webkitCompassHeading);
-                    } else if(event.alpha) {
-                        rotateUserMarker(360 - event.alpha);
-                    }
+                    if(event.webkitCompassHeading) { rotateUserMarker(event.webkitCompassHeading); } 
+                    else if(event.alpha) { rotateUserMarker(360 - event.alpha); }
                 });
             }
 
@@ -359,39 +374,27 @@
         }
 
         function rotateUserMarker(deg) {
-            // We rotate the arrow inside the marker, NOT the map
             const arrows = document.querySelectorAll('#userArrow');
-            arrows.forEach(arrow => {
-                arrow.style.transform = `translateX(-50%) rotate(${deg}deg)`;
-            });
+            arrows.forEach(arrow => { arrow.style.transform = `translateX(-50%) rotate(${deg}deg)`; });
         }
 
-        // V80: Find Me
         function recenterUser() {
-            if(lastKnownUserPos && leafletMap) {
-                leafletMap.flyTo(lastKnownUserPos, 16);
-            } else {
-                alert("Konumunuz henüz belirlenemedi.");
-            }
+            if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } 
+            else { alert("Konumunuz henüz belirlenemedi."); }
         }
 
         function nextStep(stepNum) {
             if(stepNum === 1) {
                 const name = document.getElementById('regName').value;
-                // V80: Strong Email Validation
                 const email = document.getElementById('regEmail').value;
                 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
                 
-                if(!name) { 
-                    document.getElementById('regName').classList.add('error');
-                    return; 
-                }
+                if(!name) { document.getElementById('regName').classList.add('error'); return; }
                 if(!emailRegex.test(email)) {
                     document.getElementById('regEmail').classList.add('error');
                     alert("Lütfen geçerli bir e-posta adresi girin (örn: ornek@gmail.com)");
                     return;
                 }
-
                 document.getElementById('step1').classList.remove('active');
                 document.getElementById('step2').classList.add('active');
             }
@@ -416,6 +419,24 @@
             updatePickerUI(); 
             document.getElementById('pickerOverlay').style.display = 'flex'; 
             if(fromOnboard) document.getElementById('pickerOverlay').dataset.onboard = "true";
+        }
+
+        // V81: Dynamic Titles
+        function updatePickerUI() { 
+            const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"];
+            document.getElementById('pickerTitle').innerText = titles[step];
+
+            const wheel = document.getElementById('wheel'); 
+            wheel.innerHTML = '<div style="height: 75px;"></div>'; 
+            let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; 
+            if(step === 3) { 
+                document.getElementById('wheelContainer').classList.add('hidden'); 
+                document.getElementById('plateInputContainer').classList.remove('hidden'); 
+                return; 
+            } 
+            data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); 
+            wheel.innerHTML += '<div style="height: 75px;"></div>'; 
+            wheel.scrollTop = 0; 
         }
 
         function processSelection() { 
@@ -511,7 +532,6 @@
             lucide.createIcons();
         }
 
-        // V80: Navigation Picker
         function openNavPicker(target) {
             currentNavTarget = target;
             const q = target.replace(' ', '+');
@@ -543,16 +563,35 @@
             if(videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; }
         }
 
-        function captureReceipt() {
-            const scanOverlay = document.getElementById('scanOverlay');
-            scanOverlay.querySelector('.animate-[scanAnim_3s_infinite]').style.animationDuration = '0.5s'; 
+        // V81: Freeze & Process Logic
+        function takePhoto() {
+            const video = document.getElementById('cameraView');
+            const canvas = document.getElementById('cameraCanvas');
+            
+            // Freeze Logic (Pause video)
+            video.pause();
+            
+            // Show Processing UI
+            document.getElementById('scanUI').style.display = 'none';
+            document.getElementById('scanProcessing').style.display = 'flex';
+
+            // Simulate Analysis Delay
             setTimeout(() => {
+                document.getElementById('scanProcessing').style.display = 'none';
                 document.getElementById('scanSuccess').style.display = 'flex';
+                
+                // Process Data
                 const newRec = { station: 'HIRFANLI PETROL', date: '28.07.2023', amount: 1850.53, details: '50.63 L · 36,55 TL/L' };
                 fuelRecords.unshift(newRec);
                 updateGarageAnalysis();
-                setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 2000);
-            }, 1500);
+                
+                setTimeout(() => { 
+                    closeScan();
+                    document.getElementById('scanSuccess').style.display = 'none';
+                    document.getElementById('scanUI').style.display = 'flex'; // Reset UI
+                    showTab('radar', document.querySelector('.nav-item:nth-child(4)')); 
+                }, 2000);
+            }, 2000);
         }
 
         function showPermModal(icon, text) { document.getElementById('permIcon').setAttribute('data-lucide', icon); document.getElementById('permText').innerText = text; document.getElementById('permModal').style.display = 'flex'; lucide.createIcons(); }
@@ -576,7 +615,6 @@
             const trend = document.getElementById('monthlyAnaliz'); trend.innerHTML = ''; trend.innerHTML += `<div class="carousel-card p-6 min-w-[240px] shadow-lg border border-white/5"><p class="text-blue-500 font-black mb-3 uppercase text-xs">TEMMUZ 2023</p><p class="text-2xl font-black text-current">${totalAmount.toLocaleString('tr-TR')} TL</p><p class="text-sm font-bold text-current mt-2 opacity-80">${totalLiters.toFixed(1)} Litre Toplam</p></div>`;
         }
         
-        function updatePickerUI() { const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); document.getElementById('pickerTitle').innerText = 'Plaka Gir'; return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
         function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + (el.clientHeight / 2); for (let item of items) { const itemCenter = item.offsetTop + (item.clientHeight / 2); if (Math.abs(center - itemCenter) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
         
         function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
@@ -606,8 +644,18 @@
             document.getElementById('selectedCity').innerText = name; 
             closeCityPicker(); 
             document.getElementById('stationList').style.opacity = '0.5';
-            if(cityCoordinates[name]) { if(leafletMap) leafletMap.setView(cityCoordinates[name], 10); if(miniMap) miniMap.setView(cityCoordinates[name], 10); }
-            setTimeout(() => { const data = getPricesForCity(name); renderStationList(data, name); document.getElementById('stationList').style.opacity = '1'; }, 300);
+            
+            // V81: Map Fly Logic for All 81 Cities
+            if(cityCoordinates[name]) {
+                if(leafletMap) leafletMap.setView(cityCoordinates[name], 10);
+                if(miniMap) miniMap.setView(cityCoordinates[name], 10);
+            }
+
+            setTimeout(() => {
+                const data = getPricesForCity(name);
+                renderStationList(data, name);
+                document.getElementById('stationList').style.opacity = '1';
+            }, 300);
         }
         
         function handleMapSearch() {
