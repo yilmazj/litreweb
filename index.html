@@ -658,50 +658,114 @@
             video.play().catch(e => console.log(e)); 
         }
 
-        function takePhoto() { 
+                function takePhoto() { 
             const video = document.getElementById('cameraView'); 
             const canvas = document.getElementById('cameraCanvas'); 
             const context = canvas.getContext('2d'); 
             
+            // 1. Görüntü Boyutlarını Ayarla
             canvas.width = video.videoWidth; 
             canvas.height = video.videoHeight; 
+            
+            // 2. Görüntü İşleme (Preprocessing) - OKUNABİLİRLİK İÇİN KRİTİK ADIM
+            // Önce görüntüyü çiz
             context.drawImage(video, 0, 0, canvas.width, canvas.height); 
             
+            // Görüntüyü siyah-beyaza çevir ve kontrastı artır (Basit thresholding mantığı)
+            // Bu kısım Tesseract'ın harfleri ayırt etmesini kolaylaştırır.
+            let imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+            let d = imgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                let r = d[i];
+                let g = d[i+1];
+                let b = d[i+2];
+                // Gri tonlama formülü (Luma)
+                let v = 0.2126*r + 0.7152*g + 0.0722*b;
+                // Kontrast artırma (Thresholding - Eşikleme)
+                // 100'den koyuysa tam siyah, açıksa tam beyaz yap
+                v = (v >= 100) ? 255 : 0;
+                d[i] = d[i+1] = d[i+2] = v;
+            }
+            context.putImageData(imgData, 0, 0);
+
+            // Arayüzü güncelle
             video.pause(); 
             document.getElementById('scanUI').style.display = 'none'; 
             document.getElementById('scanProcessing').style.display = 'flex'; 
             
-            Tesseract.recognize(canvas, 'tur', { logger: m => console.log(m) }).then(({ data: { text } }) => { 
-                if (text.toUpperCase().includes('PETROL') || text.toUpperCase().includes('TOPLAM') || text.toUpperCase().includes('TL')) { 
-                    const totalMatch = text.match(/TOPLAM\s*[*]*([\d.,]+)/i) || text.match(/[\d.,]+\s*TL/i); 
-                    const total = totalMatch ? totalMatch[1] : '1.850,53'; 
-                    const amount = parseFloat(total.replace('.','').replace(',','.')); 
+            // 3. Tesseract Analizi Başlıyor
+            Tesseract.recognize(canvas, 'tur', { 
+                logger: m => console.log(m) // Konsoldan ilerlemeyi görebilirsin
+            }).then(({ data: { text } }) => { 
+                console.log("Okunan Ham Metin:", text); // Hata ayıklama için konsola bas
+
+                // --- AKILLI VERİ AYIKLAMA (REGEX) ---
+                
+                // 1. Fiyatı Bul: "TOPLAM", "TUTAR" veya "*" işaretinden sonra gelen sayıyı ara
+                // Örnek fişte: TOPLAM *500,00 yazıyor.
+                const priceMatch = text.match(/(?:TOPLAM|TUTAR|GENEL TOPLAM)\s*[:*]*\s*[*]*([\d.,]+)/i);
+                
+                // 2. Tarihi Bul: DD.MM.YYYY veya DD-MM-YYYY formatını ara
+                // Örnek fişte: 27-12-2025 yazıyor.
+                const dateMatch = text.match(/(\d{2}[-./]\d{2}[-./]\d{4})/);
+
+                // 3. İstasyon Adını Tahmin Et (İlk satırları al)
+                const lines = text.split('\n').filter(line => line.trim().length > 3);
+                const stationName = lines.length > 0 ? lines[0].trim().replace(/[^a-zA-Z\s]/g, '') : "Bilinmeyen İstasyon";
+
+                // Eğer Fiyat Bulunduysa İşlemi Yap
+                if (priceMatch) { 
+                    const rawPrice = priceMatch[1]; // Örn: 500,00
+                    // Virgülü noktaya çevir, noktaları temizle (Türkçe format düzeltme)
+                    // 1.850,53 -> 1850.53 veya 500,00 -> 500.00
+                    let cleanPrice = rawPrice.replace(/\./g, '').replace(',', '.');
+                    const amount = parseFloat(cleanPrice); 
                     
+                    const foundDate = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('tr-TR');
+
+                    // Başarılı Ekranını Göster
                     document.getElementById('scanProcessing').style.display = 'none'; 
                     document.getElementById('scanSuccess').style.display = 'flex'; 
-                    document.getElementById('resStation').innerText = "HIRFANLI PETROL"; 
-                    document.getElementById('resDate').innerText = "28.07.2023"; 
-                    document.getElementById('resTotal').innerText = total + " TL"; 
                     
-                    const newRec = { station: 'HIRFANLI PETROL', date: '28.07.2023', amount: amount, details: '50.63 L · 36,55 TL/L' }; 
+                    document.getElementById('resStation').innerText = stationName; 
+                    document.getElementById('resDate').innerText = foundDate; 
+                    document.getElementById('resTotal').innerText = amount.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + " TL"; 
+                    
+                    // Veriyi Kaydet
+                    const litrPrice = 43.50; // Ort. Litre Fiyatı (Bunu şimdilik sabit alıyoruz veya API'den çekilir)
+                    const liters = (amount / litrPrice).toFixed(2);
+                    
+                    const newRec = { 
+                        station: stationName, 
+                        date: foundDate, 
+                        amount: amount, 
+                        details: `${liters} L · ~${litrPrice} TL/L` 
+                    }; 
                     fuelRecords.unshift(newRec); 
                     updateGarageAnalysis(); 
                     
+                    // 3 Saniye sonra kapat ve listeye dön
                     setTimeout(() => { 
                         closeScan(); 
                         document.getElementById('scanSuccess').style.display = 'none'; 
                         document.getElementById('scanUI').style.display = 'flex'; 
                         showTab('radar', document.querySelector('.nav-item:nth-child(4)')); 
+                        
+                        // Geçmiş listesini zorla güncelle
+                        openHistory();
+                        closeHistory();
                     }, 3000); 
+
                 } else { 
+                    // Okuyamazsa Hata Ver
+                    console.log("Fiyat Bulunamadı. Ham Metin içinde 'TOPLAM' arandı.");
                     document.getElementById('scanProcessing').style.display = 'none'; 
                     document.getElementById('scanError').style.display = 'flex'; 
-                    lucide.createIcons();
                 } 
             }).catch(err => {
+                console.error(err);
                 document.getElementById('scanProcessing').style.display = 'none'; 
                 document.getElementById('scanError').style.display = 'flex'; 
-                lucide.createIcons();
             }); 
         }
 
