@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-    <link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" type="image/png" id="faviconLink" href="logobeyaz.png">
+    <link rel="apple-touch-icon" id="appleTouchIcon" href="logobeyaz.png">
 
     <link rel="manifest" id="myManifest">
 
@@ -21,27 +21,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
-
-    <script>
-        const manifest = {
-            "name": "Litre",
-            "short_name": "Litre",
-            "start_url": ".",
-            "display": "standalone",
-            "background_color": "#000000",
-            "theme_color": "#000000",
-            "icons": [{
-                "icons": [{
-    "src": "logo.png", 
-    "sizes": "192x192",
-    "type": "image/png"
-            }]
-        };
-        const stringManifest = JSON.stringify(manifest);
-        const blob = new Blob([stringManifest], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(blob);
-        document.querySelector('#myManifest').setAttribute('href', manifestURL);
-    </script>
 
     <style>
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
@@ -258,7 +237,9 @@
 
     <div id="sortOverlay" class="picker-overlay" onclick="closeSortPicker()"><div class="picker-container h-auto pb-10" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Sıralama</h3><button onclick="closeSortPicker()" class="text-zinc-500 font-bold">Kapat</button></div><div class="space-y-3"><button onclick="applySort('nearest')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="navigation" class="text-blue-500 w-5 h-5"></i>En Yakın</div><i data-lucide="check" id="check-nearest" class="w-5 h-5 text-blue-500 hidden"></i></button><button onclick="applySort('cheapest')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="tag" class="text-green-500 w-5 h-5"></i>En Ucuz</div><i data-lucide="check" id="check-cheapest" class="w-5 h-5 text-green-500 hidden"></i></button></div></div></div>
 
-    <div id="settingsOverlay" class="picker-overlay" onclick="closeSettings()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Uygulama Ayarları</h3><div class="w-10"></div></div><div class="space-y-4 pb-12 text-current">
+    <div id="settingsOverlay" class="picker-overlay" onclick="closeSettings()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Uygulama Ayarları</h3><div class="w-10"></div></div>
+    
+    <div class="space-y-4 pb-12 text-current overflow-y-auto max-h-[70vh]">
         <div class="glass-card p-6 border-blue-500/30">
             <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Tema Tercihi</p>
             <div class="flex gap-2">
@@ -267,7 +248,21 @@
                 <button onclick="setTheme('system')" id="btnSystem" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn"><i data-lucide="smartphone" class="w-4 h-4"></i>Sistem</button>
             </div>
         </div>
+
+        <div class="glass-card p-6 border-blue-500/30">
+            <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Uygulama Simgesi</p>
+            <div class="flex gap-2">
+                <button onclick="setAppIcon('light')" id="iconLight" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">
+                    <div class="w-4 h-4 bg-white border border-black/10 rounded-full"></div>Beyaz
+                </button>
+                <button onclick="setAppIcon('dark')" id="iconDark" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">
+                    <div class="w-4 h-4 bg-black border border-white/10 rounded-full"></div>Siyah
+                </button>
+            </div>
+            <p class="text-[9px] opacity-40 mt-3 text-center">Not: Ana ekran simgesi değişikliği için uygulamayı tekrar eklemeniz gerekebilir.</p>
+        </div>
     </div></div></div>
+
     <div id="notifyOverlay" class="picker-overlay" onclick="closeNotify()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeNotify()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Bildirim Ayarları</h3><div class="w-10"></div></div><div class="space-y-4 pb-12 text-current">
         <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Fiyat Değişimleri</p><p class="text-[10px] opacity-40">Anlık zam/indirim haberleri</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
         <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Aylık Özet Analizi</p><p class="text-[10px] opacity-40">Harcama raporu bildirimi</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
@@ -351,7 +346,7 @@
 
     <script>
         lucide.createIcons();
-        let leafletMap, miniMap, currentTheme = 'system'; // Default System
+        let leafletMap, miniMap, currentTheme = 'system'; 
         let fuelRecords = [];
         let videoStream = null;
         let userMarker = null;
@@ -484,6 +479,58 @@
             updateMapLayer(miniMap, 'miniMap');
         }
 
+        // --- ICON YÖNETİMİ ---
+        function initAppIcon() {
+            const savedIcon = localStorage.getItem('litre_icon') || 'light';
+            setAppIcon(savedIcon, false);
+        }
+
+        function setAppIcon(type, manual = true) {
+            // State Update
+            localStorage.setItem('litre_icon', type);
+            
+            // UI Update
+            document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active'));
+            document.getElementById(type === 'light' ? 'iconLight' : 'iconDark').classList.add('active');
+
+            // Icon File Logic
+            const iconFile = type === 'dark' ? 'logosiyah.png' : 'logobeyaz.png';
+
+            // Change Browser Tab Icon
+            document.getElementById('faviconLink').href = iconFile;
+            document.getElementById('appleTouchIcon').href = iconFile;
+
+            // Regenerate Manifest for Home Screen (Requires re-add)
+            generateManifest(iconFile);
+
+            if(manual) {
+                // Burada kullanıcıyı uyarmak iyi olur, PWA sınırlamaları yüzünden
+                // ana ekran ikonu anlık değişmeyebilir.
+                console.log('İkon tercihi kaydedildi: ' + type);
+            }
+        }
+
+        function generateManifest(iconFileName) {
+            const manifest = {
+                "name": "Litre",
+                "short_name": "Litre",
+                "start_url": ".",
+                "display": "standalone",
+                "background_color": "#000000",
+                "theme_color": "#000000",
+                "icons": [{
+                    "src": iconFileName, 
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }]
+            };
+            const stringManifest = JSON.stringify(manifest);
+            const blob = new Blob([stringManifest], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(blob);
+            document.querySelector('#myManifest').setAttribute('href', manifestURL);
+        }
+        // ---------------------
+
         function requestPermissions() {
             if('geolocation' in navigator) {
                 leafletMap.locate({setView: true, maxZoom: 16});
@@ -523,22 +570,17 @@
         function updatePickerUI() { 
             const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; 
             
-            // Eğer ara katmandaysak (Seri seçimi)
             if (pickingSubModel) {
                 document.getElementById('pickerTitle').innerText = "Serisini Seç"; 
                 const wheel = document.getElementById('wheel');
                 wheel.innerHTML = '<div style="height: 75px;"></div>';
-                
-                // Seçilen markanın ve modelin alt listesini getir
                 const subs = subCarData[selections.Marka][selections.Model];
-                
                 subs.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`);
                 wheel.innerHTML += '<div style="height: 75px;"></div>';
                 wheel.scrollTop = 0;
-                return; // Fonksiyonu burada kesiyoruz, aşağıya inmesin
+                return; 
             }
 
-            // Normal akış
             document.getElementById('pickerTitle').innerText = titles[step]; 
             const wheel = document.getElementById('wheel'); 
             wheel.innerHTML = '<div style="height: 75px;"></div>'; 
@@ -557,33 +599,26 @@
         }
 
         function processSelection() { 
-            // 1. Önce özel durum: Alt model (Seri) seçimi yapıldıysa
             if (pickingSubModel) {
-                // BMW ve Mercedes için sadece alt modeli kaydet (Örn: A180, 120i)
                 if (selections.Marka === 'BMW' || selections.Marka === 'Mercedes-Benz') {
                     selections.Model = tempValue; 
                 } else {
-                    // Diğerleri için birleştir (Örn: A Serisi A180 - şimdilik sadece bu iki marka var ama olsun)
                     selections.Model = selections.Model + ' ' + tempValue;
                 }
-                
-                pickingSubModel = false; // Özel moddan çık
-                step++; // Yıl seçimine geç
+                pickingSubModel = false; 
+                step++; 
                 updatePickerUI();
                 return;
             }
 
-            // 2. Normal Adımlar
             if(step === 0) selections.Marka = tempValue; 
             
             if(step === 1) { 
                 selections.Model = tempValue; 
-                
-                // KRİTİK NOKTA: Seçilen aracın alt modeli var mı kontrol et
                 if (subCarData[selections.Marka] && subCarData[selections.Marka][selections.Model]) {
-                    pickingSubModel = true; // Özel moda gir
-                    updatePickerUI(); // Arayüzü güncelle (Seri listesini göster)
-                    return; // Adım sayısını (step) arttırmadan çık, çünkü daha işimiz bitmedi
+                    pickingSubModel = true; 
+                    updatePickerUI(); 
+                    return; 
                 }
             } 
             
@@ -709,6 +744,7 @@
         window.addEventListener('load', () => { 
             try {
                 initTheme();
+                initAppIcon(); // İkon tercihini yükle
                 initMiniMap();
                 updateGarageAnalysis();
                 selectCity('İstanbul'); 
