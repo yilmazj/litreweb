@@ -135,6 +135,22 @@
         
         .theme-btn { border: 1px solid transparent; transition: 0.3s; }
         .theme-btn.active { border-color: #3b82f6; background: rgba(59,130,246,0.1); color: #3b82f6; }
+
+        /* Opet Marker Style */
+        .opet-marker-icon {
+            background-color: #005BAB;
+            border: 2px solid white;
+            border-radius: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-align: center;
+            line-height: 1;
+        }
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -457,8 +473,21 @@
             'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } 
         };
 
+        // --- OPET İSTANBUL GERÇEK LOKASYONLARI ---
+        const opetStations = [
+            { name: "Opet Maslak Koç Petrol", lat: 41.112, lng: 29.020 },
+            { name: "Opet Kuruçeşme Alev Petrol", lat: 41.058, lng: 29.033 },
+            { name: "Opet Fulya Akaryakıt", lat: 41.0554, lng: 28.9991 },
+            { name: "Opet Kartal Cevizli", lat: 40.912, lng: 29.170 },
+            { name: "Opet Ataköy Rauf Orbay", lat: 40.970, lng: 28.850 },
+            { name: "Opet Kadıköy Bağdat Cad", lat: 40.985, lng: 29.040 },
+            { name: "Opet Mahmutbey İstoç", lat: 41.055, lng: 28.820 },
+            { name: "Opet Sarıgazi Asım ve İkizoğulları", lat: 41.000, lng: 29.220 },
+            { name: "Opet Tuzla İstanbul Enerji", lat: 40.850, lng: 29.300 },
+            { name: "Opet Dolapdere Gürcan", lat: 41.040, lng: 28.980 }
+        ];
+
         const years = Array.from({length: 37}, (_, i) => (2026-i).toString());
-        // GARAJ VARSAYILAN DEĞERİ NULL OLARAK AYARLANDI (MİSAFİR İÇİN BOŞ)
         let savedGarage = JSON.parse(localStorage.getItem('garage'));
         let step = 0, selections = savedGarage || null, tempValue = '';
         
@@ -483,7 +512,7 @@
                 profileStatus.innerText = "Giriş Yapılmadı";
                 guestActions.classList.remove('hidden');
                 logoutBtn.classList.add('hidden');
-                selections = null; // Çıkış yapılınca garajı temizle
+                selections = null; 
                 saveGarageData();
             }
             renderGarageUI(); 
@@ -515,7 +544,6 @@
             const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPass').value;
 
-            // VOLKAN ÖZEL KONTROLÜ
             if (email === "volkan@litre.com" && pass === "volkan@litre") {
                 const user = { name: "Volkan", email: email };
                 localStorage.setItem('litre_user', JSON.stringify(user));
@@ -526,7 +554,7 @@
             }
 
             if (email && pass) {
-                const user = { name: email.split('@')[0], email: email }; // Basit isimlendirme
+                const user = { name: email.split('@')[0], email: email }; 
                 localStorage.setItem('litre_user', JSON.stringify(user));
                 closeAuth();
                 checkLoginStatus();
@@ -557,7 +585,6 @@
             }
         }
 
-        // --- GUEST OVERLAY LOGIC (YENİ EKLENDİ) ---
         function openGuestOverlay() {
             document.getElementById('guestOverlay').style.display = 'flex';
         }
@@ -608,14 +635,11 @@
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
         function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; }
         
-        // --- ARAÇ EKLEME AKIŞI GÜNCELLEMESİ (AUTH KONTROLÜ - YENİ OVERLAY) ---
         function startVehicleFlow() { 
-            // Giriş kontrolü
             if (!localStorage.getItem('litre_user')) {
-                openGuestOverlay(); // YENİ FONKSİYON ÇAĞRISI
+                openGuestOverlay(); 
                 return;
             }
-
             step = 0; 
             document.getElementById('plateInputContainer').classList.add('hidden'); 
             document.getElementById('wheelContainer').classList.remove('hidden'); 
@@ -640,8 +664,7 @@
         }
 
         function processSelection() { 
-            if(selections === null) selections = {}; // İlk defa ekliyorsa obje oluştur
-
+            if(selections === null) selections = {}; 
             if (pickingSubModel) {
                 if (selections.Marka === 'BMW' || selections.Marka === 'Mercedes-Benz') { selections.Model = tempValue; } else { selections.Model = selections.Model + ' ' + tempValue; }
                 pickingSubModel = false; step++; updatePickerUI(); return;
@@ -658,7 +681,6 @@
             renderGarageUI(); 
         }
 
-        // GARAJ UI GÜNCELLEME (BOŞSA TİRE GÖSTER)
         function renderGarageUI() { 
             if(selections) { 
                 document.getElementById('viewMarka').innerText = selections.Marka + ' ' + selections.Model; 
@@ -672,26 +694,19 @@
         }
 
         function getPricesForCity(city) { if(city === 'İstanbul') { return [ { brand: 'Shell', name: 'Shell - İstanbul Avrupa', benzin: 54.07, motorin: 57.34, lpg: 29.29, dist: 3.5 }, { brand: 'Shell', name: 'Shell - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 1.2 }, { brand: 'Opet', name: 'Opet - İstanbul Avrupa', benzin: 54.05, motorin: 57.28, lpg: 29.29, dist: 5.1 }, { brand: 'Opet', name: 'Opet - İstanbul Anadolu', benzin: 53.90, motorin: 57.16, lpg: 28.69, dist: 0.8 }, { brand: 'PO', name: 'PO - İstanbul Avrupa', benzin: 54.10, motorin: 57.34, lpg: 29.29, dist: 4.8 }, { brand: 'PO', name: 'PO - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 2.2 }, { brand: 'Total', name: 'Total - İstanbul Avrupa', benzin: 54.07, motorin: 57.35, lpg: 29.57, dist: 6.2 }, { brand: 'Total', name: 'Total - İstanbul Anadolu', benzin: 53.88, motorin: 57.16, lpg: 28.69, dist: 2.8 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Avrupa', benzin: 50.87, motorin: 52.57, lpg: 28.93, dist: 4.1 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Anadolu', benzin: 50.80, motorin: 52.50, lpg: 28.85, dist: 7.1 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Avrupa', benzin: 54.04, motorin: 57.27, lpg: 29.41, dist: 5.5 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Anadolu', benzin: 53.89, motorin: 57.15, lpg: 28.95, dist: 8.5 }, ]; } const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; let cityStations = []; const seed = city.length * 0.05; Object.keys(basePrices).forEach(brand => { if(Math.random() > 0.9 && city !== 'Ankara' && city !== 'İzmir') return; const pDiff = (Math.random() * 0.5) - 0.1 + seed; cityStations.push({ brand: brand, name: `${brand === 'Türkiye Petrolleri' ? 'TP' : brand} - ${city} Merkez`, benzin: (basePrices[brand] + pDiff).toFixed(2), motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2), lpg: (29.00 + pDiff).toFixed(2), dist: (Math.random() * 5 + 0.5).toFixed(1) }); }); return cityStations.sort((a,b) => a.dist - b.dist); }
-        
-        // FİYAT BİLDİR BUTONU EKLENDİ (YOL TARİFİNİN SOLUNA)
         function renderStationList(data, cityName) { const list = document.getElementById('stationList'); list.innerHTML = ''; data.forEach(item => { const style = stationLogos[item.brand] || stationLogos['Shell']; list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" data-price="${item.benzin}" data-dist="${item.dist}"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${style.bg}"><span class="font-black text-[8px]" style="color:${style.text}">${style.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${item.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3">${item.dist} km uzaklıkta</p><div class="grid grid-cols-3 gap-2 text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3"><div class="text-center"><div class="opacity-40 mb-1">BENZİN</div><div class="text-current text-xs">${item.benzin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">MOTORİN</div><div class="text-current text-xs">${item.motorin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.lpg}</div></div></div><div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button><button onclick="openNavPicker('${item.name}')" class="flex-1 action-btn-small text-current bg-blue-500 text-white shadow-lg shadow-blue-500/30"><i data-lucide="navigation-2" class="w-4 h-4 mr-2"></i><span class="text-xs font-bold">Yol Tarifi</span></button><button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`; }); lucide.createIcons(); }
-        
         function openNavPicker(target) { currentNavTarget = target; const q = encodeURIComponent(target); document.getElementById('btnAppleMaps').onclick = () => window.open(`http://maps.apple.com/?q=${q}`, '_blank'); document.getElementById('btnGoogleMaps').onclick = () => window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank'); document.getElementById('navPickerOverlay').style.display = 'flex'; }
         function closeNavPicker() { document.getElementById('navPickerOverlay').style.display = 'none'; }
         function sharePrice(station, price) { if (navigator.share) { navigator.share({ title: 'Ucuz Yakıt Buldum!', text: `${station} istasyonunda benzin sadece ${price} TL!`, url: window.location.href }); } else { alert('Panoya kopyalandı!'); } }
         
-        // --- CAMERA & GALLERY LOGIC ---
-
         function handleScanAction() { navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => { videoStream = stream; document.getElementById('cameraView').srcObject = stream; document.getElementById('cameraView').style.display = 'block'; document.getElementById('scanOverlay').style.display = 'flex'; }).catch((err) => { showPermModal('camera', 'Fiş taramak için kamera izni vermeniz gerekiyor.'); }); }
         function closeScan() { document.getElementById('scanOverlay').style.display = 'none'; if(videoStream) { videoStream.getTracks().forEach(track => track.stop()); videoStream = null; } document.getElementById('cameraView').style.display = 'none'; }
         
         function retryScan() { document.getElementById('scanError').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; const video = document.getElementById('cameraView'); video.play().catch(e => console.log(e)); }
 
-        // Galeri Yükleme
         function handleGalleryUpload(input) {
             const file = input.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
@@ -701,10 +716,8 @@
                     canvas.width = img.width;
                     canvas.height = img.height;
                     context.drawImage(img, 0, 0);
-                    
                     document.getElementById('scanUI').style.display = 'none'; 
                     document.getElementById('scanProcessing').style.display = 'flex'; 
-                    
                     processOCR(canvas);
                 }
                 img.src = e.target.result;
@@ -716,68 +729,42 @@
             const video = document.getElementById('cameraView'); 
             const canvas = document.getElementById('cameraCanvas'); 
             const context = canvas.getContext('2d'); 
-            
             canvas.width = video.videoWidth; 
             canvas.height = video.videoHeight; 
             context.drawImage(video, 0, 0, canvas.width, canvas.height); 
-            
             video.pause(); 
             document.getElementById('scanUI').style.display = 'none'; 
             document.getElementById('scanProcessing').style.display = 'flex'; 
-            
             processOCR(canvas);
         }
 
-        // Ortak OCR Fonksiyonu
         function processOCR(canvas) {
              Tesseract.recognize(canvas, 'tur', { logger: m => console.log(m) }).then(({ data: { text } }) => { 
                 console.log("Okunan Metin:", text);
                 const cleanText = text.toUpperCase();
-                
                 if (cleanText.includes('TOPLAM') || cleanText.includes('KDV') || cleanText.includes('FİŞ') || cleanText.includes('NO')) { 
                     const priceRegex = /(?:TOPLAM|TUTAR|TOP)?\s*\*?\s*(\d+[.,]\d{2})/;
                     const priceMatch = text.match(priceRegex);
                     let foundPrice = "0,00";
                     let rawPrice = 0;
                     if (priceMatch) { foundPrice = priceMatch[1]; rawPrice = parseFloat(foundPrice.replace('.','').replace(',','.')); }
-
                     const dateRegex = /(\d{2}[-./]\d{2}[-./]\d{4})/;
                     const dateMatch = text.match(dateRegex);
                     const foundDate = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('tr-TR');
-
                     const lines = text.split('\n').filter(line => line.trim().length > 3);
                     let foundStation = lines.length > 0 ? lines[0].replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '').trim() : "Bilinmiyor";
-
-                    if (rawPrice === 0) { 
-                        document.getElementById('scanProcessing').style.display = 'none'; 
-                        document.getElementById('scanError').style.display = 'flex';
-                        return;
-                    }
-
+                    if (rawPrice === 0) { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; return; }
                     document.getElementById('scanProcessing').style.display = 'none'; 
                     document.getElementById('scanSuccess').style.display = 'flex'; 
-                    
                     document.getElementById('resStation').innerText = foundStation; 
                     document.getElementById('resDate').innerText = foundDate; 
                     document.getElementById('resTotal').innerText = foundPrice + " TL"; 
-                    
                     const newRec = { station: foundStation, date: foundDate, amount: rawPrice, details: `Yakıt Alımı · ${foundPrice} TL` }; 
                     fuelRecords.unshift(newRec); 
                     updateGarageAnalysis(); 
-                    
                     setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); 
-
-                } else { 
-                    document.getElementById('scanProcessing').style.display = 'none'; 
-                    document.getElementById('scanError').style.display = 'flex'; 
-                    lucide.createIcons();
-                } 
-            }).catch(err => {
-                console.error(err);
-                document.getElementById('scanProcessing').style.display = 'none'; 
-                document.getElementById('scanError').style.display = 'flex'; 
-                lucide.createIcons();
-            }); 
+                } else { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); } 
+            }).catch(err => { console.error(err); document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); }); 
         }
 
         function showPermModal(icon, text) { document.getElementById('permIcon').setAttribute('data-lucide', icon); document.getElementById('permText').innerText = text; document.getElementById('permModal').style.display = 'flex'; lucide.createIcons(); }
@@ -792,7 +779,29 @@
             if(document.body.classList.contains('dark-mode')) { el.classList.add('google-dark-mode'); } else { el.classList.remove('google-dark-mode'); }
         }
 
-        function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); }
+        // --- MAP INIT FUNCTION UPDATED FOR OPET ---
+        function initMap() { 
+            if (leafletMap) return; 
+            leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); 
+            updateMapLayer(leafletMap, 'map'); 
+            
+            // Opet İkonu Oluştur
+            const opetIcon = L.divIcon({
+                className: 'opet-marker-icon',
+                html: 'OPET',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+
+            // Opet İstasyonlarını Ekle
+            opetStations.forEach(station => {
+                const marker = L.marker([station.lat, station.lng], { icon: opetIcon }).addTo(leafletMap);
+                marker.on('click', () => {
+                    openNavPicker(station.name);
+                });
+            });
+        }
+
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
         function updateGarageAnalysis() { if(fuelRecords.length === 0) { document.getElementById('monthlyAnaliz').innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Henüz veri yok.</p>'; document.getElementById('viewAvgCost').innerText = "0,00 TL"; document.getElementById('viewTotalLiters').innerText = "0.0 L"; return; } const totalAmount = fuelRecords.reduce((sum, r) => sum + r.amount, 0); document.getElementById('viewAvgCost').innerText = totalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; document.getElementById('monthlySaving').innerText = (totalAmount * 0.05).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; const list = document.getElementById('historyList'); list.innerHTML = fuelRecords.map(r => `<div class="p-5 glass-card mb-3 shadow-lg text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); }
@@ -806,61 +815,32 @@
         function openNotify() { document.getElementById('notifyOverlay').style.display = 'flex'; }
         function closeNotify() { document.getElementById('notifyOverlay').style.display = 'none'; }
         
-        // --- ŞEHİR SEÇİMİ GÜNCELLEMELERİ ---
         function openCityPicker() { 
             const list = document.getElementById('cityList'); 
             list.innerHTML = ''; 
-            
-            // SIRALAMA MANTIĞI: İstanbul, Ankara, Sonra Diğerleri A-Z
             const priorityCities = ["İstanbul", "Ankara"];
             const otherCities = cities.filter(c => !priorityCities.includes(c)).sort((a, b) => a.localeCompare(b, 'tr'));
             const sortedCities = [...priorityCities, ...otherCities];
-
             sortedCities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); 
             document.getElementById('cityOverlay').style.display = 'flex'; 
         }
 
-        // MEVCUT KONUM BULMA MANTIĞI
         function selectCurrentLocation() {
-            if(!navigator.geolocation) {
-                alert("Konum servisi desteklenmiyor.");
-                return;
-            }
-            // Konum alırken kullanıcıya bilgi ver
+            if(!navigator.geolocation) { alert("Konum servisi desteklenmiyor."); return; }
             const btnText = document.querySelector('button[onclick="selectCurrentLocation()"]');
             const originalContent = btnText.innerHTML;
             btnText.innerHTML = '<div class="spinner border-2 w-5 h-5 border-white"></div>';
-
             navigator.geolocation.getCurrentPosition((pos) => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                
-                // En yakın şehri bul (Basit Mesafe Hesabı)
-                let nearestCity = null;
-                let minDist = Infinity;
-
+                const lat = pos.coords.latitude; const lng = pos.coords.longitude;
+                let nearestCity = null; let minDist = Infinity;
                 Object.keys(cityCoordinates).forEach(city => {
                     const coords = cityCoordinates[city];
-                    // Basit öklid mesafesi
                     const dist = Math.sqrt(Math.pow(coords[0] - lat, 2) + Math.pow(coords[1] - lng, 2));
-                    if(dist < minDist) {
-                        minDist = dist;
-                        nearestCity = city;
-                    }
+                    if(dist < minDist) { minDist = dist; nearestCity = city; }
                 });
-
-                if(nearestCity) {
-                    selectCity(nearestCity);
-                } else {
-                    alert("Yakınlarda bir şehir bulunamadı.");
-                }
+                if(nearestCity) { selectCity(nearestCity); } else { alert("Yakınlarda bir şehir bulunamadı."); }
                 btnText.innerHTML = originalContent;
-
-            }, (err) => {
-                console.error(err);
-                alert("Konum alınamadı. Lütfen izinleri kontrol edin.");
-                btnText.innerHTML = originalContent;
-            }, { enableHighAccuracy: true });
+            }, (err) => { console.error(err); alert("Konum alınamadı."); btnText.innerHTML = originalContent; }, { enableHighAccuracy: true });
         }
 
         function closeCityPicker() { document.getElementById('cityOverlay').style.display = 'none'; }
