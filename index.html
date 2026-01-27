@@ -234,16 +234,21 @@
         </div>
     </div>
 
+    <div id="guestOverlay" class="picker-overlay" onclick="closeGuestOverlay()"><div class="picker-container pb-10" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Oturum Açın</h3><button onclick="closeGuestOverlay()" class="text-zinc-500 font-bold">Kapat</button></div><div class="p-6 text-center space-y-4 text-current"><div class="w-16 h-16 bg-blue-500/20 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="user-plus" class="w-8 h-8"></i></div><p class="opacity-60 font-bold mb-6">Araç eklemek ve verilerinizi saklamak için giriş yapmanız gerekiyor.</p><button onclick="openAuth('login'); closeGuestOverlay()" class="w-full bg-blue-600 p-4 rounded-2xl text-white font-bold haptic-btn">Giriş Yap</button><button onclick="openAuth('register'); closeGuestOverlay()" class="w-full bg-zinc-500/10 p-4 rounded-2xl font-bold haptic-btn text-current">Kayıt Ol</button></div></div></div>
+
     <div id="pickerOverlay" class="picker-overlay" onclick="closePicker()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><button onclick="closePicker()" class="text-zinc-500 font-bold">Vazgeç</button><h3 id="pickerTitle" class="font-bold text-lg">Seçiniz</h3><button id="nextBtn" onclick="processSelection()" class="text-blue-500 font-bold">Devam</button></div><div id="wheelContainer" class="wheel-wrapper"><div class="wheel-selection-bar"></div><div id="wheel" class="wheel-picker no-scrollbar" onscroll="handleWheelScroll(this)"></div></div><div id="plateInputContainer" class="hidden py-8 px-4"><input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-white/5 border border-current opacity-20 rounded-[1.8rem] p-4 text-2xl font-black text-center outline-none"></div></div></div>
     
     <div id="cityOverlay" class="picker-overlay" onclick="closeCityPicker()"><div class="picker-container h-[80%]" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-4 px-2"><h3 class="font-bold text-lg text-current">Şehir Seçin</h3><button onclick="closeCityPicker()" class="bg-zinc-500/20 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4 text-current"></i></button></div>
     
-    <button onclick="selectCurrentLocation()" class="w-full glass-card p-4 flex items-center justify-start gap-4 haptic-btn text-current font-bold mb-4 shadow-sm border-blue-500/20">
-        <div class="bg-blue-500/10 p-2 rounded-full"><i data-lucide="crosshair" class="w-5 h-5 text-blue-500"></i></div>
-        <span>Mevcut Konum</span>
-    </button>
+    <div class="relative mb-4"><i data-lucide="search" class="absolute right-4 top-3.5 w-4 h-4 opacity-40 text-current"></i><input type="text" id="citySearch" onkeyup="filterCities()" placeholder="Şehir ara..." class="search-input"></div><div id="cityList" class="overflow-y-auto flex-1 no-scrollbar text-current font-bold text-lg"></div>
     
-    <div class="relative mb-4"><i data-lucide="search" class="absolute right-4 top-3.5 w-4 h-4 opacity-40 text-current"></i><input type="text" id="citySearch" onkeyup="filterCities()" placeholder="Şehir ara..." class="search-input"></div><div id="cityList" class="overflow-y-auto flex-1 no-scrollbar text-current font-bold text-lg"></div></div></div>
+    <div class="mt-4 pt-4 border-t border-white/10">
+        <button onclick="selectCurrentLocation()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 p-4 rounded-2xl text-white font-black haptic-btn flex items-center justify-center gap-3 shadow-lg shadow-blue-500/20">
+            <i data-lucide="crosshair" class="w-5 h-5"></i>MEVCUT KONUMU BUL
+        </button>
+    </div>
+    
+    </div></div>
 
     <div id="sortOverlay" class="picker-overlay" onclick="closeSortPicker()"><div class="picker-container h-auto pb-10" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Sıralama</h3><button onclick="closeSortPicker()" class="text-zinc-500 font-bold">Kapat</button></div><div class="space-y-3"><button onclick="applySort('nearest')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="navigation" class="text-blue-500 w-5 h-5"></i>En Yakın</div><i data-lucide="check" id="check-nearest" class="w-5 h-5 text-blue-500 hidden"></i></button><button onclick="applySort('cheapest')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="tag" class="text-green-500 w-5 h-5"></i>En Ucuz</div><i data-lucide="check" id="check-cheapest" class="w-5 h-5 text-green-500 hidden"></i></button></div></div></div>
 
@@ -552,6 +557,15 @@
             }
         }
 
+        // --- GUEST OVERLAY LOGIC (YENİ EKLENDİ) ---
+        function openGuestOverlay() {
+            document.getElementById('guestOverlay').style.display = 'flex';
+        }
+
+        function closeGuestOverlay() {
+            document.getElementById('guestOverlay').style.display = 'none';
+        }
+
         // --- THEME & MAPS ---
 
         function initTheme() {
@@ -594,13 +608,11 @@
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
         function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; }
         
-        // --- ARAÇ EKLEME AKIŞI GÜNCELLEMESİ (AUTH KONTROLÜ) ---
+        // --- ARAÇ EKLEME AKIŞI GÜNCELLEMESİ (AUTH KONTROLÜ - YENİ OVERLAY) ---
         function startVehicleFlow() { 
             // Giriş kontrolü
             if (!localStorage.getItem('litre_user')) {
-                if(confirm('Araç eklemek veya güncellemek için önce giriş yapmalısın. Giriş ekranına gitmek ister misin?')) {
-                    openAuth('login');
-                }
+                openGuestOverlay(); // YENİ FONKSİYON ÇAĞRISI
                 return;
             }
 
@@ -815,9 +827,9 @@
                 return;
             }
             // Konum alırken kullanıcıya bilgi ver
-            const btnText = document.querySelector('button[onclick="selectCurrentLocation()"] span');
-            const originalText = btnText.innerText;
-            btnText.innerText = "Konum Bulunuyor...";
+            const btnText = document.querySelector('button[onclick="selectCurrentLocation()"]');
+            const originalContent = btnText.innerHTML;
+            btnText.innerHTML = '<div class="spinner border-2 w-5 h-5 border-white"></div>';
 
             navigator.geolocation.getCurrentPosition((pos) => {
                 const lat = pos.coords.latitude;
@@ -829,7 +841,7 @@
 
                 Object.keys(cityCoordinates).forEach(city => {
                     const coords = cityCoordinates[city];
-                    // Basit öklid mesafesi (Küresel hesaplama gereksiz karmaşık olur bu ölçekte)
+                    // Basit öklid mesafesi
                     const dist = Math.sqrt(Math.pow(coords[0] - lat, 2) + Math.pow(coords[1] - lng, 2));
                     if(dist < minDist) {
                         minDist = dist;
@@ -842,12 +854,12 @@
                 } else {
                     alert("Yakınlarda bir şehir bulunamadı.");
                 }
-                btnText.innerText = originalText;
+                btnText.innerHTML = originalContent;
 
             }, (err) => {
                 console.error(err);
                 alert("Konum alınamadı. Lütfen izinleri kontrol edin.");
-                btnText.innerText = originalText;
+                btnText.innerHTML = originalContent;
             }, { enableHighAccuracy: true });
         }
 
