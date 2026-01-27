@@ -180,11 +180,9 @@
                 <button onclick="document.getElementById('fileInput').click()" class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center haptic-btn border border-white/30">
                     <i data-lucide="image" class="text-white w-6 h-6"></i>
                 </button>
-                
                 <button onclick="takePhoto()" class="w-20 h-20 bg-white rounded-full border-4 border-zinc-300 shadow-2xl flex items-center justify-center haptic-btn active:scale-90 transition-transform">
                     <div class="w-16 h-16 bg-white border-2 border-black rounded-full"></div>
                 </button>
-                
                 <div class="w-14 h-14"></div>
             </div>
         </div>
@@ -238,7 +236,14 @@
 
     <div id="pickerOverlay" class="picker-overlay" onclick="closePicker()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><button onclick="closePicker()" class="text-zinc-500 font-bold">Vazgeç</button><h3 id="pickerTitle" class="font-bold text-lg">Seçiniz</h3><button id="nextBtn" onclick="processSelection()" class="text-blue-500 font-bold">Devam</button></div><div id="wheelContainer" class="wheel-wrapper"><div class="wheel-selection-bar"></div><div id="wheel" class="wheel-picker no-scrollbar" onscroll="handleWheelScroll(this)"></div></div><div id="plateInputContainer" class="hidden py-8 px-4"><input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-white/5 border border-current opacity-20 rounded-[1.8rem] p-4 text-2xl font-black text-center outline-none"></div></div></div>
     
-    <div id="cityOverlay" class="picker-overlay" onclick="closeCityPicker()"><div class="picker-container h-[80%]" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-4 px-2"><h3 class="font-bold text-lg text-current">Şehir Seçin</h3><button onclick="closeCityPicker()" class="bg-zinc-500/20 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4 text-current"></i></button></div><div class="relative mb-4"><i data-lucide="search" class="absolute right-4 top-3.5 w-4 h-4 opacity-40 text-current"></i><input type="text" id="citySearch" onkeyup="filterCities()" placeholder="Şehir ara..." class="search-input"></div><div id="cityList" class="overflow-y-auto flex-1 no-scrollbar text-current font-bold text-lg"></div><div class="mt-4 pt-4 border-t border-white/10"><button onclick="reportPrice()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 p-4 rounded-2xl text-white font-black haptic-btn flex items-center justify-center gap-3 shadow-lg shadow-blue-500/20"><i data-lucide="plus-circle" class="w-5 h-5"></i>FİYAT BİLDİR</button></div></div></div>
+    <div id="cityOverlay" class="picker-overlay" onclick="closeCityPicker()"><div class="picker-container h-[80%]" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-4 px-2"><h3 class="font-bold text-lg text-current">Şehir Seçin</h3><button onclick="closeCityPicker()" class="bg-zinc-500/20 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4 text-current"></i></button></div>
+    
+    <button onclick="selectCurrentLocation()" class="w-full glass-card p-4 flex items-center justify-start gap-4 haptic-btn text-current font-bold mb-4 shadow-sm border-blue-500/20">
+        <div class="bg-blue-500/10 p-2 rounded-full"><i data-lucide="crosshair" class="w-5 h-5 text-blue-500"></i></div>
+        <span>Mevcut Konum</span>
+    </button>
+    
+    <div class="relative mb-4"><i data-lucide="search" class="absolute right-4 top-3.5 w-4 h-4 opacity-40 text-current"></i><input type="text" id="citySearch" onkeyup="filterCities()" placeholder="Şehir ara..." class="search-input"></div><div id="cityList" class="overflow-y-auto flex-1 no-scrollbar text-current font-bold text-lg"></div></div></div>
 
     <div id="sortOverlay" class="picker-overlay" onclick="closeSortPicker()"><div class="picker-container h-auto pb-10" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Sıralama</h3><button onclick="closeSortPicker()" class="text-zinc-500 font-bold">Kapat</button></div><div class="space-y-3"><button onclick="applySort('nearest')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="navigation" class="text-blue-500 w-5 h-5"></i>En Yakın</div><i data-lucide="check" id="check-nearest" class="w-5 h-5 text-blue-500 hidden"></i></button><button onclick="applySort('cheapest')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="tag" class="text-green-500 w-5 h-5"></i>En Ucuz</div><i data-lucide="check" id="check-cheapest" class="w-5 h-5 text-green-500 hidden"></i></button></div></div></div>
 
@@ -448,8 +453,9 @@
         };
 
         const years = Array.from({length: 37}, (_, i) => (2026-i).toString());
+        // GARAJ VARSAYILAN DEĞERİ NULL OLARAK AYARLANDI (MİSAFİR İÇİN BOŞ)
         let savedGarage = JSON.parse(localStorage.getItem('garage'));
-        let step = 0, selections = savedGarage || { Marka: 'Audi', Model: 'A6', Yıl: '2023', Plaka: '34 ABC 123' }, tempValue = '';
+        let step = 0, selections = savedGarage || null, tempValue = '';
         
         // --- AUTH & PROFILE LOGIC ---
 
@@ -472,6 +478,8 @@
                 profileStatus.innerText = "Giriş Yapılmadı";
                 guestActions.classList.remove('hidden');
                 logoutBtn.classList.add('hidden');
+                selections = null; // Çıkış yapılınca garajı temizle
+                saveGarageData();
             }
             renderGarageUI(); 
             requestPermissions(); 
@@ -586,7 +594,22 @@
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
         function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; }
         
-        function startVehicleFlow() { step = 0; document.getElementById('plateInputContainer').classList.add('hidden'); document.getElementById('wheelContainer').classList.remove('hidden'); updatePickerUI(); document.getElementById('pickerOverlay').style.display = 'flex'; }
+        // --- ARAÇ EKLEME AKIŞI GÜNCELLEMESİ (AUTH KONTROLÜ) ---
+        function startVehicleFlow() { 
+            // Giriş kontrolü
+            if (!localStorage.getItem('litre_user')) {
+                if(confirm('Araç eklemek veya güncellemek için önce giriş yapmalısın. Giriş ekranına gitmek ister misin?')) {
+                    openAuth('login');
+                }
+                return;
+            }
+
+            step = 0; 
+            document.getElementById('plateInputContainer').classList.add('hidden'); 
+            document.getElementById('wheelContainer').classList.remove('hidden'); 
+            updatePickerUI(); 
+            document.getElementById('pickerOverlay').style.display = 'flex'; 
+        }
         
         function updatePickerUI() { 
             const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; 
@@ -605,6 +628,8 @@
         }
 
         function processSelection() { 
+            if(selections === null) selections = {}; // İlk defa ekliyorsa obje oluştur
+
             if (pickingSubModel) {
                 if (selections.Marka === 'BMW' || selections.Marka === 'Mercedes-Benz') { selections.Model = tempValue; } else { selections.Model = selections.Model + ' ' + tempValue; }
                 pickingSubModel = false; step++; updatePickerUI(); return;
@@ -616,10 +641,29 @@
             step++; updatePickerUI(); 
         }
 
-        function saveGarageData() { localStorage.setItem('garage', JSON.stringify(selections)); renderGarageUI(); }
-        function renderGarageUI() { if(selections) { document.getElementById('viewMarka').innerText = selections.Marka + ' ' + selections.Model; document.getElementById('viewYıl').innerText = selections.Yıl; document.getElementById('viewPlaka').innerText = selections.Plaka; } }
+        function saveGarageData() { 
+            localStorage.setItem('garage', JSON.stringify(selections)); 
+            renderGarageUI(); 
+        }
+
+        // GARAJ UI GÜNCELLEME (BOŞSA TİRE GÖSTER)
+        function renderGarageUI() { 
+            if(selections) { 
+                document.getElementById('viewMarka').innerText = selections.Marka + ' ' + selections.Model; 
+                document.getElementById('viewYıl').innerText = selections.Yıl; 
+                document.getElementById('viewPlaka').innerText = selections.Plaka; 
+            } else {
+                document.getElementById('viewMarka').innerText = "Araç Eklenmedi"; 
+                document.getElementById('viewYıl').innerText = "-"; 
+                document.getElementById('viewPlaka').innerText = "-"; 
+            }
+        }
+
         function getPricesForCity(city) { if(city === 'İstanbul') { return [ { brand: 'Shell', name: 'Shell - İstanbul Avrupa', benzin: 54.07, motorin: 57.34, lpg: 29.29, dist: 3.5 }, { brand: 'Shell', name: 'Shell - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 1.2 }, { brand: 'Opet', name: 'Opet - İstanbul Avrupa', benzin: 54.05, motorin: 57.28, lpg: 29.29, dist: 5.1 }, { brand: 'Opet', name: 'Opet - İstanbul Anadolu', benzin: 53.90, motorin: 57.16, lpg: 28.69, dist: 0.8 }, { brand: 'PO', name: 'PO - İstanbul Avrupa', benzin: 54.10, motorin: 57.34, lpg: 29.29, dist: 4.8 }, { brand: 'PO', name: 'PO - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 2.2 }, { brand: 'Total', name: 'Total - İstanbul Avrupa', benzin: 54.07, motorin: 57.35, lpg: 29.57, dist: 6.2 }, { brand: 'Total', name: 'Total - İstanbul Anadolu', benzin: 53.88, motorin: 57.16, lpg: 28.69, dist: 2.8 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Avrupa', benzin: 50.87, motorin: 52.57, lpg: 28.93, dist: 4.1 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Anadolu', benzin: 50.80, motorin: 52.50, lpg: 28.85, dist: 7.1 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Avrupa', benzin: 54.04, motorin: 57.27, lpg: 29.41, dist: 5.5 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Anadolu', benzin: 53.89, motorin: 57.15, lpg: 28.95, dist: 8.5 }, ]; } const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; let cityStations = []; const seed = city.length * 0.05; Object.keys(basePrices).forEach(brand => { if(Math.random() > 0.9 && city !== 'Ankara' && city !== 'İzmir') return; const pDiff = (Math.random() * 0.5) - 0.1 + seed; cityStations.push({ brand: brand, name: `${brand === 'Türkiye Petrolleri' ? 'TP' : brand} - ${city} Merkez`, benzin: (basePrices[brand] + pDiff).toFixed(2), motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2), lpg: (29.00 + pDiff).toFixed(2), dist: (Math.random() * 5 + 0.5).toFixed(1) }); }); return cityStations.sort((a,b) => a.dist - b.dist); }
-        function renderStationList(data, cityName) { const list = document.getElementById('stationList'); list.innerHTML = ''; data.forEach(item => { const style = stationLogos[item.brand] || stationLogos['Shell']; list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" data-price="${item.benzin}" data-dist="${item.dist}"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${style.bg}"><span class="font-black text-[8px]" style="color:${style.text}">${style.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${item.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3">${item.dist} km uzaklıkta</p><div class="grid grid-cols-3 gap-2 text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3"><div class="text-center"><div class="opacity-40 mb-1">BENZİN</div><div class="text-current text-xs">${item.benzin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">MOTORİN</div><div class="text-current text-xs">${item.motorin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.lpg}</div></div></div><div class="flex gap-2"><button onclick="openNavPicker('${item.name}')" class="flex-1 action-btn-small text-current"><i data-lucide="navigation-2" class="w-4 h-4 mr-2 text-blue-500"></i><span class="text-xs font-bold">Yol Tarifi</span></button><button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`; }); lucide.createIcons(); }
+        
+        // FİYAT BİLDİR BUTONU EKLENDİ (YOL TARİFİNİN SOLUNA)
+        function renderStationList(data, cityName) { const list = document.getElementById('stationList'); list.innerHTML = ''; data.forEach(item => { const style = stationLogos[item.brand] || stationLogos['Shell']; list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" data-price="${item.benzin}" data-dist="${item.dist}"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${style.bg}"><span class="font-black text-[8px]" style="color:${style.text}">${style.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${item.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3">${item.dist} km uzaklıkta</p><div class="grid grid-cols-3 gap-2 text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3"><div class="text-center"><div class="opacity-40 mb-1">BENZİN</div><div class="text-current text-xs">${item.benzin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">MOTORİN</div><div class="text-current text-xs">${item.motorin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.lpg}</div></div></div><div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button><button onclick="openNavPicker('${item.name}')" class="flex-1 action-btn-small text-current bg-blue-500 text-white shadow-lg shadow-blue-500/30"><i data-lucide="navigation-2" class="w-4 h-4 mr-2"></i><span class="text-xs font-bold">Yol Tarifi</span></button><button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`; }); lucide.createIcons(); }
+        
         function openNavPicker(target) { currentNavTarget = target; const q = encodeURIComponent(target); document.getElementById('btnAppleMaps').onclick = () => window.open(`http://maps.apple.com/?q=${q}`, '_blank'); document.getElementById('btnGoogleMaps').onclick = () => window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank'); document.getElementById('navPickerOverlay').style.display = 'flex'; }
         function closeNavPicker() { document.getElementById('navPickerOverlay').style.display = 'none'; }
         function sharePrice(station, price) { if (navigator.share) { navigator.share({ title: 'Ucuz Yakıt Buldum!', text: `${station} istasyonunda benzin sadece ${price} TL!`, url: window.location.href }); } else { alert('Panoya kopyalandı!'); } }
@@ -749,13 +793,70 @@
         function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
         function openNotify() { document.getElementById('notifyOverlay').style.display = 'flex'; }
         function closeNotify() { document.getElementById('notifyOverlay').style.display = 'none'; }
-        function openCityPicker() { const list = document.getElementById('cityList'); list.innerHTML = ''; cities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); document.getElementById('cityOverlay').style.display = 'flex'; }
+        
+        // --- ŞEHİR SEÇİMİ GÜNCELLEMELERİ ---
+        function openCityPicker() { 
+            const list = document.getElementById('cityList'); 
+            list.innerHTML = ''; 
+            
+            // SIRALAMA MANTIĞI: İstanbul, Ankara, Sonra Diğerleri A-Z
+            const priorityCities = ["İstanbul", "Ankara"];
+            const otherCities = cities.filter(c => !priorityCities.includes(c)).sort((a, b) => a.localeCompare(b, 'tr'));
+            const sortedCities = [...priorityCities, ...otherCities];
+
+            sortedCities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); 
+            document.getElementById('cityOverlay').style.display = 'flex'; 
+        }
+
+        // MEVCUT KONUM BULMA MANTIĞI
+        function selectCurrentLocation() {
+            if(!navigator.geolocation) {
+                alert("Konum servisi desteklenmiyor.");
+                return;
+            }
+            // Konum alırken kullanıcıya bilgi ver
+            const btnText = document.querySelector('button[onclick="selectCurrentLocation()"] span');
+            const originalText = btnText.innerText;
+            btnText.innerText = "Konum Bulunuyor...";
+
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                
+                // En yakın şehri bul (Basit Mesafe Hesabı)
+                let nearestCity = null;
+                let minDist = Infinity;
+
+                Object.keys(cityCoordinates).forEach(city => {
+                    const coords = cityCoordinates[city];
+                    // Basit öklid mesafesi (Küresel hesaplama gereksiz karmaşık olur bu ölçekte)
+                    const dist = Math.sqrt(Math.pow(coords[0] - lat, 2) + Math.pow(coords[1] - lng, 2));
+                    if(dist < minDist) {
+                        minDist = dist;
+                        nearestCity = city;
+                    }
+                });
+
+                if(nearestCity) {
+                    selectCity(nearestCity);
+                } else {
+                    alert("Yakınlarda bir şehir bulunamadı.");
+                }
+                btnText.innerText = originalText;
+
+            }, (err) => {
+                console.error(err);
+                alert("Konum alınamadı. Lütfen izinleri kontrol edin.");
+                btnText.innerText = originalText;
+            }, { enableHighAccuracy: true });
+        }
+
         function closeCityPicker() { document.getElementById('cityOverlay').style.display = 'none'; }
         function filterCities() { const q = document.getElementById('citySearch').value.toLowerCase(); const list = document.getElementById('cityList'); list.innerHTML = ''; cities.filter(c => c.toLowerCase().includes(q)).forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); }
         function selectCity(name) { document.getElementById('selectedCity').innerText = name; closeCityPicker(); document.getElementById('stationList').style.opacity = '0.5'; if(cityCoordinates[name]) { if(leafletMap) leafletMap.setView(cityCoordinates[name], 10); if(miniMap) miniMap.setView(cityCoordinates[name], 10); } setTimeout(() => { const data = getPricesForCity(name); renderStationList(data, name); document.getElementById('stationList').style.opacity = '1'; }, 300); }
         function handleMapSearch() { const input = document.getElementById('mapSearchInput'); const results = document.getElementById('mapSearchResults'); const val = input.value.toLowerCase(); if(val.length < 2) { results.style.display = 'none'; return; } const matches = cities.filter(c => c.toLowerCase().includes(val)); if(matches.length > 0) { results.innerHTML = ''; matches.forEach(c => { results.innerHTML += `<div class="map-search-item" onclick="flyToCity('${c}')"><div class="map-search-icon"><i data-lucide="map-pin" class="text-white w-4 h-4"></i></div><div><p class="font-bold text-md text-current">${c}</p><p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Şehir Merkezi</p></div></div>`; }); lucide.createIcons(); results.style.display = 'block'; } else { results.style.display = 'none'; } }
         function flyToCity(name) { document.getElementById('mapSearchInput').value = name; document.getElementById('mapSearchResults').style.display = 'none'; if(cityCoordinates[name]) { leafletMap.flyTo(cityCoordinates[name], 12, { duration: 1.5 }); } }
-        function reportPrice() { closeCityPicker(); const overlay = document.getElementById('priceReportOverlay'); const loading = document.getElementById('reportLoading'); const success = document.getElementById('reportSuccess'); overlay.style.display = 'flex'; loading.style.display = 'flex'; success.style.display = 'none'; success.style.transform = 'scale(0.9)'; setTimeout(() => { loading.style.display = 'none'; success.style.display = 'flex'; setTimeout(() => { success.style.transform = 'scale(1)'; }, 50); setTimeout(() => { overlay.style.display = 'none'; }, 2000); }, 2000); }
+        function reportPrice() { const overlay = document.getElementById('priceReportOverlay'); const loading = document.getElementById('reportLoading'); const success = document.getElementById('reportSuccess'); overlay.style.display = 'flex'; loading.style.display = 'flex'; success.style.display = 'none'; success.style.transform = 'scale(0.9)'; setTimeout(() => { loading.style.display = 'none'; success.style.display = 'flex'; setTimeout(() => { success.style.transform = 'scale(1)'; }, 50); setTimeout(() => { overlay.style.display = 'none'; }, 2000); }, 2000); }
         function openSortPicker() { document.getElementById('sortOverlay').style.display = 'flex'; }
         function closeSortPicker() { document.getElementById('sortOverlay').style.display = 'none'; }
         function applySort(type) { const list = document.getElementById('stationList'); const cards = Array.from(list.children); if(type === 'cheapest') { cards.sort((a,b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price)); document.getElementById('sortLabel').innerText = 'En Ucuz'; } else { cards.sort((a,b) => parseFloat(a.dataset.dist) - parseFloat(b.dataset.dist)); document.getElementById('sortLabel').innerText = 'En Yakın'; } list.innerHTML = ''; cards.forEach(c => list.appendChild(c)); closeSortPicker(); }
