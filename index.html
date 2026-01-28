@@ -351,6 +351,7 @@
 
         function renderStationList(data, cityName) {
             const list = document.getElementById('stationList');
+            if(!list) return;
             list.innerHTML = '';
             
             if (!Array.isArray(data)) {
@@ -395,39 +396,20 @@
             lucide.createIcons();
         }
         
-        // --- ARAÇ EKLEME MANTIĞI GÜNCELLEMESİ ---
         function handleAddCar() {
             const userType = localStorage.getItem('userType') || 'free';
             const garageData = JSON.parse(localStorage.getItem('garage'));
-
-            // Eğer kullanıcı Premium ise -> İzin ver
-            if (userType === 'premium') {
-                startVehicleFlow();
-                return;
-            }
-
-            // Eğer kullanıcı Free ise:
-            // Garajı boşsa (null) -> İzin ver (1 tane ekleyebilir)
-            // Garajı doluysa -> Premium iste (2. aracı ekleyemez)
-            if (garageData) {
-                // Zaten arabası var, 2.ye izin yok
-                openPremiumOverlay();
-            } else {
-                // Arabası yok, ekleyebilir
-                startVehicleFlow();
-            }
+            if (userType === 'premium') { startVehicleFlow(); return; }
+            if (garageData) { openPremiumOverlay(); } else { startVehicleFlow(); }
         }
 
         function openPremiumOverlay() { document.getElementById('premiumOverlay').style.display = 'flex'; }
         function closePremiumOverlay() { document.getElementById('premiumOverlay').style.display = 'none'; }
-
         function openPriceReport() { 
             if (!firebase.auth().currentUser) { openGuestOverlay(); return; }
             document.getElementById('priceEntryOverlay').style.display = 'flex'; 
         }
-        
         function closePriceEntry() { document.getElementById('priceEntryOverlay').style.display = 'none'; }
-
         function selectFuelType(type) {
             selectedFuelType = type;
             document.querySelectorAll('.fuel-type-btn').forEach(b => b.classList.remove('selected'));
@@ -479,13 +461,11 @@
                 document.getElementById('guestActions').classList.add('hidden');
                 document.getElementById('logoutBtn').classList.remove('hidden');
                 document.getElementById('logoutBtn').style.display = 'flex';
-                
                 if (localStorage.getItem('userType') !== 'premium') {
                     document.getElementById('premiumBanner').classList.remove('hidden');
                 } else {
                     document.getElementById('premiumBanner').classList.add('hidden');
                 }
-                
                 if(selections) { renderGarageUI(); }
             } else {
                 document.getElementById('profileName').innerText = "Misafir";
@@ -499,7 +479,6 @@
         }
 
         function reportPrice() { openPriceReport(); }
-
         function performRegister() {
             const email = document.getElementById('regEmail').value;
             const pass = document.getElementById('regPass').value;
@@ -532,7 +511,21 @@
         function setAppIcon(type) { localStorage.setItem('litre_icon', type); document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active')); document.getElementById(type === 'light' ? 'iconLight' : 'iconDark').classList.add('active'); document.getElementById('faviconLink').href = type === 'dark' ? 'logosiyah.png' : 'logobeyaz.png'; }
         function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); L.tileLayer(document.body.classList.contains('dark-mode') ? tileDark : tileLight).addTo(mapObj); if(document.body.classList.contains('dark-mode')) document.getElementById(elementId).classList.add('google-dark-mode'); else document.getElementById(elementId).classList.remove('google-dark-mode'); }
         function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); markers = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 50 }); stationData.forEach(s => { let icon = L.divIcon({ className: 'base-marker ' + (s.type === 'opet' ? 'opet-marker' : s.type === 'shell' ? 'shell-marker' : 'po-marker'), html: s.type.toUpperCase(), iconSize: [36, 36] }); markers.addLayer(L.marker([s.lat, s.lng], { icon: icon }).on('click', () => openNavPicker(s.name))); }); leafletMap.addLayer(markers); }
-        function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); setTimeout(() => { miniMap.invalidateSize(); }, 500); }
+        
+        // --- HARİTA DÜZELTMESİ BURADA ---
+        function initMiniMap() { 
+            if (miniMap) return; 
+            // Direkt İstanbul koordinatlarını vererek başlatıyoruz
+            miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); 
+            updateMapLayer(miniMap, 'miniMap'); 
+            
+            // Kutu boyutunu hesaplaması için küçük bir gecikme
+            setTimeout(() => { 
+                miniMap.invalidateSize(); 
+                miniMap.setView([41.0082, 28.9784], 10); // Tekrar set ediyoruz garanti olsun
+            }, 500); 
+        }
+        
         function updateGarageAnalysis() { if(fuelRecords.length === 0) { document.getElementById('monthlyAnaliz').innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Henüz veri yok.</p>'; document.getElementById('viewAvgCost').innerText = "0,00 TL"; document.getElementById('viewTotalLiters').innerText = "0.0 L"; return; } }
         function showTab(tabId, el, isMap) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); }
         function startVehicleFlow() { if (!firebase.auth().currentUser) { openGuestOverlay(); return; } step = 0; document.getElementById('plateInputContainer').classList.add('hidden'); document.getElementById('wheelContainer').classList.remove('hidden'); updatePickerUI(); document.getElementById('pickerOverlay').style.display = 'flex'; }
@@ -553,7 +546,6 @@
         function selectCity(name) { 
             document.getElementById('selectedCity').innerText = name; 
             closeCityPicker(); 
-            // Burada da veriyi çekip gönderiyoruz:
             const data = getPricesForCity(name);
             renderStationList(data, name); 
         }
@@ -579,7 +571,6 @@
                 document.getElementById('viewMarka').innerText = selections.Marka;
                 document.getElementById('viewYıl').innerText = selections.Yıl;
                 document.getElementById('viewPlaka').innerText = selections.Plaka;
-                // Veri varsa (Garaj doluysa) "Garage dolu" hissiyatı vermek için UI güncellenebilir
             } else {
                 document.getElementById('viewMarka').innerText = '-';
                 document.getElementById('viewYıl').innerText = '-';
@@ -589,13 +580,17 @@
 
         window.addEventListener('load', () => { 
             try {
-                // Güvenli başlatma sırası
-                initTheme(); initAppIcon(); initMiniMap(); 
+                // Temayı başlat
+                initTheme(); initAppIcon(); 
                 
-                // --- KRİTİK DÜZELTME BURADA ---
-                // Eskiden: renderStationList('İstanbul'); (Hatalıydı)
-                // Şimdi: Datayı alıp gönderiyoruz.
-                const initialData = getPricesForCity('İstanbul');
+                // 1. Haritayı başlat (Zamanlayıcı içinde invalidateSize var)
+                initMiniMap(); 
+                
+                // 2. İstanbul olarak ayarla ve veriyi çek
+                document.getElementById('selectedCity').innerText = 'İstanbul'; // Text'i güncelle
+                const initialData = getPricesForCity('İstanbul'); // Datayı al
+                
+                // 3. Listeyi bas
                 renderStationList(initialData, 'İstanbul');
                 
                 checkLoginStatus();
