@@ -57,7 +57,7 @@
 
         body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
         
-        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; transition: opacity 0.5s ease-out; }
+        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
         
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -266,11 +266,11 @@
 
     <div id="pickerOverlay" class="picker-overlay" onclick="closePicker()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><button onclick="closePicker()" class="text-zinc-500 font-bold">Vazgeç</button><h3 id="pickerTitle" class="font-bold text-lg">Seçiniz</h3><button id="nextBtn" onclick="processSelection()" class="text-blue-500 font-bold">Devam</button></div><div id="wheelContainer" class="wheel-wrapper"><div class="wheel-selection-bar"></div><div id="wheel" class="wheel-picker no-scrollbar" onscroll="handleWheelScroll(this)"></div></div><div id="plateInputContainer" class="hidden py-8 px-4"><input type="text" id="plateInput" placeholder="34 ABC 123" class="w-full bg-white/5 border border-current opacity-20 rounded-[1.8rem] p-4 text-2xl font-black text-center outline-none"></div></div></div>
     
-    <div id="cityOverlay" class="picker-overlay" onclick="closeCityPicker()"><div class="picker-container h-[80%]" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-4 px-2"><h3 class="font-bold text-lg text-current">Şehir Seçin</h3><button onclick="closeCityPicker()" class="bg-zinc-500/20 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4 text-current"></i></button></div>
+    <div id="cityOverlay" class="picker-overlay" onclick="closeCityPicker()"><div class="picker-container h-[80%] flex flex-col" onclick="event.stopPropagation()"><div class="flex justify-between items-center mb-4 px-2"><h3 class="font-bold text-lg text-current">Şehir Seçin</h3><button onclick="closeCityPicker()" class="bg-zinc-500/20 p-2 rounded-full"><i data-lucide="x" class="w-4 h-4 text-current"></i></button></div>
     
-    <div class="relative mb-4"><i data-lucide="search" class="absolute right-4 top-3.5 w-4 h-4 opacity-40 text-current"></i><input type="text" id="citySearch" onkeyup="filterCities()" placeholder="Şehir ara..." class="search-input"></div><div id="cityList" class="overflow-y-auto flex-1 no-scrollbar text-current font-bold text-lg"></div>
+    <div class="relative mb-4"><i data-lucide="search" class="absolute right-4 top-3.5 w-4 h-4 opacity-40 text-current"></i><input type="text" id="citySearch" onkeyup="filterCities()" placeholder="Şehir ara..." class="search-input"></div><div id="cityList" class="flex-1 overflow-y-auto no-scrollbar text-current font-bold text-lg"></div>
     
-    <div class="mt-4 pt-4 border-t border-white/10">
+    <div class="mt-auto pt-4 border-t border-white/10">
         <button onclick="selectCurrentLocation()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 p-4 rounded-2xl text-white font-black haptic-btn flex items-center justify-center gap-3 shadow-lg shadow-blue-500/20">
             <i data-lucide="crosshair" class="w-5 h-5"></i>MEVCUT KONUMU BUL
         </button>
