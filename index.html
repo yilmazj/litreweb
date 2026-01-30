@@ -166,6 +166,11 @@
         .shell-marker { background-color: #FFD500; color: #DE2128; border-color: #DE2128; }
         .po-marker { background-color: #DE2128; }
         
+        /* NEW STYLES */
+        .garage-carousel { scroll-snap-type: x mandatory; }
+        .history-tab-btn { padding: 10px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; color: var(--subtext); transition: 0.3s; background: transparent; }
+        .history-tab-btn.active { background: var(--card); color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -222,12 +227,15 @@
         <div class="w-20 h-20 bg-gradient-to-tr from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-orange-500/30">
             <i data-lucide="crown" class="text-white w-10 h-10"></i>
         </div>
-        <h2 class="text-2xl font-black mb-2 text-current">Garajını Genişlet</h2>
-        <p class="opacity-60 text-sm mb-8 px-6 text-current">Birden fazla araç eklemek için Premium hesaba geçmen gerekiyor. Tek araç ücretsiz pakette kalabilirsin.</p>
+        <h2 class="text-2xl font-black mb-2 text-current" id="upsellTitle">Garajını Genişlet</h2>
+        <p class="opacity-60 text-sm mb-8 px-6 text-current" id="upsellText">Birden fazla araç eklemek ve detaylı raporlar almak için Premium hesaba geç.</p>
         
         <div class="space-y-3 w-full">
-             <button class="w-full bg-gradient-to-r from-blue-600 to-blue-500 p-4 rounded-2xl text-white font-bold haptic-btn">Premium'a Yükselt</button>
-             <button onclick="closeUpsell()" class="w-full bg-transparent p-3 text-zinc-500 font-bold">Belki Daha Sonra</button>
+            <div class="flex gap-3">
+                <button class="flex-1 bg-current text-white/90 p-3 rounded-2xl font-black text-xs haptic-btn opacity-80" style="background: var(--text); color: var(--bg);">AYLIK 49₺</button>
+                <button class="flex-1 bg-orange-500 text-white p-3 rounded-2xl font-black text-xs haptic-btn shadow-lg shadow-orange-500/30">YILLIK 499₺</button>
+            </div>
+             <button onclick="closeUpsell()" class="w-full bg-transparent p-3 text-zinc-500 font-bold mt-2">Belki Daha Sonra</button>
         </div>
     </div></div>
 
@@ -354,7 +362,25 @@
         <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Fiyat Değişimleri</p><p class="text-[10px] opacity-40">Anlık zam/indirim haberleri</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
         <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Aylık Özet Analizi</p><p class="text-[10px] opacity-40">Harcama raporu bildirimi</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
     </div></div></div>
-    <div id="historyOverlay" class="picker-overlay" onclick="closeHistory()"><div class="picker-container h-[70%]" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><button onclick="closeHistory()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Yakıt Geçmişi</h3><div class="w-10"></div></div><div id="historyList" class="space-y-3 overflow-y-auto h-full pb-20 no-scrollbar"></div></div></div>
+    
+    <div id="historyOverlay" class="picker-overlay" onclick="closeHistory()"><div class="picker-container h-[75%] flex flex-col" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6 px-4">
+            <h3 class="font-bold text-lg text-current">Yakıt Geçmişi</h3>
+            <button onclick="closeHistory()" class="text-zinc-500 font-bold">Kapat</button>
+        </div>
+        
+        <div class="bg-black/5 p-1 rounded-2xl flex gap-1 mb-6 mx-4">
+            <button onclick="switchHistoryTab('details')" id="tabDetails" class="history-tab-btn flex-1 active">Özet</button>
+            <button onclick="switchHistoryTab('docs')" id="tabDocs" class="history-tab-btn flex-1">Fiş & Döküman</button>
+        </div>
+        
+        <div id="histContentDetails" class="overflow-y-auto no-scrollbar flex-1 pb-20 px-4">
+            <div id="historyList" class="space-y-3"></div>
+        </div>
+        
+        <div id="histContentDocs" class="hidden flex-1 flex flex-col items-center justify-center px-6 text-center">
+            </div>
+    </div></div>
 
     <div id="app-content" class="flex flex-col h-full opacity-0 transition-opacity duration-1000 relative">
         <main class="flex-1 relative">
@@ -444,9 +470,11 @@
                                 <i data-lucide="plus" class="text-white w-4 h-4"></i>
                             </div>
                         </div>
-                        <div class="flex justify-between text-center border-b border-white/5 pb-6"><div><p class="text-[9px] opacity-40 uppercase mb-1">Marka</p><p id="viewMarka" class="text-lg font-black">-</p></div><div><p class="text-[9px] opacity-40 uppercase mb-1">Yıl</p><p id="viewYıl" class="text-lg font-black">-</p></div><div><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p id="viewPlaka" class="text-lg font-black tracking-tighter">-</p></div></div>
-                        <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current"><div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p id="viewAvgCost" class="text-2xl font-black text-blue-500">0,00 TL</p></div><div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p id="viewTotalLiters" class="text-2xl font-black">0.0 L</p></div></div>
+                        
+                        <div class="garage-carousel flex overflow-x-auto snap-x no-scrollbar pb-2 -mx-7 px-7" id="garageContainer">
+                             </div>
                     </div>
+                    
                     <div class="glass-card p-6 bg-gradient-to-br from-green-500/10 to-transparent border-green-500/10 flex justify-between items-center shadow-lg"><div><h3 class="text-[10px] font-black opacity-30 uppercase mb-1">Tasarruf Paneli</h3><p id="monthlySaving" class="text-2xl font-black text-green-500 tracking-tighter">0,00 TL</p></div><i data-lucide="trending-up" class="text-green-500 w-6 h-6 opacity-60"></i></div>
                     <div class="glass-card p-3 space-y-0.5">
                         <div onclick="startVehicleFlow()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn"><div class="flex items-center gap-5"><i data-lucide="plus-circle" class="text-blue-500 w-5 h-5"></i><span class="font-bold text-sm">Araç Güncelle</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
@@ -562,11 +590,11 @@
                     document.getElementById('profileStatus').innerText = "Premium Üye";
                     document.getElementById('profileStatus').classList.remove('opacity-60');
                     document.getElementById('profileStatus').classList.add('text-orange-500', 'bg-orange-500/10');
-                    document.getElementById('premiumCard').classList.add('hidden'); // Premium olana satış yapma
+                    document.getElementById('premiumCard').classList.add('hidden'); 
                 } else {
                     isPremiumUser = false;
                     document.getElementById('profileStatus').innerText = "Free Hesap";
-                    document.getElementById('premiumCard').classList.remove('hidden'); // Diğerlerine premium kartı göster
+                    document.getElementById('premiumCard').classList.remove('hidden'); 
                 }
 
             } else {
@@ -672,13 +700,15 @@
                 return; 
             }
             
-            // Eğer garajda araç varsa ve kullanıcı Premium değilse -> ENGELLE
-            if (selections && !isPremiumUser) {
+            // Eğer kullanıcı Premium değilse ve artıya bastıysa -> TEKLİF ÇIKAR
+            if (!isPremiumUser) {
+                document.getElementById('upsellTitle').innerText = "Premium'a Geç";
+                document.getElementById('upsellText').innerText = "Garajına birden fazla araç eklemek için paketini yükseltmelisin.";
                 document.getElementById('premiumUpsellOverlay').style.display = 'flex';
                 return;
             }
 
-            // Aksi halde devam et (İlk araç ekleme veya Premium üye)
+            // Aksi halde (Premiumsa) devam et
             step = 0; 
             document.getElementById('plateInputContainer').classList.add('hidden'); 
             document.getElementById('wheelContainer').classList.remove('hidden'); 
@@ -690,7 +720,47 @@
 
         function updatePickerUI() { const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; if (pickingSubModel) { document.getElementById('pickerTitle').innerText = "Serisini Seç"; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; const subs = subCarData[selections.Marka][selections.Model]; subs.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; return; } document.getElementById('pickerTitle').innerText = titles[step]; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
         function processSelection() { if(selections === null) selections = {}; if (pickingSubModel) { if (selections.Marka === 'BMW' || selections.Marka === 'Mercedes-Benz') { selections.Model = tempValue; } else { selections.Model = selections.Model + ' ' + tempValue; } pickingSubModel = false; step++; updatePickerUI(); return; } if(step === 0) selections.Marka = tempValue; if(step === 1) { selections.Model = tempValue; if (subCarData[selections.Marka] && subCarData[selections.Marka][selections.Model]) { pickingSubModel = true; updatePickerUI(); return; } } if(step === 2) selections.Yıl = tempValue; if(step === 3) { selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; saveGarageData(); closePicker(); return; } step++; updatePickerUI(); }
-        function renderGarageUI() { if(selections) { document.getElementById('viewMarka').innerText = selections.Marka + ' ' + selections.Model; document.getElementById('viewYıl').innerText = selections.Yıl; document.getElementById('viewPlaka').innerText = selections.Plaka; } else { document.getElementById('viewMarka').innerText = "Araç Eklenmedi"; document.getElementById('viewYıl').innerText = "-"; document.getElementById('viewPlaka').innerText = "-"; } }
+        
+        // --- NEW CAROUSEL RENDER LOGIC ---
+        function renderGarageUI() { 
+            const container = document.getElementById('garageContainer');
+            container.innerHTML = ''; // Clear previous
+
+            // Burası normalde array döngüsü olacak. Şimdilik tek araç logic'i ile carousel item oluşturuyoruz.
+            // İleride selections bir Array olduğunda burayı selections.forEach(...) yapacağız.
+            
+            if(selections) { 
+                // Card for existing car
+                const carCard = `
+                <div class="carousel-card snap-center min-w-full">
+                    <div class="flex justify-between text-center border-b border-white/5 pb-6">
+                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Marka</p><p class="text-lg font-black">${selections.Marka} ${selections.Model}</p></div>
+                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Yıl</p><p class="text-lg font-black">${selections.Yıl}</p></div>
+                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p class="text-lg font-black tracking-tighter">${selections.Plaka}</p></div>
+                    </div>
+                    <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current">
+                        <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p id="viewAvgCost" class="text-2xl font-black text-blue-500">0,00 TL</p></div>
+                        <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p id="viewTotalLiters" class="text-2xl font-black">0.0 L</p></div>
+                    </div>
+                </div>`;
+                container.innerHTML += carCard;
+                
+                // Demo purpose: If premium, maybe show a ghost card for adding another? 
+                // For now, let's keep it clean as requested.
+                
+                // Re-calculate totals because we just wiped the HTML
+                updateGarageAnalysis();
+
+            } else { 
+                // Empty State Card
+                container.innerHTML = `
+                <div class="carousel-card snap-center min-w-full flex flex-col items-center justify-center py-10 opacity-60">
+                    <p class="font-bold mb-2">Araç Eklenmedi</p>
+                    <p class="text-xs">Garajın şu an boş.</p>
+                </div>`;
+            } 
+        }
+        
         function getPricesForCity(city) { if(city === 'İstanbul') { return [ { brand: 'Shell', name: 'Shell - İstanbul Avrupa', benzin: 54.07, motorin: 57.34, lpg: 29.29, dist: 3.5 }, { brand: 'Shell', name: 'Shell - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 1.2 }, { brand: 'Opet', name: 'Opet - İstanbul Avrupa', benzin: 54.05, motorin: 57.28, lpg: 29.29, dist: 5.1 }, { brand: 'Opet', name: 'Opet - İstanbul Anadolu', benzin: 53.90, motorin: 57.16, lpg: 28.69, dist: 0.8 }, { brand: 'PO', name: 'PO - İstanbul Avrupa', benzin: 54.10, motorin: 57.34, lpg: 29.29, dist: 4.8 }, { brand: 'PO', name: 'PO - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 2.2 }, { brand: 'Total', name: 'Total - İstanbul Avrupa', benzin: 54.07, motorin: 57.35, lpg: 29.57, dist: 6.2 }, { brand: 'Total', name: 'Total - İstanbul Anadolu', benzin: 53.88, motorin: 57.16, lpg: 28.69, dist: 2.8 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Avrupa', benzin: 50.87, motorin: 52.57, lpg: 28.93, dist: 4.1 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Anadolu', benzin: 50.80, motorin: 52.50, lpg: 28.85, dist: 7.1 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Avrupa', benzin: 54.04, motorin: 57.27, lpg: 29.41, dist: 5.5 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Anadolu', benzin: 53.89, motorin: 57.15, lpg: 28.95, dist: 8.5 }, ]; } const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; let cityStations = []; const seed = city.length * 0.05; Object.keys(basePrices).forEach(brand => { if(Math.random() > 0.9 && city !== 'Ankara' && city !== 'İzmir') return; const pDiff = (Math.random() * 0.5) - 0.1 + seed; cityStations.push({ brand: brand, name: `${brand === 'Türkiye Petrolleri' ? 'TP' : brand} - ${city} Merkez`, benzin: (basePrices[brand] + pDiff).toFixed(2), motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2), lpg: (29.00 + pDiff).toFixed(2), dist: (Math.random() * 5 + 0.5).toFixed(1) }); }); return cityStations.sort((a,b) => a.dist - b.dist); }
         function renderStationList(data, cityName) { const list = document.getElementById('stationList'); list.innerHTML = ''; data.forEach(item => { const style = stationLogos[item.brand] || stationLogos['Shell']; list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" data-price="${item.benzin}" data-dist="${item.dist}"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${style.bg}"><span class="font-black text-[8px]" style="color:${style.text}">${style.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${item.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3">${item.dist} km uzaklıkta</p><div class="grid grid-cols-3 gap-2 text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3"><div class="text-center"><div class="opacity-40 mb-1">BENZİN</div><div class="text-current text-xs">${item.benzin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">MOTORİN</div><div class="text-current text-xs">${item.motorin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.lpg}</div></div></div><div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button><button onclick="openNavPicker('${item.name}')" class="flex-1 action-btn-small text-current bg-blue-500 text-white shadow-lg shadow-blue-500/30"><i data-lucide="navigation-2" class="w-4 h-4 mr-2"></i><span class="text-xs font-bold">Yol Tarifi</span></button><button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`; }); lucide.createIcons(); }
         function openNavPicker(target) { currentNavTarget = target; const q = encodeURIComponent(target); document.getElementById('btnAppleMaps').onclick = () => window.open(`http://maps.apple.com/?q=${q}`, '_blank'); document.getElementById('btnGoogleMaps').onclick = () => window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank'); document.getElementById('navPickerOverlay').style.display = 'flex'; }
@@ -708,12 +778,72 @@
         function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); markers = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 50 }); stationData.forEach(station => { let iconClass = 'base-marker'; let iconHtml = ''; if (station.type === 'opet') { iconClass += ' opet-marker'; iconHtml = 'OPET'; } else if (station.type === 'shell') { iconClass += ' shell-marker'; iconHtml = 'SHELL'; } else if (station.type === 'po') { iconClass += ' po-marker'; iconHtml = 'PO'; } const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); const marker = L.marker([station.lat, station.lng], { icon: customIcon }); marker.on('click', () => { openNavPicker(station.name); }); markers.addLayer(marker); }); leafletMap.addLayer(markers); }
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
-        function updateGarageAnalysis() { if(fuelRecords.length === 0) { document.getElementById('monthlyAnaliz').innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Henüz veri yok.</p>'; document.getElementById('viewAvgCost').innerText = "0,00 TL"; document.getElementById('viewTotalLiters').innerText = "0.0 L"; return; } const totalAmount = fuelRecords.reduce((sum, r) => sum + r.amount, 0); document.getElementById('viewAvgCost').innerText = totalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; document.getElementById('monthlySaving').innerText = (totalAmount * 0.05).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; const list = document.getElementById('historyList'); list.innerHTML = fuelRecords.map(r => `<div class="p-5 glass-card mb-3 shadow-lg text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); }
+        function updateGarageAnalysis() { 
+            // Calculate totals
+            const totalAmount = fuelRecords.reduce((sum, r) => sum + r.amount, 0); 
+            // Update Card
+            const cardCost = document.getElementById('viewAvgCost');
+            if(cardCost) cardCost.innerText = totalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
+            document.getElementById('monthlySaving').innerText = (totalAmount * 0.05).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
+            
+            // Update List
+            const list = document.getElementById('historyList'); 
+            if(fuelRecords.length === 0) { 
+                list.innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Henüz veri yok.</p>'; 
+            } else {
+                list.innerHTML = fuelRecords.map(r => `<div class="p-5 bg-white/5 rounded-2xl mb-3 border border-white/5 text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); 
+            }
+        }
         function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + (el.clientHeight / 2); for (let item of items) { const itemCenter = item.offsetTop + (item.clientHeight / 2); if (Math.abs(center - itemCenter) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
         function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
         function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; }
-        function openHistory() { document.getElementById('historyOverlay').style.display = 'flex'; updateGarageAnalysis(); }
+        
+        // --- HISTORY TABS LOGIC ---
+        function openHistory() { 
+            document.getElementById('historyOverlay').style.display = 'flex'; 
+            updateGarageAnalysis();
+            // Varsayılan tab: Details
+            switchHistoryTab('details');
+        }
         function closeHistory() { document.getElementById('historyOverlay').style.display = 'none'; }
+        
+        function switchHistoryTab(tab) {
+            document.querySelectorAll('.history-tab-btn').forEach(b => b.classList.remove('active'));
+            if(tab === 'details') {
+                document.getElementById('tabDetails').classList.add('active');
+                document.getElementById('histContentDetails').classList.remove('hidden');
+                document.getElementById('histContentDocs').classList.add('hidden');
+            } else {
+                document.getElementById('tabDocs').classList.add('active');
+                document.getElementById('histContentDetails').classList.add('hidden');
+                document.getElementById('histContentDocs').classList.remove('hidden');
+                
+                // Content for Docs Tab based on Premium
+                const docsContainer = document.getElementById('histContentDocs');
+                if(isPremiumUser) {
+                    docsContainer.innerHTML = `
+                        <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mb-4"><i data-lucide="file-check" class="w-10 h-10 text-blue-500"></i></div>
+                        <h3 class="font-bold text-xl mb-2">Döküman Merkezi</h3>
+                        <p class="text-sm opacity-60 mb-6">Fişleriniz ve aylık raporlarınız hazır.</p>
+                        <div class="w-full space-y-3">
+                            <button onclick="alert('Excel indiriliyor...')" class="w-full bg-green-600 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-3 haptic-btn"><i data-lucide="sheet" class="w-5 h-5"></i>Excel Olarak İndir</button>
+                            <button onclick="alert('PDF oluşturuluyor...')" class="w-full bg-red-600 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-3 haptic-btn"><i data-lucide="file-text" class="w-5 h-5"></i>PDF Olarak İndir</button>
+                            <button onclick="alert('Paylaşım menüsü açılıyor...')" class="w-full bg-zinc-500/20 text-current p-4 rounded-2xl font-bold flex items-center justify-center gap-3 haptic-btn"><i data-lucide="share" class="w-5 h-5"></i>Paylaş</button>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                } else {
+                    docsContainer.innerHTML = `
+                        <div class="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mb-4"><i data-lucide="lock" class="w-10 h-10 text-orange-500"></i></div>
+                        <h3 class="font-bold text-xl mb-2">Premium Özellik</h3>
+                        <p class="text-sm opacity-60 mb-6">Fişlerini saklamak, Excel/PDF dökümü almak ve muhasebe raporları için Premium'a geç.</p>
+                        <button onclick="document.getElementById('upsellTitle').innerText='Raporlar Kilitli'; document.getElementById('upsellText').innerText='Excel ve PDF dökümü almak için Premium gerekir.'; document.getElementById('premiumUpsellOverlay').style.display='flex';" class="w-full bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-4 rounded-2xl font-bold haptic-btn shadow-lg shadow-orange-500/30">Premium'a Yükselt</button>
+                    `;
+                    lucide.createIcons();
+                }
+            }
+        }
+
         function openSettings() { document.getElementById('settingsOverlay').style.display = 'flex'; }
         function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
         function openNotify() { document.getElementById('notifyOverlay').style.display = 'flex'; }
