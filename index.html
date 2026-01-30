@@ -238,6 +238,30 @@
              <button onclick="closeUpsell()" class="w-full bg-transparent p-3 text-zinc-500 font-bold mt-2">Belki Daha Sonra</button>
         </div>
     </div></div>
+    
+    <div id="accountOverlay" class="picker-overlay" onclick="closeAccountSettings()"><div class="picker-container" onclick="event.stopPropagation()">
+        <div class="flex justify-between mb-8 px-4"><button onclick="closeAccountSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Hesap Bilgilerim</h3><button onclick="updateAccountInfo()" class="text-blue-500 font-bold">Kaydet</button></div>
+        
+        <div class="space-y-4 pb-12 overflow-y-auto max-h-[70vh]">
+            <div>
+                <label class="text-xs font-bold opacity-50 ml-2 mb-1 block text-current">İsim Soyisim</label>
+                <input type="text" id="accName" class="auth-input" placeholder="Ad Soyad">
+            </div>
+            
+            <div>
+                <label class="text-xs font-bold opacity-50 ml-2 mb-1 block text-current">E-posta Adresi</label>
+                <input type="email" id="accEmail" class="auth-input" placeholder="mail@ornek.com">
+            </div>
+
+            <div class="border-t border-current/10 pt-4 mt-2">
+                <p class="text-xs font-bold opacity-50 mb-3 ml-2 text-current">Şifre Değiştir (İsteğe Bağlı)</p>
+                <input type="password" id="accOldPass" class="auth-input" placeholder="Mevcut Şifre (Zorunlu)">
+                <input type="password" id="accNewPass" class="auth-input" placeholder="Yeni Şifre">
+            </div>
+            
+            <p class="text-[10px] opacity-40 text-center px-4 text-current">Güvenlik gereği E-posta veya Şifre değişikliği için mevcut şifrenizi girmeniz gerekmektedir.</p>
+        </div>
+    </div></div>
 
     <div id="scanOverlay" class="fixed inset-0 bg-black z-[4500] hidden flex-col items-center justify-center">
         <video id="cameraView" autoplay playsinline></video>
@@ -476,11 +500,13 @@
                     </div>
                     
                     <div class="glass-card p-6 bg-gradient-to-br from-green-500/10 to-transparent border-green-500/10 flex justify-between items-center shadow-lg"><div><h3 class="text-[10px] font-black opacity-30 uppercase mb-1">Tasarruf Paneli</h3><p id="monthlySaving" class="text-2xl font-black text-green-500 tracking-tighter">0,00 TL</p></div><i data-lucide="trending-up" class="text-green-500 w-6 h-6 opacity-60"></i></div>
+                    
                     <div class="glass-card p-3 space-y-0.5">
                         <div onclick="startVehicleFlow()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn"><div class="flex items-center gap-5"><i data-lucide="plus-circle" class="text-blue-500 w-5 h-5"></i><span class="font-bold text-sm">Araç Güncelle</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                        <div onclick="openHistory()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="archive" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Yakıt Geçmişi</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                        <div onclick="openAccountSettings()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="user-cog" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Hesap Bilgilerim</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                         <div onclick="openSettings()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="settings-2" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Ayarlar</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                         <div onclick="openNotify()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="bell" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Bildirim Ayarları</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
-                        <div onclick="openHistory()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="archive" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Yakıt Geçmişi</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                     </div>
                     
                     <div id="logoutBtn" onclick="logout()" class="p-5 rounded-2xl flex items-center justify-center gap-2 haptic-btn mt-6 border border-red-500/30 bg-red-500/10 hidden">
@@ -520,8 +546,13 @@
                         localStorage.setItem('litre_user', JSON.stringify({ name: user.email.split('@')[0], email: user.email }));
                         db.collection("users").doc(user.uid).get().then((doc) => {
                             if (doc.exists) {
-                                localStorage.setItem('garage', JSON.stringify(doc.data().garage));
-                                selections = doc.data().garage;
+                                // MIGRATION LOGIC: Check if old format (object) or new (array)
+                                let data = doc.data().garage;
+                                if (data && !Array.isArray(data)) {
+                                    data = [data]; // Convert to array
+                                }
+                                selections = data || []; // Default to empty array if null
+                                localStorage.setItem('garage', JSON.stringify(selections));
                             }
                             checkLoginStatus();
                         });
@@ -529,7 +560,7 @@
                         console.log("Misafir modu.");
                         localStorage.removeItem('litre_user');
                         localStorage.removeItem('garage');
-                        selections = null;
+                        selections = [];
                         checkLoginStatus();
                     }
                 });
@@ -562,8 +593,11 @@
         const stationLogos = { 'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } };
         const stationData = [ { name: "Opet Maslak Koç Petrol", lat: 41.112, lng: 29.020, type: "opet" }, { name: "Opet Kuruçeşme Alev Petrol", lat: 41.058, lng: 29.033, type: "opet" }, { name: "Opet Fulya Akaryakıt", lat: 41.0554, lng: 28.9991, type: "opet" }, { name: "Opet Kartal Cevizli", lat: 40.912, lng: 29.170, type: "opet" }, { name: "Opet Ataköy Rauf Orbay", lat: 40.970, lng: 28.850, type: "opet" }, { name: "Opet Kadıköy Bağdat Cad", lat: 40.985, lng: 29.040, type: "opet" }, { name: "Opet Mahmutbey İstoç", lat: 41.055, lng: 28.820, type: "opet" }, { name: "Shell Beşiktaş", lat: 41.045, lng: 29.005, type: "shell" }, { name: "Shell Ataşehir", lat: 40.990, lng: 29.110, type: "shell" }, { name: "Shell Merter", lat: 41.010, lng: 28.890, type: "shell" }, { name: "Shell Levent", lat: 41.080, lng: 29.015, type: "shell" }, { name: "Shell Maltepe", lat: 40.930, lng: 29.140, type: "shell" }, { name: "Petrol Ofisi Mecidiyeköy", lat: 41.065, lng: 28.995, type: "po" }, { name: "Petrol Ofisi Ümraniye", lat: 41.025, lng: 29.100, type: "po" }, { name: "Petrol Ofisi Bakırköy", lat: 40.980, lng: 28.870, type: "po" }, { name: "Petrol Ofisi Kadıköy", lat: 40.995, lng: 29.030, type: "po" }, { name: "Petrol Ofisi Sarıyer", lat: 41.160, lng: 29.050, type: "po" } ];
         const years = Array.from({length: 37}, (_, i) => (2026-i).toString());
+        // Init as Array
         let savedGarage = JSON.parse(localStorage.getItem('garage'));
-        let step = 0, selections = savedGarage || null, tempValue = '';
+        if (savedGarage && !Array.isArray(savedGarage)) savedGarage = [savedGarage];
+        
+        let step = 0, selections = savedGarage || [], tempValue = '', tempSelection = {};
         
         function checkLoginStatus() {
             if (typeof firebase === 'undefined' || !firebase.apps.length) { 
@@ -579,7 +613,9 @@
 
             const user = firebase.auth().currentUser;
             if (user) {
-                document.getElementById('profileName').innerText = user.email.split('@')[0];
+                document.getElementById('profileName').innerText = user.displayName || user.email.split('@')[0];
+                document.getElementById('accName').value = user.displayName || "";
+                document.getElementById('accEmail').value = user.email || "";
                 document.getElementById('guestActions').classList.add('hidden');
                 document.getElementById('logoutBtn').classList.remove('hidden');
                 document.getElementById('logoutBtn').style.display = 'flex';
@@ -603,7 +639,7 @@
                 document.getElementById('guestActions').classList.remove('hidden');
                 document.getElementById('logoutBtn').classList.add('hidden');
                 document.getElementById('premiumCard').classList.add('hidden');
-                selections = null;
+                selections = [];
                 isPremiumUser = false;
                 saveGarageData();
             }
@@ -632,7 +668,7 @@
                 .then((userCredential) => {
                     const db = firebase.firestore();
                     db.collection("users").doc(userCredential.user.uid).set({
-                        garage: null,
+                        garage: [],
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     alert("Kayıt Başarılı! Hoş Geldin.");
@@ -665,6 +701,59 @@
                         alert("Hata: Güvenlik nedeniyle hesabını silmeden önce tekrar giriş yapman gerekebilir. (" + error.message + ")");
                     });
                 }
+            }
+        }
+        
+        // --- ACCOUNT UPDATE LOGIC ---
+        function openAccountSettings() { 
+            const user = firebase.auth().currentUser;
+            if(!user) { openGuestOverlay(); return; }
+            document.getElementById('accountOverlay').style.display = 'flex'; 
+        }
+        function closeAccountSettings() { document.getElementById('accountOverlay').style.display = 'none'; }
+        
+        async function updateAccountInfo() {
+            const user = firebase.auth().currentUser;
+            if(!user) return;
+            
+            const newName = document.getElementById('accName').value;
+            const newEmail = document.getElementById('accEmail').value;
+            const oldPass = document.getElementById('accOldPass').value;
+            const newPass = document.getElementById('accNewPass').value;
+            
+            let needsReAuth = false;
+            if (newEmail !== user.email || (newPass && newPass.length > 0)) {
+                needsReAuth = true;
+            }
+            
+            try {
+                if (needsReAuth) {
+                    if (!oldPass) {
+                        alert("E-posta veya şifre değişikliği için mevcut şifrenizi girmeniz gerekmektedir.");
+                        return;
+                    }
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
+                    await user.reauthenticateWithCredential(credential);
+                }
+                
+                if (newName !== user.displayName) {
+                    await user.updateProfile({ displayName: newName });
+                }
+                
+                if (newEmail !== user.email) {
+                    await user.updateEmail(newEmail);
+                }
+                
+                if (newPass && newPass.length > 0) {
+                    await user.updatePassword(newPass);
+                }
+                
+                alert("Bilgiler güncellendi!");
+                closeAccountSettings();
+                checkLoginStatus(); // Update UI
+                
+            } catch (error) {
+                alert("Hata: " + error.message);
             }
         }
 
@@ -700,55 +789,82 @@
                 return; 
             }
             
-            // Eğer kullanıcı Premium değilse ve artıya bastıysa -> TEKLİF ÇIKAR
-            if (!isPremiumUser) {
+            // Eğer garajda araç varsa ve kullanıcı Premium değilse -> ENGELLE
+            if (selections.length > 0 && !isPremiumUser) {
                 document.getElementById('upsellTitle').innerText = "Premium'a Geç";
                 document.getElementById('upsellText').innerText = "Garajına birden fazla araç eklemek için paketini yükseltmelisin.";
                 document.getElementById('premiumUpsellOverlay').style.display = 'flex';
                 return;
             }
 
-            // Aksi halde (Premiumsa) devam et
+            // Eğer 5 araç sınırı dolduysa
+            if (selections.length >= 5) {
+                alert("Maksimum 5 araç ekleyebilirsiniz. Garajınız dolu.");
+                return;
+            }
+
+            // Aksi halde devam et
             step = 0; 
+            tempSelection = {}; // Reset temp object for new car
             document.getElementById('plateInputContainer').classList.add('hidden'); 
             document.getElementById('wheelContainer').classList.remove('hidden'); 
+            document.getElementById('plateInput').value = '';
             updatePickerUI(); 
             document.getElementById('pickerOverlay').style.display = 'flex'; 
         }
 
         function closeUpsell() { document.getElementById('premiumUpsellOverlay').style.display = 'none'; }
 
-        function updatePickerUI() { const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; if (pickingSubModel) { document.getElementById('pickerTitle').innerText = "Serisini Seç"; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; const subs = subCarData[selections.Marka][selections.Model]; subs.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; return; } document.getElementById('pickerTitle').innerText = titles[step]; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
-        function processSelection() { if(selections === null) selections = {}; if (pickingSubModel) { if (selections.Marka === 'BMW' || selections.Marka === 'Mercedes-Benz') { selections.Model = tempValue; } else { selections.Model = selections.Model + ' ' + tempValue; } pickingSubModel = false; step++; updatePickerUI(); return; } if(step === 0) selections.Marka = tempValue; if(step === 1) { selections.Model = tempValue; if (subCarData[selections.Marka] && subCarData[selections.Marka][selections.Model]) { pickingSubModel = true; updatePickerUI(); return; } } if(step === 2) selections.Yıl = tempValue; if(step === 3) { selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; saveGarageData(); closePicker(); return; } step++; updatePickerUI(); }
+        function updatePickerUI() { const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; if (pickingSubModel) { document.getElementById('pickerTitle').innerText = "Serisini Seç"; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; const subs = subCarData[tempSelection.Marka][tempSelection.Model]; subs.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; return; } document.getElementById('pickerTitle').innerText = titles[step]; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[tempSelection.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
+        function processSelection() { 
+            if (pickingSubModel) { 
+                if (tempSelection.Marka === 'BMW' || tempSelection.Marka === 'Mercedes-Benz') { 
+                    tempSelection.Model = tempValue; 
+                } else { 
+                    tempSelection.Model = tempSelection.Model + ' ' + tempValue; 
+                } 
+                pickingSubModel = false; step++; updatePickerUI(); return; 
+            } 
+            if(step === 0) tempSelection.Marka = tempValue; 
+            if(step === 1) { 
+                tempSelection.Model = tempValue; 
+                if (subCarData[tempSelection.Marka] && subCarData[tempSelection.Marka][tempSelection.Model]) { 
+                    pickingSubModel = true; updatePickerUI(); return; 
+                } 
+            } 
+            if(step === 2) tempSelection.Yıl = tempValue; 
+            if(step === 3) { 
+                tempSelection.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; 
+                selections.push(tempSelection); // Add to array
+                saveGarageData(); 
+                closePicker(); 
+                return; 
+            } 
+            step++; updatePickerUI(); 
+        }
         
         // --- NEW CAROUSEL RENDER LOGIC ---
         function renderGarageUI() { 
             const container = document.getElementById('garageContainer');
-            container.innerHTML = ''; // Clear previous
+            container.innerHTML = ''; 
 
-            // Burası normalde array döngüsü olacak. Şimdilik tek araç logic'i ile carousel item oluşturuyoruz.
-            // İleride selections bir Array olduğunda burayı selections.forEach(...) yapacağız.
-            
-            if(selections) { 
-                // Card for existing car
-                const carCard = `
-                <div class="carousel-card snap-center min-w-full">
-                    <div class="flex justify-between text-center border-b border-white/5 pb-6">
-                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Marka</p><p class="text-lg font-black">${selections.Marka} ${selections.Model}</p></div>
-                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Yıl</p><p class="text-lg font-black">${selections.Yıl}</p></div>
-                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p class="text-lg font-black tracking-tighter">${selections.Plaka}</p></div>
-                    </div>
-                    <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current">
-                        <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p id="viewAvgCost" class="text-2xl font-black text-blue-500">0,00 TL</p></div>
-                        <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p id="viewTotalLiters" class="text-2xl font-black">0.0 L</p></div>
-                    </div>
-                </div>`;
-                container.innerHTML += carCard;
+            if(selections && selections.length > 0) { 
+                selections.forEach(car => {
+                     const carCard = `
+                    <div class="carousel-card snap-center min-w-full">
+                        <div class="flex justify-between text-center border-b border-white/5 pb-6">
+                            <div><p class="text-[9px] opacity-40 uppercase mb-1">Marka</p><p class="text-lg font-black">${car.Marka} ${car.Model}</p></div>
+                            <div><p class="text-[9px] opacity-40 uppercase mb-1">Yıl</p><p class="text-lg font-black">${car.Yıl}</p></div>
+                            <div><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p class="text-lg font-black tracking-tighter">${car.Plaka}</p></div>
+                        </div>
+                        <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current">
+                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p class="text-2xl font-black text-blue-500">0,00 TL</p></div>
+                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p class="text-2xl font-black">0.0 L</p></div>
+                        </div>
+                    </div>`;
+                    container.innerHTML += carCard;
+                });
                 
-                // Demo purpose: If premium, maybe show a ghost card for adding another? 
-                // For now, let's keep it clean as requested.
-                
-                // Re-calculate totals because we just wiped the HTML
                 updateGarageAnalysis();
 
             } else { 
@@ -782,8 +898,9 @@
             // Calculate totals
             const totalAmount = fuelRecords.reduce((sum, r) => sum + r.amount, 0); 
             // Update Card
-            const cardCost = document.getElementById('viewAvgCost');
-            if(cardCost) cardCost.innerText = totalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
+            // Note: Currently updating the visual cards is tricky in a loop without distinct IDs.
+            // For now, we update the monthly saving which is global.
+            // In a real app, each car card would query its own expenses.
             document.getElementById('monthlySaving').innerText = (totalAmount * 0.05).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
             
             // Update List
