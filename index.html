@@ -103,7 +103,28 @@
         .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
         .toggle-switch.active .toggle-knob { left: 22px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .news-card, .carousel-card { flex: 0 0 80%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: var(--glass-border); transition: background-color 0.3s, border-color 0.3s; }
+        
+        /* Updated Carousel Styles for Snapping */
+        .news-card, .carousel-card { 
+            flex: 0 0 90%; /* Wider to look like Radar blocks */
+            scroll-snap-align: center; 
+            padding: 20px; 
+            border-radius: 2rem; 
+            background: var(--card); 
+            border: var(--glass-border); 
+            transition: background-color 0.3s, border-color 0.3s; 
+            margin-right: 10px;
+            position: relative; /* For absolute positioning of icons */
+        }
+        .garage-carousel { 
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 10px;
+            margin-left: -20px; /* Offset to align first card */
+            padding-left: 20px;
+            padding-right: 20px;
+        }
         
         .silver-grad { 
             background: linear-gradient(145deg, #000, #666); 
@@ -167,9 +188,14 @@
         .po-marker { background-color: #DE2128; }
         
         /* NEW STYLES */
-        .garage-carousel { scroll-snap-type: x mandatory; }
         .history-tab-btn { padding: 10px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; color: var(--subtext); transition: 0.3s; background: transparent; }
         .history-tab-btn.active { background: var(--card); color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        /* Edit Mode Styles */
+        .editable-field { position: relative; border-radius: 8px; transition: 0.2s; }
+        .editable-field.active { background: var(--input-bg); box-shadow: 0 0 0 2px #3b82f6; }
+        .edit-icon-indicator { position: absolute; top: -5px; right: -10px; color: #3b82f6; background: var(--card); border-radius: 50%; padding: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; }
+        .carousel-card.editing .edit-icon-indicator { display: block; }
 
     </style>
 </head>
@@ -201,6 +227,11 @@
     <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoSplash" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoSplash)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <h1 class="text-4xl font-black silver-grad tracking-tight mt-3">Litre</h1>
 </div>
+
+    <div id="carSelectOverlay" class="picker-overlay" onclick="closeCarSelect()"><div class="picker-container pb-10" onclick="event.stopPropagation()">
+        <div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Hangi Araç?</h3><button onclick="closeCarSelect()" class="text-zinc-500 font-bold">Vazgeç</button></div>
+        <div id="carSelectList" class="space-y-3"></div>
+    </div></div>
 
     <div id="reportInputOverlay" class="picker-overlay" onclick="closeReportInput()"><div class="picker-container" onclick="event.stopPropagation()">
         <div class="flex justify-between mb-6 px-4">
@@ -236,6 +267,30 @@
                 <button class="flex-1 bg-orange-500 text-white p-3 rounded-2xl font-black text-xs haptic-btn shadow-lg shadow-orange-500/30">YILLIK 499₺</button>
             </div>
              <button onclick="closeUpsell()" class="w-full bg-transparent p-3 text-zinc-500 font-bold mt-2">Belki Daha Sonra</button>
+        </div>
+    </div></div>
+    
+    <div id="accountOverlay" class="picker-overlay" onclick="closeAccountSettings()"><div class="picker-container" onclick="event.stopPropagation()">
+        <div class="flex justify-between mb-8 px-4"><button onclick="closeAccountSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Hesap Bilgilerim</h3><button onclick="updateAccountInfo()" class="text-blue-500 font-bold">Kaydet</button></div>
+        
+        <div class="space-y-4 pb-12 overflow-y-auto max-h-[70vh]">
+            <div>
+                <label class="text-xs font-bold opacity-50 ml-2 mb-1 block text-current">İsim Soyisim</label>
+                <input type="text" id="accName" class="auth-input" placeholder="Ad Soyad">
+            </div>
+            
+            <div>
+                <label class="text-xs font-bold opacity-50 ml-2 mb-1 block text-current">E-posta Adresi</label>
+                <input type="email" id="accEmail" class="auth-input" placeholder="mail@ornek.com">
+            </div>
+
+            <div class="border-t border-current/10 pt-4 mt-2">
+                <p class="text-xs font-bold opacity-50 mb-3 ml-2 text-current">Şifre Değiştir (İsteğe Bağlı)</p>
+                <input type="password" id="accOldPass" class="auth-input" placeholder="Mevcut Şifre (Zorunlu)">
+                <input type="password" id="accNewPass" class="auth-input" placeholder="Yeni Şifre">
+            </div>
+            
+            <p class="text-[10px] opacity-40 text-center px-4 text-current">Güvenlik gereği E-posta veya Şifre değişikliği için mevcut şifrenizi girmeniz gerekmektedir.</p>
         </div>
     </div></div>
 
@@ -428,7 +483,7 @@
                 <button onclick="recenterUser()" class="find-me-btn haptic-btn"><i data-lucide="crosshair" class="w-6 h-6 text-blue-500"></i></button>
             </div>
 
-            <div id="radar" class="tab-content no-scrollbar pb-44 px-5 pt-14"><h2 class="text-3xl font-black silver-grad mb-6">Radar</h2><div class="news-slider flex overflow-x-auto gap-4 snap-x no-scrollbar"><div class="news-card bg-gradient-to-br from-red-500/10 to-transparent min-w-[85%] snap-center border-red-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="zap" class="text-red-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-red-600 px-2 py-1 rounded-full uppercase">23.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">Benzin +1,02 TL</h4><p class="text-xs opacity-60 text-current">Fiyat güncellemesi bu gece pompada.</p></div><div class="news-card bg-gradient-to-br from-blue-500/10 to-transparent min-w-[85%] snap-center border-blue-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="gift" class="text-blue-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-blue-600 px-2 py-1 rounded-full uppercase">22.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">World 200 TL Puan</h4><p class="text-xs opacity-60 text-current">Akaryakıt alımlarına özel fırsat.</p></div></div>
+            <div id="radar" class="tab-content no-scrollbar pb-44 px-5 pt-14"><h2 class="text-3xl font-black silver-grad mb-6">Radar</h2><div class="news-slider flex overflow-x-auto gap-4 snap-x no-scrollbar"><div class="news-card bg-gradient-to-br from-red-500/10 to-transparent snap-center border-red-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="zap" class="text-red-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-red-600 px-2 py-1 rounded-full uppercase">23.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">Benzin +1,02 TL</h4><p class="text-xs opacity-60 text-current">Fiyat güncellemesi bu gece pompada.</p></div><div class="news-card bg-gradient-to-br from-blue-500/10 to-transparent snap-center border-blue-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="gift" class="text-blue-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-blue-600 px-2 py-1 rounded-full uppercase">22.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">World 200 TL Puan</h4><p class="text-xs opacity-60 text-current">Akaryakıt alımlarına özel fırsat.</p></div></div>
                 <div class="mt-10"><h3 class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4 text-current">Bildirim Geçmişi</h3><div class="space-y-3 text-current"><div class="glass-card p-5 flex items-center gap-5 haptic-btn"><div class="bg-red-500/10 p-2.5 rounded-2xl"><i data-lucide="trending-up" class="text-red-500 w-4 h-4"></i></div><div><p class="font-bold text-sm">Benzin Zammı</p><p class="text-[10px] opacity-40">23.01.2026 · +1,02 TL</p></div></div></div></div>
                 <div class="mt-10"><h3 class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4 text-current text-current">Harcama Analizi</h3><div class="horizontal-carousel" id="monthlyAnaliz">
                     <p class="text-center opacity-40 py-10 w-full">Henüz veri yok.</p>
@@ -471,16 +526,18 @@
                             </div>
                         </div>
                         
-                        <div class="garage-carousel flex overflow-x-auto snap-x no-scrollbar pb-2 -mx-7 px-7" id="garageContainer">
+                        <div class="garage-carousel" id="garageContainer">
                              </div>
                     </div>
                     
                     <div class="glass-card p-6 bg-gradient-to-br from-green-500/10 to-transparent border-green-500/10 flex justify-between items-center shadow-lg"><div><h3 class="text-[10px] font-black opacity-30 uppercase mb-1">Tasarruf Paneli</h3><p id="monthlySaving" class="text-2xl font-black text-green-500 tracking-tighter">0,00 TL</p></div><i data-lucide="trending-up" class="text-green-500 w-6 h-6 opacity-60"></i></div>
+                    
                     <div class="glass-card p-3 space-y-0.5">
                         <div onclick="startVehicleFlow()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn"><div class="flex items-center gap-5"><i data-lucide="plus-circle" class="text-blue-500 w-5 h-5"></i><span class="font-bold text-sm">Araç Güncelle</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                        <div onclick="openHistory()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="archive" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Yakıt Geçmişi</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                        <div onclick="openAccountSettings()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="user-cog" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Hesap Bilgilerim</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                         <div onclick="openSettings()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="settings-2" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Ayarlar</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                         <div onclick="openNotify()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="bell" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Bildirim Ayarları</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
-                        <div onclick="openHistory()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="archive" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Yakıt Geçmişi</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                     </div>
                     
                     <div id="logoutBtn" onclick="logout()" class="p-5 rounded-2xl flex items-center justify-center gap-2 haptic-btn mt-6 border border-red-500/30 bg-red-500/10 hidden">
@@ -520,8 +577,13 @@
                         localStorage.setItem('litre_user', JSON.stringify({ name: user.email.split('@')[0], email: user.email }));
                         db.collection("users").doc(user.uid).get().then((doc) => {
                             if (doc.exists) {
-                                localStorage.setItem('garage', JSON.stringify(doc.data().garage));
-                                selections = doc.data().garage;
+                                // MIGRATION LOGIC
+                                let data = doc.data().garage;
+                                if (data && !Array.isArray(data)) {
+                                    data = [data]; // Convert to array
+                                }
+                                selections = data || []; // Default to empty array if null
+                                localStorage.setItem('garage', JSON.stringify(selections));
                             }
                             checkLoginStatus();
                         });
@@ -529,7 +591,7 @@
                         console.log("Misafir modu.");
                         localStorage.removeItem('litre_user');
                         localStorage.removeItem('garage');
-                        selections = null;
+                        selections = [];
                         checkLoginStatus();
                     }
                 });
@@ -555,16 +617,18 @@
         let pickingSubModel = false;
         const subCarData = { 'Mercedes-Benz': { 'A Serisi': ['A160', 'A180', 'A200', 'A250'], 'B Serisi': ['B180', 'B200'], 'C Serisi': ['C180', 'C200', 'C220d', 'C300'], 'E Serisi': ['E180', 'E200', 'E220d', 'E300'], 'S Serisi': ['S320', 'S350', 'S400'], 'CLA': ['CLA180', 'CLA200', 'CLA250'], 'CLA Serisi': ['CLA180', 'CLA200', 'CLA250'], 'CLS Serisi': ['CLS250', 'CLS350'], 'GLA Serisi': ['GLA180', 'GLA200', 'GLA250'], 'GLC Serisi': ['GLC200', 'GLC220d', 'GLC300'], 'GLE Serisi': ['GLE250d', 'GLE300d', 'GLE350'] }, 'BMW': { '1 Serisi': ['116i', '118i', '120i'], '2 Serisi': ['218i', '220i'], '3 Serisi': ['316i', '318i', '320i', '330i'], '4 Serisi': ['420i', '430i'], '5 Serisi': ['520i', '530i'], '7 Serisi': ['730i', '740i'], 'X1 Serisi': ['sDrive16i', 'sDrive18i', 'sDrive20i'], 'X3 Serisi': ['20i', '30i'], 'X5 Serisi': ['25d', '30d', '40i'] } };
         const carData = { 'Audi': ['A3', 'A4', 'A6', 'Q2', 'Q3', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi', 'X1', 'X3'], 'Chevrolet': ['Aveo', 'Cruze', 'Captiva', 'Spark', 'Camaro'], 'Citroen': ['C3', 'C4', 'C5 Aircross', 'Berlingo', 'C-Elysee'], 'Dacia': ['Sandero', 'Logan', 'Duster', 'Jogger', 'Lodgy'], 'Fiat': ['Egea', 'Linea', 'Punto', 'Doblo', 'Fiorino'], 'Ford': ['Fiesta', 'Focus', 'Mondeo', 'Kuga', 'Courier'], 'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'], 'Hyundai': ['i10', 'i20', 'i30', 'Accent Blue', 'Tucson'], 'Jeep': ['Renegade', 'Compass', 'Cherokee', 'Grand Cherokee', 'Wrangler'], 'Kia': ['Picanto', 'Rio', 'Ceed', 'Cerato', 'Sportage'], 'Mazda': ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3', 'CX-5'], 'Mercedes-Benz': ['A Serisi', 'C Serisi', 'E Serisi', 'CLA', 'GLC'], 'Mini': ['Cooper', 'One', 'Countryman', 'Clubman', 'Cabrio'], 'Mitsubishi': ['Colt', 'Lancer', 'ASX', 'Outlander', 'Pajero'], 'Nissan': ['Micra', 'Juke', 'Qashqai', 'X-Trail', 'Note'], 'Opel': ['Corsa', 'Astra', 'Insignia', 'Mokka', 'Crossland'], 'Peugeot': ['208', '301', '308', '3008', '5008'], 'Renault': ['Clio', 'Megane', 'Talisman', 'Captur', 'Kadjar'], 'Seat': ['Ibiza', 'Leon', 'Arona', 'Ateca', 'Toledo'], 'Skoda': ['Fabia', 'Octavia', 'Superb', 'Scala', 'Kodiaq'], 'Suzuki': ['Swift', 'Baleno', 'Vitara', 'SX4 S-Cross', 'Jimny'], 'Tesla': ['Model S', 'Model 3', 'Model X', 'Model Y'], 'Toyota': ['Yaris', 'Corolla', 'Auris', 'C-HR', 'RAV4'], 'Volkswagen': ['Polo', 'Golf', 'Passat', 'Jetta', 'Tiguan'], 'Volvo': ['S60', 'S90', 'XC40', 'XC60', 'XC90'] };
-        const cityCoordinates = { "Adana": [37.0000, 35.3213], "Adıyaman": [37.7648, 38.2786], "Afyonkarahisar": [38.7507, 30.5567], "Ağrı": [39.7191, 43.0503], "Aksaray": [38.3687, 34.0370], "Amasya": [40.6499, 35.8353], "Ankara": [39.9334, 32.8597], "Antalya": [36.8969, 30.7133], "Ardahan": [41.1105, 42.7022], "Artvin": [41.1828, 41.8183], "Aydın": [37.8560, 27.8416], "Balıkesir": [39.6484, 27.8826], "Bartın": [41.6344, 32.3375], "Batman": [37.8812, 41.1351], "Bayburt": [40.2552, 40.2249], "Bilecik": [40.1451, 29.9798], "Bingöl": [38.8855, 40.4980], "Bitlis": [38.3938, 42.1232], "Bolu": [40.7350, 31.6061], "Burdur": [37.7203, 30.2908], "Bursa": [40.1885, 29.0610], "Çanakkale": [40.1553, 26.4142], "Çankırı": [40.6013, 33.6134], "Çorum": [40.5506, 34.9556], "Denizli": [37.7765, 29.0864], "Diyarbakır": [37.9144, 40.2306], "Düzce": [40.8438, 31.1565], "Edirne": [41.6768, 26.5603], "Elazığ": [38.6810, 39.2264], "Erzincan": [39.7500, 39.5000], "Erzurum": [39.9043, 41.2679], "Eskişehir": [39.7767, 30.5206], "Gaziantep": [37.0662, 37.3833], "Giresun": [40.9128, 38.3895], "Gümüşhane": [40.4600, 39.4814], "Hakkari": [37.5833, 43.7333], "Hatay": [36.4018, 36.3498], "Iğdır": [39.9167, 44.0333], "Isparta": [37.7648, 30.5566], "İstanbul": [41.0082, 28.9784], "İzmir": [38.4192, 27.1287], "Kahramanmaraş": [37.5858, 36.9371], "Karabük": [41.2061, 32.6204], "Karaman": [37.1759, 33.2287], "Kars": [40.6172, 43.0958], "Kastamonu": [41.3887, 33.7827], "Kayseri": [38.7312, 35.4787], "Kırıkkale": [39.8468, 33.5153], "Kırklareli": [41.7333, 27.2167], "Kırşehir": [39.1425, 34.1709], "Kilis": [36.7184, 37.1212], "Kocaeli": [40.8533, 29.8815], "Konya": [37.8667, 32.4833], "Kütahya": [39.4167, 29.9833], "Malatya": [38.3552, 38.3095], "Manisa": [38.6191, 27.4289], "Mardin": [37.3212, 40.7245], "Mersin": [36.8000, 34.6333], "Muğla": [37.2153, 28.3636], "Muş": [38.9462, 41.7539], "Nevşehir": [38.6939, 34.6857], "Niğde": [37.9667, 34.6833], "Ordu": [40.9839, 37.8764], "Osmaniye": [37.0742, 36.2478], "Rize": [41.0201, 40.5234], "Sakarya": [40.7569, 30.3783], "Samsun": [41.2928, 36.3313], "Siirt": [37.9333, 41.9500], "Sinop": [42.0231, 35.1531], "Sivas": [39.7477, 37.0179], "Şanlıurfa": [37.1674, 38.7939], "Şırnak": [37.5164, 42.4611], "Tekirdağ": [40.9833, 27.5167], "Tokat": [40.3167, 36.5500], "Trabzon": [41.0015, 39.7178], "Tunceli": [39.1079, 39.5401], "Uşak": [38.6823, 29.4082], "Van": [38.4891, 43.4089], "Yalova": [40.6500, 29.2667], "Yozgat": [39.8181, 34.8147], "Zonguldak": [41.4564, 31.7987] };
-        const cities = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"];
-        const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
-        const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-        const stationLogos = { 'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } };
-        const stationData = [ { name: "Opet Maslak Koç Petrol", lat: 41.112, lng: 29.020, type: "opet" }, { name: "Opet Kuruçeşme Alev Petrol", lat: 41.058, lng: 29.033, type: "opet" }, { name: "Opet Fulya Akaryakıt", lat: 41.0554, lng: 28.9991, type: "opet" }, { name: "Opet Kartal Cevizli", lat: 40.912, lng: 29.170, type: "opet" }, { name: "Opet Ataköy Rauf Orbay", lat: 40.970, lng: 28.850, type: "opet" }, { name: "Opet Kadıköy Bağdat Cad", lat: 40.985, lng: 29.040, type: "opet" }, { name: "Opet Mahmutbey İstoç", lat: 41.055, lng: 28.820, type: "opet" }, { name: "Shell Beşiktaş", lat: 41.045, lng: 29.005, type: "shell" }, { name: "Shell Ataşehir", lat: 40.990, lng: 29.110, type: "shell" }, { name: "Shell Merter", lat: 41.010, lng: 28.890, type: "shell" }, { name: "Shell Levent", lat: 41.080, lng: 29.015, type: "shell" }, { name: "Shell Maltepe", lat: 40.930, lng: 29.140, type: "shell" }, { name: "Petrol Ofisi Mecidiyeköy", lat: 41.065, lng: 28.995, type: "po" }, { name: "Petrol Ofisi Ümraniye", lat: 41.025, lng: 29.100, type: "po" }, { name: "Petrol Ofisi Bakırköy", lat: 40.980, lng: 28.870, type: "po" }, { name: "Petrol Ofisi Kadıköy", lat: 40.995, lng: 29.030, type: "po" }, { name: "Petrol Ofisi Sarıyer", lat: 41.160, lng: 29.050, type: "po" } ];
         const years = Array.from({length: 37}, (_, i) => (2026-i).toString());
+        // Init as Array
         let savedGarage = JSON.parse(localStorage.getItem('garage'));
-        let step = 0, selections = savedGarage || null, tempValue = '';
+        if (savedGarage && !Array.isArray(savedGarage)) savedGarage = [savedGarage];
         
+        let step = 0, selections = savedGarage || [], tempValue = '', tempSelection = {};
+        
+        // Edit Mode Variables
+        let editingIndex = -1; // -1 means no one is being edited. If >= 0, that index is editable.
+        let editFieldType = null;
+        let pendingFuelData = null;
+
         function checkLoginStatus() {
             if (typeof firebase === 'undefined' || !firebase.apps.length) { 
                 console.warn("Firebase yapılandırılmamış, offline modda devam ediliyor.");
@@ -579,7 +643,9 @@
 
             const user = firebase.auth().currentUser;
             if (user) {
-                document.getElementById('profileName').innerText = user.email.split('@')[0];
+                document.getElementById('profileName').innerText = user.displayName || user.email.split('@')[0];
+                document.getElementById('accName').value = user.displayName || "";
+                document.getElementById('accEmail').value = user.email || "";
                 document.getElementById('guestActions').classList.add('hidden');
                 document.getElementById('logoutBtn').classList.remove('hidden');
                 document.getElementById('logoutBtn').style.display = 'flex';
@@ -603,7 +669,7 @@
                 document.getElementById('guestActions').classList.remove('hidden');
                 document.getElementById('logoutBtn').classList.add('hidden');
                 document.getElementById('premiumCard').classList.add('hidden');
-                selections = null;
+                selections = [];
                 isPremiumUser = false;
                 saveGarageData();
             }
@@ -632,7 +698,7 @@
                 .then((userCredential) => {
                     const db = firebase.firestore();
                     db.collection("users").doc(userCredential.user.uid).set({
-                        garage: null,
+                        garage: [],
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     alert("Kayıt Başarılı! Hoş Geldin.");
@@ -667,6 +733,48 @@
                 }
             }
         }
+        
+        function openAccountSettings() { 
+            const user = firebase.auth().currentUser;
+            if(!user) { openGuestOverlay(); return; }
+            document.getElementById('accountOverlay').style.display = 'flex'; 
+        }
+        function closeAccountSettings() { document.getElementById('accountOverlay').style.display = 'none'; }
+        
+        async function updateAccountInfo() {
+            const user = firebase.auth().currentUser;
+            if(!user) return;
+            
+            const newName = document.getElementById('accName').value;
+            const newEmail = document.getElementById('accEmail').value;
+            const oldPass = document.getElementById('accOldPass').value;
+            const newPass = document.getElementById('accNewPass').value;
+            
+            let needsReAuth = false;
+            if (newEmail !== user.email || (newPass && newPass.length > 0)) {
+                needsReAuth = true;
+            }
+            
+            try {
+                if (needsReAuth) {
+                    if (!oldPass) {
+                        alert("E-posta veya şifre değişikliği için mevcut şifrenizi girmeniz gerekmektedir.");
+                        return;
+                    }
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
+                    await user.reauthenticateWithCredential(credential);
+                }
+                if (newName !== user.displayName) { await user.updateProfile({ displayName: newName }); }
+                if (newEmail !== user.email) { await user.updateEmail(newEmail); }
+                if (newPass && newPass.length > 0) { await user.updatePassword(newPass); }
+                
+                alert("Bilgiler güncellendi!");
+                closeAccountSettings();
+                checkLoginStatus(); 
+            } catch (error) {
+                alert("Hata: " + error.message);
+            }
+        }
 
         function saveGarageData() {
             localStorage.setItem('garage', JSON.stringify(selections));
@@ -695,60 +803,220 @@
         
         // --- MULTI-CAR / PREMIUM GATEKEEPING LOGIC ---
         function startVehicleFlow() { 
-            if (typeof firebase !== 'undefined' && !firebase.auth().currentUser) { 
-                openGuestOverlay(); 
-                return; 
-            }
-            
-            // Eğer kullanıcı Premium değilse ve artıya bastıysa -> TEKLİF ÇIKAR
-            if (!isPremiumUser) {
+            if (typeof firebase !== 'undefined' && !firebase.auth().currentUser) { openGuestOverlay(); return; }
+            if (selections.length > 0 && !isPremiumUser) {
                 document.getElementById('upsellTitle').innerText = "Premium'a Geç";
                 document.getElementById('upsellText').innerText = "Garajına birden fazla araç eklemek için paketini yükseltmelisin.";
                 document.getElementById('premiumUpsellOverlay').style.display = 'flex';
                 return;
             }
+            if (selections.length >= 5) { alert("Maksimum 5 araç ekleyebilirsiniz. Garajınız dolu."); return; }
 
-            // Aksi halde (Premiumsa) devam et
+            // ADD NEW CAR FLOW
+            editingIndex = -1; // New car mode
             step = 0; 
+            tempSelection = {}; 
             document.getElementById('plateInputContainer').classList.add('hidden'); 
             document.getElementById('wheelContainer').classList.remove('hidden'); 
+            document.getElementById('plateInput').value = '';
             updatePickerUI(); 
             document.getElementById('pickerOverlay').style.display = 'flex'; 
         }
 
         function closeUpsell() { document.getElementById('premiumUpsellOverlay').style.display = 'none'; }
 
-        function updatePickerUI() { const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; if (pickingSubModel) { document.getElementById('pickerTitle').innerText = "Serisini Seç"; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; const subs = subCarData[selections.Marka][selections.Model]; subs.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; return; } document.getElementById('pickerTitle').innerText = titles[step]; const wheel = document.getElementById('wheel'); wheel.innerHTML = '<div style="height: 75px;"></div>'; let data = step === 0 ? Object.keys(carData) : step === 1 ? carData[selections.Marka] : step === 2 ? years : []; if(step === 3) { document.getElementById('wheelContainer').classList.add('hidden'); document.getElementById('plateInputContainer').classList.remove('hidden'); return; } data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; }
-        function processSelection() { if(selections === null) selections = {}; if (pickingSubModel) { if (selections.Marka === 'BMW' || selections.Marka === 'Mercedes-Benz') { selections.Model = tempValue; } else { selections.Model = selections.Model + ' ' + tempValue; } pickingSubModel = false; step++; updatePickerUI(); return; } if(step === 0) selections.Marka = tempValue; if(step === 1) { selections.Model = tempValue; if (subCarData[selections.Marka] && subCarData[selections.Marka][selections.Model]) { pickingSubModel = true; updatePickerUI(); return; } } if(step === 2) selections.Yıl = tempValue; if(step === 3) { selections.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; saveGarageData(); closePicker(); return; } step++; updatePickerUI(); }
+        // --- EDIT MODE LOGIC ---
+        function toggleEditMode(index) {
+            if (editingIndex === index) {
+                editingIndex = -1; // Turn off
+            } else {
+                editingIndex = index; // Turn on
+            }
+            renderGarageUI(); // Re-render to show indicators
+        }
+
+        function handleFieldClick(index, type) {
+            if (editingIndex !== index) return; // Ignore if not editing
+            
+            editFieldType = type;
+            if (type === 'marka') {
+                step = 0; // Brand step
+                pickingSubModel = false;
+                // Temporarily store current brand for smooth editing flow
+                tempSelection.Marka = selections[index].Marka;
+                document.getElementById('wheelContainer').classList.remove('hidden'); 
+                document.getElementById('plateInputContainer').classList.add('hidden'); 
+            } else if (type === 'yil') {
+                step = 2; // Year step
+                document.getElementById('wheelContainer').classList.remove('hidden'); 
+                document.getElementById('plateInputContainer').classList.add('hidden'); 
+            } else if (type === 'plaka') {
+                step = 3; // Plate step
+                document.getElementById('wheelContainer').classList.add('hidden'); 
+                document.getElementById('plateInputContainer').classList.remove('hidden'); 
+                document.getElementById('plateInput').value = selections[index].Plaka;
+            }
+            updatePickerUI();
+            document.getElementById('pickerOverlay').style.display = 'flex';
+        }
+        
+        function deleteCar(index) {
+            if(confirm("Bu aracı silmek istediğinize emin misiniz?")) {
+                selections.splice(index, 1);
+                editingIndex = -1; // Reset edit mode
+                saveGarageData();
+            }
+        }
+
+        function updatePickerUI() { 
+            const titles = ["Marka Seç", "Model Seç", "Yıl Seç", "Plaka Gir"]; 
+            
+            if (editingIndex >= 0) {
+                 // Editing Mode Titles
+                 if (editFieldType === 'marka') {
+                     document.getElementById('pickerTitle').innerText = pickingSubModel ? "Modeli Seç" : "Markayı Değiştir";
+                 } else if (editFieldType === 'yil') {
+                     document.getElementById('pickerTitle').innerText = "Yılı Değiştir";
+                 } else if (editFieldType === 'plaka') {
+                     document.getElementById('pickerTitle').innerText = "Plakayı Düzenle";
+                 }
+            } else {
+                // Adding New Car Mode
+                if (pickingSubModel) { document.getElementById('pickerTitle').innerText = "Serisini Seç"; }
+                else { document.getElementById('pickerTitle').innerText = titles[step]; }
+            }
+
+            const wheel = document.getElementById('wheel'); 
+            wheel.innerHTML = '<div style="height: 75px;"></div>'; 
+            
+            // Determine Data Source
+            let data = [];
+            if (step === 0) data = Object.keys(carData);
+            else if (step === 1) {
+                if (pickingSubModel) {
+                     const subs = subCarData[tempSelection.Marka][tempSelection.Model];
+                     subs.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`);
+                     wheel.innerHTML += '<div style="height: 75px;"></div>'; wheel.scrollTop = 0; return;
+                }
+                data = carData[tempSelection.Marka];
+            }
+            else if (step === 2) data = years;
+            
+            if(step === 3) { 
+                document.getElementById('wheelContainer').classList.add('hidden'); 
+                document.getElementById('plateInputContainer').classList.remove('hidden'); 
+                return; 
+            } 
+            
+            data.forEach(item => wheel.innerHTML += `<div class="wheel-item">${item}</div>`); 
+            
+            wheel.innerHTML += '<div style="height: 75px;"></div>'; 
+            wheel.scrollTop = 0; 
+        }
+
+        function processSelection() { 
+            // --- EDIT MODE LOGIC ---
+            if (editingIndex >= 0) {
+                if (editFieldType === 'marka') {
+                    if (step === 0) {
+                        tempSelection.Marka = tempValue;
+                        step = 1; // Go to model
+                        updatePickerUI();
+                        return;
+                    }
+                    if (step === 1) {
+                        if (!pickingSubModel) {
+                             tempSelection.Model = tempValue;
+                             if (subCarData[tempSelection.Marka] && subCarData[tempSelection.Marka][tempSelection.Model]) { 
+                                pickingSubModel = true; updatePickerUI(); return; 
+                            }
+                        } else {
+                            if (tempSelection.Marka === 'BMW' || tempSelection.Marka === 'Mercedes-Benz') { 
+                                tempSelection.Model = tempValue; 
+                            } else { 
+                                tempSelection.Model = tempSelection.Model + ' ' + tempValue; 
+                            }
+                            pickingSubModel = false;
+                        }
+                        // Save changes
+                        selections[editingIndex].Marka = tempSelection.Marka;
+                        selections[editingIndex].Model = tempSelection.Model;
+                        saveGarageData();
+                        closePicker();
+                        return;
+                    }
+                }
+                if (editFieldType === 'yil') {
+                    selections[editingIndex].Yıl = tempValue;
+                    saveGarageData();
+                    closePicker();
+                    return;
+                }
+                if (editFieldType === 'plaka') {
+                    selections[editingIndex].Plaka = document.getElementById('plateInput').value;
+                    saveGarageData();
+                    closePicker();
+                    return;
+                }
+            }
+
+            // --- ADD NEW CAR LOGIC (Existing) ---
+            if (pickingSubModel) { 
+                if (tempSelection.Marka === 'BMW' || tempSelection.Marka === 'Mercedes-Benz') { 
+                    tempSelection.Model = tempValue; 
+                } else { 
+                    tempSelection.Model = tempSelection.Model + ' ' + tempValue; 
+                } 
+                pickingSubModel = false; step++; updatePickerUI(); return; 
+            } 
+            if(step === 0) tempSelection.Marka = tempValue; 
+            if(step === 1) { 
+                tempSelection.Model = tempValue; 
+                if (subCarData[tempSelection.Marka] && subCarData[tempSelection.Marka][tempSelection.Model]) { 
+                    pickingSubModel = true; updatePickerUI(); return; 
+                } 
+            } 
+            if(step === 2) tempSelection.Yıl = tempValue; 
+            if(step === 3) { 
+                tempSelection.Plaka = document.getElementById('plateInput').value || '34 ABC 123'; 
+                selections.push(tempSelection); // Add to array
+                saveGarageData(); 
+                closePicker(); 
+                return; 
+            } 
+            step++; updatePickerUI(); 
+        }
         
         // --- NEW CAROUSEL RENDER LOGIC ---
         function renderGarageUI() { 
             const container = document.getElementById('garageContainer');
-            container.innerHTML = ''; // Clear previous
+            container.innerHTML = ''; 
 
-            // Burası normalde array döngüsü olacak. Şimdilik tek araç logic'i ile carousel item oluşturuyoruz.
-            // İleride selections bir Array olduğunda burayı selections.forEach(...) yapacağız.
-            
-            if(selections) { 
-                // Card for existing car
-                const carCard = `
-                <div class="carousel-card snap-center min-w-full">
-                    <div class="flex justify-between text-center border-b border-white/5 pb-6">
-                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Marka</p><p class="text-lg font-black">${selections.Marka} ${selections.Model}</p></div>
-                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Yıl</p><p class="text-lg font-black">${selections.Yıl}</p></div>
-                        <div><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p class="text-lg font-black tracking-tighter">${selections.Plaka}</p></div>
-                    </div>
-                    <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current">
-                        <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p id="viewAvgCost" class="text-2xl font-black text-blue-500">0,00 TL</p></div>
-                        <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p id="viewTotalLiters" class="text-2xl font-black">0.0 L</p></div>
-                    </div>
-                </div>`;
-                container.innerHTML += carCard;
-                
-                // Demo purpose: If premium, maybe show a ghost card for adding another? 
-                // For now, let's keep it clean as requested.
-                
-                // Re-calculate totals because we just wiped the HTML
+            if(selections && selections.length > 0) { 
+                selections.forEach((car, index) => {
+                    const isEditing = editingIndex === index;
+                    const activeClass = isEditing ? 'editing' : '';
+                    const editIconColor = isEditing ? 'text-blue-500 fill-blue-500' : 'text-current opacity-40';
+                    
+                     const carCard = `
+                    <div class="carousel-card snap-center min-w-[90%] relative ${activeClass}">
+                        <div class="absolute top-4 right-4 flex gap-2">
+                            <button onclick="deleteCar(${index})" class="bg-red-500/10 p-2 rounded-full text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="toggleEditMode(${index})" class="bg-blue-500/10 p-2 rounded-full hover:bg-blue-500 hover:text-white transition-colors ${editIconColor}"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="flex justify-between text-center border-b border-white/5 pb-6 pt-2">
+                            <div onclick="handleFieldClick(${index}, 'marka')" class="editable-field ${isEditing ? 'active cursor-pointer' : ''} p-2"><div class="edit-icon-indicator"><i data-lucide="pencil" class="w-2 h-2"></i></div><p class="text-[9px] opacity-40 uppercase mb-1">Marka</p><p class="text-lg font-black">${car.Marka} ${car.Model}</p></div>
+                            <div onclick="handleFieldClick(${index}, 'yil')" class="editable-field ${isEditing ? 'active cursor-pointer' : ''} p-2"><div class="edit-icon-indicator"><i data-lucide="pencil" class="w-2 h-2"></i></div><p class="text-[9px] opacity-40 uppercase mb-1">Yıl</p><p class="text-lg font-black">${car.Yıl}</p></div>
+                            <div onclick="handleFieldClick(${index}, 'plaka')" class="editable-field ${isEditing ? 'active cursor-pointer' : ''} p-2"><div class="edit-icon-indicator"><i data-lucide="pencil" class="w-2 h-2"></i></div><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p class="text-lg font-black tracking-tighter">${car.Plaka}</p></div>
+                        </div>
+                        <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current">
+                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p class="text-2xl font-black text-blue-500">0,00 TL</p></div>
+                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p class="text-2xl font-black">0.0 L</p></div>
+                        </div>
+                    </div>`;
+                    container.innerHTML += carCard;
+                });
+                lucide.createIcons();
                 updateGarageAnalysis();
 
             } else { 
@@ -771,7 +1039,75 @@
         function retryScan() { document.getElementById('scanError').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; const video = document.getElementById('cameraView'); video.play().catch(e => console.log(e)); }
         function handleGalleryUpload(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.getElementById('cameraCanvas'); const context = canvas.getContext('2d'); canvas.width = img.width; canvas.height = img.height; context.drawImage(img, 0, 0); document.getElementById('scanUI').style.display = 'none'; document.getElementById('scanProcessing').style.display = 'flex'; processOCR(canvas); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
         function takePhoto() { const video = document.getElementById('cameraView'); const canvas = document.getElementById('cameraCanvas'); const context = canvas.getContext('2d'); canvas.width = video.videoWidth; canvas.height = video.videoHeight; context.drawImage(video, 0, 0, canvas.width, canvas.height); video.pause(); document.getElementById('scanUI').style.display = 'none'; document.getElementById('scanProcessing').style.display = 'flex'; processOCR(canvas); }
-        function processOCR(canvas) { Tesseract.recognize(canvas, 'tur', { logger: m => console.log(m) }).then(({ data: { text } }) => { console.log("Okunan Metin:", text); const cleanText = text.toUpperCase(); if (cleanText.includes('TOPLAM') || cleanText.includes('KDV') || cleanText.includes('FİŞ') || cleanText.includes('NO')) { const priceRegex = /(?:TOPLAM|TUTAR|TOP)?\s*\*?\s*(\d+[.,]\d{2})/; const priceMatch = text.match(priceRegex); let foundPrice = "0,00"; let rawPrice = 0; if (priceMatch) { foundPrice = priceMatch[1]; rawPrice = parseFloat(foundPrice.replace('.','').replace(',','.')); } const dateRegex = /(\d{2}[-./]\d{2}[-./]\d{4})/; const dateMatch = text.match(dateRegex); const foundDate = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('tr-TR'); const lines = text.split('\n').filter(line => line.trim().length > 3); let foundStation = lines.length > 0 ? lines[0].replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '').trim() : "Bilinmiyor"; if (rawPrice === 0) { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; return; } document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanSuccess').style.display = 'flex'; document.getElementById('resStation').innerText = foundStation; document.getElementById('resDate').innerText = foundDate; document.getElementById('resTotal').innerText = foundPrice + " TL"; const newRec = { station: foundStation, date: foundDate, amount: rawPrice, details: `Yakıt Alımı · ${foundPrice} TL` }; fuelRecords.unshift(newRec); updateGarageAnalysis(); setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); } else { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); } }).catch(err => { console.error(err); document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); }); }
+        
+        // --- OCR PROCESS & CAR SELECT LOGIC ---
+        function processOCR(canvas) { 
+            Tesseract.recognize(canvas, 'tur', { logger: m => console.log(m) }).then(({ data: { text } }) => { 
+                console.log("Okunan Metin:", text); const cleanText = text.toUpperCase(); 
+                if (cleanText.includes('TOPLAM') || cleanText.includes('KDV') || cleanText.includes('FİŞ') || cleanText.includes('NO')) { 
+                    const priceRegex = /(?:TOPLAM|TUTAR|TOP)?\s*\*?\s*(\d+[.,]\d{2})/; const priceMatch = text.match(priceRegex); 
+                    let foundPrice = "0,00"; let rawPrice = 0; 
+                    if (priceMatch) { foundPrice = priceMatch[1]; rawPrice = parseFloat(foundPrice.replace('.','').replace(',','.')); } 
+                    const dateRegex = /(\d{2}[-./]\d{2}[-./]\d{4})/; const dateMatch = text.match(dateRegex); 
+                    const foundDate = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('tr-TR'); 
+                    const lines = text.split('\n').filter(line => line.trim().length > 3); 
+                    let foundStation = lines.length > 0 ? lines[0].replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '').trim() : "Bilinmiyor"; 
+                    
+                    if (rawPrice === 0) { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; return; } 
+                    
+                    // PREPARE DATA BUT DON'T SAVE YET
+                    pendingFuelData = { station: foundStation, date: foundDate, amount: rawPrice, details: `Yakıt Alımı · ${foundPrice} TL`, priceStr: foundPrice };
+                    
+                    document.getElementById('scanProcessing').style.display = 'none'; 
+                    document.getElementById('scanSuccess').style.display = 'flex'; 
+                    document.getElementById('resStation').innerText = foundStation; 
+                    document.getElementById('resDate').innerText = foundDate; 
+                    document.getElementById('resTotal').innerText = foundPrice + " TL"; 
+                    
+                    // AFTER SUCCESS ANIMATION, DECIDE FLOW
+                    setTimeout(() => { 
+                        closeScan(); 
+                        document.getElementById('scanSuccess').style.display = 'none'; 
+                        document.getElementById('scanUI').style.display = 'flex'; 
+                        
+                        // IF MULTIPLE CARS -> ASK WHICH ONE
+                        if (selections.length > 1) {
+                            openCarSelectModal();
+                        } else {
+                            // IF 1 OR 0 CARS -> AUTO SAVE (Assign to first car if exists)
+                            saveFuelRecord(selections.length > 0 ? selections[0].Plaka : null);
+                        }
+                    }, 3000); 
+                } else { 
+                    document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); 
+                } 
+            }).catch(err => { 
+                console.error(err); document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); 
+            }); 
+        }
+
+        function openCarSelectModal() {
+            const list = document.getElementById('carSelectList');
+            list.innerHTML = '';
+            selections.forEach((car, index) => {
+                list.innerHTML += `<div onclick="saveFuelRecord('${car.Plaka}'); closeCarSelect()" class="glass-card p-4 flex items-center justify-between haptic-btn font-bold cursor-pointer"><span>${car.Marka} ${car.Model}</span><span class="opacity-50 text-xs">${car.Plaka}</span></div>`;
+            });
+            document.getElementById('carSelectOverlay').style.display = 'flex';
+        }
+        function closeCarSelect() { document.getElementById('carSelectOverlay').style.display = 'none'; }
+        
+        function saveFuelRecord(plate) {
+            if(!pendingFuelData) return;
+            const newRec = { 
+                ...pendingFuelData,
+                carPlate: plate || 'Genel'
+            };
+            fuelRecords.unshift(newRec); 
+            updateGarageAnalysis(); 
+            showTab('radar', document.querySelector('.nav-item:nth-child(4)'));
+            pendingFuelData = null;
+        }
+
         function showPermModal(icon, text) { document.getElementById('permIcon').setAttribute('data-lucide', icon); document.getElementById('permText').innerText = text; document.getElementById('permModal').style.display = 'flex'; lucide.createIcons(); }
         function closePermModal() { document.getElementById('permModal').style.display = 'none'; }
         function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); const tile = document.body.classList.contains('dark-mode') ? tileDark : tileLight; L.tileLayer(tile).addTo(mapObj); const el = document.getElementById(elementId); if(document.body.classList.contains('dark-mode')) { el.classList.add('google-dark-mode'); } else { el.classList.remove('google-dark-mode'); } }
@@ -782,8 +1118,9 @@
             // Calculate totals
             const totalAmount = fuelRecords.reduce((sum, r) => sum + r.amount, 0); 
             // Update Card
-            const cardCost = document.getElementById('viewAvgCost');
-            if(cardCost) cardCost.innerText = totalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
+            // Note: Currently updating the visual cards is tricky in a loop without distinct IDs.
+            // For now, we update the monthly saving which is global.
+            // In a real app, each car card would query its own expenses.
             document.getElementById('monthlySaving').innerText = (totalAmount * 0.05).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
             
             // Update List
@@ -791,7 +1128,7 @@
             if(fuelRecords.length === 0) { 
                 list.innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Henüz veri yok.</p>'; 
             } else {
-                list.innerHTML = fuelRecords.map(r => `<div class="p-5 bg-white/5 rounded-2xl mb-3 border border-white/5 text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); 
+                list.innerHTML = fuelRecords.map(r => `<div class="p-5 bg-white/5 rounded-2xl mb-3 border border-white/5 text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date} · ${r.carPlate || ''}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); 
             }
         }
         function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + (el.clientHeight / 2); for (let item of items) { const itemCenter = item.offsetTop + (item.clientHeight / 2); if (Math.abs(center - itemCenter) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
