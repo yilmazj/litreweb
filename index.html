@@ -103,8 +103,26 @@
         .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
         .toggle-switch.active .toggle-knob { left: 22px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .news-card, .carousel-card { flex: 0 0 100%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: var(--glass-border); transition: background-color 0.3s, border-color 0.3s; }
+        .news-card { flex: 0 0 100%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: var(--glass-border); transition: background-color 0.3s, border-color 0.3s; }
         
+        /* CAROUSEL FIXED: The card itself slides now */
+        .garage-carousel { 
+            display: flex; 
+            overflow-x: auto; 
+            scroll-snap-type: x mandatory; 
+            gap: 15px; /* Kartlar arası boşluk */
+            padding-bottom: 20px;
+        }
+        .carousel-card { 
+            flex: 0 0 100%; /* Kart genişliği %100 */
+            scroll-snap-align: center; 
+            padding: 18px; 
+            border-radius: 2rem; 
+            background: var(--card); 
+            border: var(--glass-border); 
+            transition: background-color 0.3s, border-color 0.3s; 
+        }
+
         .silver-grad { 
             background: linear-gradient(145deg, #000, #666); 
             -webkit-background-clip: text; 
@@ -167,7 +185,6 @@
         .po-marker { background-color: #DE2128; }
         
         /* NEW STYLES */
-        .garage-carousel { scroll-snap-type: x mandatory; scroll-behavior: smooth; }
         .history-tab-btn { padding: 10px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; color: var(--subtext); transition: 0.3s; background: transparent; }
         .history-tab-btn.active { background: var(--card); color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
 
@@ -396,7 +413,9 @@
     </div></div></div>
 
     <div id="notifyOverlay" class="picker-overlay" onclick="closeNotify()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeNotify()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Bildirim Ayarları</h3><div class="w-10"></div></div><div class="space-y-4 pb-12 text-current">
-        <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Fiyat Değişimleri</p><p class="text-[10px] opacity-40">Anlık zam/indirim haberleri</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
+        <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Benzin Bildirimleri</p><p class="text-[10px] opacity-40">Zam/İndirim haberleri</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
+        <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Motorin Bildirimleri</p><p class="text-[10px] opacity-40">Zam/İndirim haberleri</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
+        <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">LPG Bildirimleri</p><p class="text-[10px] opacity-40">Zam/İndirim haberleri</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
         <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Aylık Özet Analizi</p><p class="text-[10px] opacity-40">Harcama raporu bildirimi</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
     </div></div></div>
     
@@ -504,10 +523,10 @@
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="text-[10px] font-black opacity-30 uppercase">Garajım</h3>
                             <div class="flex items-center gap-2" id="garageControls">
-                                </div>
+                            </div>
                         </div>
                         
-                        <div class="garage-carousel flex overflow-x-auto snap-x no-scrollbar pb-2 -mx-7 px-7" id="garageContainer" onscroll="handleGarageScroll()">
+                        <div class="garage-carousel" id="garageContainer" onscroll="handleGarageScroll()">
                              </div>
                         
                         <div class="flex justify-center gap-2 mt-2" id="garageDots"></div>
@@ -583,9 +602,9 @@
         let markers = null;
         let isPremiumUser = false;
         let selectedFuelType = 'benzin';
-        let currentGarageIndex = 0; // NEW: Track visible car
-        let isEditMode = false; // NEW: Track edit state
-        let editTargetField = null; // NEW: Which field is being edited
+        let currentGarageIndex = 0; 
+        let isEditMode = false; 
+        let editTargetField = null; 
 
         let pickingSubModel = false;
         const subCarData = { 'Mercedes-Benz': { 'A Serisi': ['A160', 'A180', 'A200', 'A250'], 'B Serisi': ['B180', 'B200'], 'C Serisi': ['C180', 'C200', 'C220d', 'C300'], 'E Serisi': ['E180', 'E200', 'E220d', 'E300'], 'S Serisi': ['S320', 'S350', 'S400'], 'CLA': ['CLA180', 'CLA200', 'CLA250'], 'CLA Serisi': ['CLA180', 'CLA200', 'CLA250'], 'CLS Serisi': ['CLS250', 'CLS350'], 'GLA Serisi': ['GLA180', 'GLA200', 'GLA250'], 'GLC Serisi': ['GLC200', 'GLC220d', 'GLC300'], 'GLE Serisi': ['GLE250d', 'GLE300d', 'GLE350'] }, 'BMW': { '1 Serisi': ['116i', '118i', '120i'], '2 Serisi': ['218i', '220i'], '3 Serisi': ['316i', '318i', '320i', '330i'], '4 Serisi': ['420i', '430i'], '5 Serisi': ['520i', '530i'], '7 Serisi': ['730i', '740i'], 'X1 Serisi': ['sDrive16i', 'sDrive18i', 'sDrive20i'], 'X3 Serisi': ['20i', '30i'], 'X5 Serisi': ['25d', '30d', '40i'] } };
@@ -829,8 +848,18 @@
             const index = Math.round(container.scrollLeft / container.clientWidth);
             if (index !== currentGarageIndex) {
                 currentGarageIndex = index;
-                renderGarageUI(); // To update dots/controls if needed
+                renderGarageUI(); // To update dots/controls
+                updateGarageAnalysis(); // To update bottom graphics for NEW car
             }
+        }
+
+        // Helper to calculate cost for a specific plate
+        function getCarExpenses(plate) {
+            if (!plate) return { cost: 0, liters: 0 };
+            const records = fuelRecords.filter(r => r.plate === plate);
+            const totalCost = records.reduce((sum, r) => sum + r.amount, 0);
+            // Assuming we don't track liters perfectly yet, just cost for now
+            return { cost: totalCost, liters: 0 }; 
         }
 
         function renderGarageUI() { 
@@ -870,11 +899,12 @@
             if(selections && selections.length > 0) { 
                 selections.forEach((car, i) => {
                      const isVisible = i === currentGarageIndex;
+                     const expenses = getCarExpenses(car.Plaka);
                      // Edit classes
                      const editClass = isEditMode ? 'editable-field edit-active' : '';
                      
                      const carCard = `
-                    <div class="carousel-card snap-center min-w-full">
+                    <div class="carousel-card">
                         <div class="flex justify-between text-center border-b border-white/5 pb-6">
                             <div class="${editClass}" onclick="editCurrentCar('brand')">
                                 <p class="text-[9px] opacity-40 uppercase mb-1">Marka</p>
@@ -890,7 +920,7 @@
                             </div>
                         </div>
                         <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current">
-                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p class="text-2xl font-black text-blue-500">0,00 TL</p></div>
+                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p class="text-2xl font-black text-blue-500">${expenses.cost.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</p></div>
                             <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p class="text-2xl font-black">0.0 L</p></div>
                         </div>
                     </div>`;
@@ -900,10 +930,9 @@
                     dots.innerHTML += `<div class="w-2 h-2 rounded-full transition-all ${isVisible ? 'bg-blue-500 w-4' : 'bg-current opacity-20'}"></div>`;
                 });
                 
-                updateGarageAnalysis();
             } else { 
                 container.innerHTML = `
-                <div class="carousel-card snap-center min-w-full flex flex-col items-center justify-center py-10 opacity-60">
+                <div class="carousel-card flex flex-col items-center justify-center py-10 opacity-60">
                     <p class="font-bold mb-2">Araç Eklenmedi</p>
                     <p class="text-xs">Garajın şu an boş.</p>
                 </div>`;
@@ -926,15 +955,21 @@
                     </button>`;
                 });
                 document.getElementById('vehicleSelectOverlay').style.display = 'flex';
+            } else if (selections.length === 1) {
+                // If 1 car, auto select
+                selectScanVehicle(0);
             } else {
-                // If 0 or 1 car, proceed directly
+                // 0 cars, just open camera (maybe prompt to add car?)
                 openCamera();
             }
         }
         
+        // Temporary storage for the car selected during scan
+        let tempScanCarPlate = null;
+
         function selectScanVehicle(index) {
-             // In a real app, you would store this selected index to tag the fuel record
-             console.log("Selected car index:", index);
+             const car = selections[index];
+             tempScanCarPlate = car.Plaka; // Store the plate
              closeVehicleSelect();
              openCamera();
         }
@@ -955,23 +990,77 @@
         function retryScan() { document.getElementById('scanError').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; const video = document.getElementById('cameraView'); video.play().catch(e => console.log(e)); }
         function handleGalleryUpload(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.getElementById('cameraCanvas'); const context = canvas.getContext('2d'); canvas.width = img.width; canvas.height = img.height; context.drawImage(img, 0, 0); document.getElementById('scanUI').style.display = 'none'; document.getElementById('scanProcessing').style.display = 'flex'; processOCR(canvas); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
         function takePhoto() { const video = document.getElementById('cameraView'); const canvas = document.getElementById('cameraCanvas'); const context = canvas.getContext('2d'); canvas.width = video.videoWidth; canvas.height = video.videoHeight; context.drawImage(video, 0, 0, canvas.width, canvas.height); video.pause(); document.getElementById('scanUI').style.display = 'none'; document.getElementById('scanProcessing').style.display = 'flex'; processOCR(canvas); }
-        function processOCR(canvas) { Tesseract.recognize(canvas, 'tur', { logger: m => console.log(m) }).then(({ data: { text } }) => { console.log("Okunan Metin:", text); const cleanText = text.toUpperCase(); if (cleanText.includes('TOPLAM') || cleanText.includes('KDV') || cleanText.includes('FİŞ') || cleanText.includes('NO')) { const priceRegex = /(?:TOPLAM|TUTAR|TOP)?\s*\*?\s*(\d+[.,]\d{2})/; const priceMatch = text.match(priceRegex); let foundPrice = "0,00"; let rawPrice = 0; if (priceMatch) { foundPrice = priceMatch[1]; rawPrice = parseFloat(foundPrice.replace('.','').replace(',','.')); } const dateRegex = /(\d{2}[-./]\d{2}[-./]\d{4})/; const dateMatch = text.match(dateRegex); const foundDate = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('tr-TR'); const lines = text.split('\n').filter(line => line.trim().length > 3); let foundStation = lines.length > 0 ? lines[0].replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '').trim() : "Bilinmiyor"; if (rawPrice === 0) { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; return; } document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanSuccess').style.display = 'flex'; document.getElementById('resStation').innerText = foundStation; document.getElementById('resDate').innerText = foundDate; document.getElementById('resTotal').innerText = foundPrice + " TL"; const newRec = { station: foundStation, date: foundDate, amount: rawPrice, details: `Yakıt Alımı · ${foundPrice} TL` }; fuelRecords.unshift(newRec); updateGarageAnalysis(); setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); } else { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); } }).catch(err => { console.error(err); document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); }); }
+        function processOCR(canvas) { 
+            Tesseract.recognize(canvas, 'tur', { logger: m => console.log(m) }).then(({ data: { text } }) => { 
+                console.log("Okunan Metin:", text); 
+                const cleanText = text.toUpperCase(); 
+                if (cleanText.includes('TOPLAM') || cleanText.includes('KDV') || cleanText.includes('FİŞ') || cleanText.includes('NO')) { 
+                    const priceRegex = /(?:TOPLAM|TUTAR|TOP)?\s*\*?\s*(\d+[.,]\d{2})/; 
+                    const priceMatch = text.match(priceRegex); 
+                    let foundPrice = "0,00"; 
+                    let rawPrice = 0; 
+                    if (priceMatch) { foundPrice = priceMatch[1]; rawPrice = parseFloat(foundPrice.replace('.','').replace(',','.')); } 
+                    const dateRegex = /(\d{2}[-./]\d{2}[-./]\d{4})/; 
+                    const dateMatch = text.match(dateRegex); 
+                    const foundDate = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('tr-TR'); 
+                    const lines = text.split('\n').filter(line => line.trim().length > 3); 
+                    let foundStation = lines.length > 0 ? lines[0].replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '').trim() : "Bilinmiyor"; 
+                    if (rawPrice === 0) { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; return; } 
+                    
+                    document.getElementById('scanProcessing').style.display = 'none'; 
+                    document.getElementById('scanSuccess').style.display = 'flex'; 
+                    document.getElementById('resStation').innerText = foundStation; 
+                    document.getElementById('resDate').innerText = foundDate; 
+                    document.getElementById('resTotal').innerText = foundPrice + " TL"; 
+                    
+                    // SAVE WITH PLATE INFO
+                    const newRec = { 
+                        station: foundStation, 
+                        date: foundDate, 
+                        amount: rawPrice, 
+                        plate: tempScanCarPlate, // LINK TO SELECTED CAR
+                        details: `Yakıt Alımı · ${foundPrice} TL` 
+                    }; 
+                    fuelRecords.unshift(newRec); 
+                    
+                    // Reset temp plate
+                    tempScanCarPlate = null;
+                    
+                    updateGarageAnalysis(); 
+                    renderGarageUI(); // Update card amounts immediately
+                    setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); 
+                } else { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); } 
+            }).catch(err => { console.error(err); document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); }); 
+        }
         function showPermModal(icon, text) { document.getElementById('permIcon').setAttribute('data-lucide', icon); document.getElementById('permText').innerText = text; document.getElementById('permModal').style.display = 'flex'; lucide.createIcons(); }
         function closePermModal() { document.getElementById('permModal').style.display = 'none'; }
         function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); const tile = document.body.classList.contains('dark-mode') ? tileDark : tileLight; L.tileLayer(tile).addTo(mapObj); const el = document.getElementById(elementId); if(document.body.classList.contains('dark-mode')) { el.classList.add('google-dark-mode'); } else { el.classList.remove('google-dark-mode'); } }
         function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); markers = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 50 }); stationData.forEach(station => { let iconClass = 'base-marker'; let iconHtml = ''; if (station.type === 'opet') { iconClass += ' opet-marker'; iconHtml = 'OPET'; } else if (station.type === 'shell') { iconClass += ' shell-marker'; iconHtml = 'SHELL'; } else if (station.type === 'po') { iconClass += ' po-marker'; iconHtml = 'PO'; } const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); const marker = L.marker([station.lat, station.lng], { icon: customIcon }); marker.on('click', () => { openNavPicker(station.name); }); markers.addLayer(marker); }); leafletMap.addLayer(markers); }
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
+        
         function updateGarageAnalysis() { 
-            const totalAmount = fuelRecords.reduce((sum, r) => sum + r.amount, 0); 
+            // Determine which records to show based on selected car
+            let filteredRecords = fuelRecords;
+            let displayList = [];
+            
+            if (selections.length > 0) {
+                 const currentCar = selections[currentGarageIndex];
+                 // Filter records by plate IF the record has a plate attached
+                 filteredRecords = fuelRecords.filter(r => r.plate === currentCar.Plaka);
+            }
+
+            const totalAmount = filteredRecords.reduce((sum, r) => sum + r.amount, 0); 
             document.getElementById('monthlySaving').innerText = (totalAmount * 0.05).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
+            
             const list = document.getElementById('historyList'); 
-            if(fuelRecords.length === 0) { 
-                list.innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Henüz veri yok.</p>'; 
+            if(filteredRecords.length === 0) { 
+                list.innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Bu araç için veri yok.</p>'; 
             } else {
-                list.innerHTML = fuelRecords.map(r => `<div class="p-5 bg-white/5 rounded-2xl mb-3 border border-white/5 text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); 
+                list.innerHTML = filteredRecords.map(r => `<div class="p-5 bg-white/5 rounded-2xl mb-3 border border-white/5 text-current"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p></div><p class="text-[10px] opacity-60 mt-2">${r.details}</p></div>`).join(''); 
             }
         }
+
         function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + (el.clientHeight / 2); for (let item of items) { const itemCenter = item.offsetTop + (item.clientHeight / 2); if (Math.abs(center - itemCenter) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
         function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
         function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; }
