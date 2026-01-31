@@ -105,16 +105,16 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .news-card { flex: 0 0 100%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: var(--glass-border); transition: background-color 0.3s, border-color 0.3s; }
         
-        /* CAROUSEL FIXED: The card itself slides now */
+        /* CAROUSEL FIXED */
         .garage-carousel { 
             display: flex; 
             overflow-x: auto; 
             scroll-snap-type: x mandatory; 
-            gap: 15px; /* Kartlar arası boşluk */
+            gap: 15px; 
             padding-bottom: 20px;
         }
         .carousel-card { 
-            flex: 0 0 100%; /* Kart genişliği %100 */
+            flex: 0 0 100%; 
             scroll-snap-align: center; 
             padding: 18px; 
             border-radius: 2rem; 
@@ -418,6 +418,21 @@
         <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">LPG Bildirimleri</p><p class="text-[10px] opacity-40">Zam/İndirim haberleri</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
         <div class="glass-card p-6 flex justify-between items-center" onclick="toggleSwitch(this.querySelector('.toggle-switch'))"><div><p class="font-bold text-sm">Aylık Özet Analizi</p><p class="text-[10px] opacity-40">Harcama raporu bildirimi</p></div><div class="toggle-switch active"><div class="toggle-knob"></div></div></div>
     </div></div></div>
+
+    <div id="aboutOverlay" class="picker-overlay" onclick="closeAbout()"><div class="picker-container" onclick="event.stopPropagation()">
+        <div class="flex justify-between mb-8 px-4"><button onclick="closeAbout()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Hakkında</h3><div class="w-10"></div></div>
+        <div class="space-y-3 pb-12 text-current">
+            <button onclick="openLegalDetail('what')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="info" class="text-blue-500 w-5 h-5"></i>Litre Nedir?</div><i data-lucide="chevron-right" class="opacity-30 w-5 h-5"></i></button>
+            <button onclick="openLegalDetail('privacy')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="shield" class="text-green-500 w-5 h-5"></i>Gizlilik Politikası</div><i data-lucide="chevron-right" class="opacity-30 w-5 h-5"></i></button>
+            <button onclick="openLegalDetail('terms')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="file-text" class="text-orange-500 w-5 h-5"></i>Kullanıcı Sözleşmesi</div><i data-lucide="chevron-right" class="opacity-30 w-5 h-5"></i></button>
+            <button onclick="openLegalDetail('kvkk')" class="w-full glass-card p-5 flex items-center justify-between haptic-btn text-current font-bold"><div class="flex items-center gap-3"><i data-lucide="lock" class="text-red-500 w-5 h-5"></i>KVKK Aydınlatma Metni</div><i data-lucide="chevron-right" class="opacity-30 w-5 h-5"></i></button>
+        </div>
+    </div></div>
+
+    <div id="legalDetailOverlay" class="picker-overlay" onclick="closeLegalDetail()"><div class="picker-container h-[85%]" onclick="event.stopPropagation()">
+        <div class="flex justify-between mb-6 px-4"><div class="w-10"></div><h3 class="font-bold text-lg text-current" id="legalTitle">Başlık</h3><button onclick="closeLegalDetail()" class="bg-zinc-500/20 p-2 rounded-full"><i data-lucide="x" class="w-5 h-5 text-current"></i></button></div>
+        <div id="legalContent" class="overflow-y-auto no-scrollbar pb-20 px-4 text-current space-y-4"></div>
+    </div></div>
     
     <div id="historyOverlay" class="picker-overlay" onclick="closeHistory()"><div class="picker-container h-[75%] flex flex-col" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-6 px-4">
@@ -539,6 +554,7 @@
                         <div onclick="openAccountSettings()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="user-cog" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Hesap Bilgilerim</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                         <div onclick="openSettings()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="settings-2" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Ayarlar</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                         <div onclick="openNotify()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="bell" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Bildirim Ayarları</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
+                        <div onclick="openAbout()" class="p-5 rounded-2xl flex items-center justify-between haptic-btn border-t border-white/5"><div class="flex items-center gap-5"><i data-lucide="info" class="opacity-40 w-5 h-5"></i><span class="font-bold text-sm">Hakkında</span></div><i data-lucide="chevron-right" class="opacity-20 w-4 h-4"></i></div>
                     </div>
                     
                     <div id="logoutBtn" onclick="logout()" class="p-5 rounded-2xl flex items-center justify-center gap-2 haptic-btn mt-6 border border-red-500/30 bg-red-500/10 hidden">
@@ -610,7 +626,6 @@
         const subCarData = { 'Mercedes-Benz': { 'A Serisi': ['A160', 'A180', 'A200', 'A250'], 'B Serisi': ['B180', 'B200'], 'C Serisi': ['C180', 'C200', 'C220d', 'C300'], 'E Serisi': ['E180', 'E200', 'E220d', 'E300'], 'S Serisi': ['S320', 'S350', 'S400'], 'CLA': ['CLA180', 'CLA200', 'CLA250'], 'CLA Serisi': ['CLA180', 'CLA200', 'CLA250'], 'CLS Serisi': ['CLS250', 'CLS350'], 'GLA Serisi': ['GLA180', 'GLA200', 'GLA250'], 'GLC Serisi': ['GLC200', 'GLC220d', 'GLC300'], 'GLE Serisi': ['GLE250d', 'GLE300d', 'GLE350'] }, 'BMW': { '1 Serisi': ['116i', '118i', '120i'], '2 Serisi': ['218i', '220i'], '3 Serisi': ['316i', '318i', '320i', '330i'], '4 Serisi': ['420i', '430i'], '5 Serisi': ['520i', '530i'], '7 Serisi': ['730i', '740i'], 'X1 Serisi': ['sDrive16i', 'sDrive18i', 'sDrive20i'], 'X3 Serisi': ['20i', '30i'], 'X5 Serisi': ['25d', '30d', '40i'] } };
         const carData = { 'Audi': ['A3', 'A4', 'A6', 'Q2', 'Q3', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi', 'X1', 'X3'], 'Chevrolet': ['Aveo', 'Cruze', 'Captiva', 'Spark', 'Camaro'], 'Citroen': ['C3', 'C4', 'C5 Aircross', 'Berlingo', 'C-Elysee'], 'Dacia': ['Sandero', 'Logan', 'Duster', 'Jogger', 'Lodgy'], 'Fiat': ['Egea', 'Linea', 'Punto', 'Doblo', 'Fiorino'], 'Ford': ['Fiesta', 'Focus', 'Mondeo', 'Kuga', 'Courier'], 'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'], 'Hyundai': ['i10', 'i20', 'i30', 'Accent Blue', 'Tucson'], 'Jeep': ['Renegade', 'Compass', 'Cherokee', 'Grand Cherokee', 'Wrangler'], 'Kia': ['Picanto', 'Rio', 'Ceed', 'Cerato', 'Sportage'], 'Mazda': ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3', 'CX-5'], 'Mercedes-Benz': ['A Serisi', 'C Serisi', 'E Serisi', 'CLA', 'GLC'], 'Mini': ['Cooper', 'One', 'Countryman', 'Clubman', 'Cabrio'], 'Mitsubishi': ['Colt', 'Lancer', 'ASX', 'Outlander', 'Pajero'], 'Nissan': ['Micra', 'Juke', 'Qashqai', 'X-Trail', 'Note'], 'Opel': ['Corsa', 'Astra', 'Insignia', 'Mokka', 'Crossland'], 'Peugeot': ['208', '301', '308', '3008', '5008'], 'Renault': ['Clio', 'Megane', 'Talisman', 'Captur', 'Kadjar'], 'Seat': ['Ibiza', 'Leon', 'Arona', 'Ateca', 'Toledo'], 'Skoda': ['Fabia', 'Octavia', 'Superb', 'Scala', 'Kodiaq'], 'Suzuki': ['Swift', 'Baleno', 'Vitara', 'SX4 S-Cross', 'Jimny'], 'Tesla': ['Model S', 'Model 3', 'Model X', 'Model Y'], 'Toyota': ['Yaris', 'Corolla', 'Auris', 'C-HR', 'RAV4'], 'Volkswagen': ['Polo', 'Golf', 'Passat', 'Jetta', 'Tiguan'], 'Volvo': ['S60', 'S90', 'XC40', 'XC60', 'XC90'] };
         const cityCoordinates = { "Adana": [37.0000, 35.3213], "Adıyaman": [37.7648, 38.2786], "Afyonkarahisar": [38.7507, 30.5567], "Ağrı": [39.7191, 43.0503], "Aksaray": [38.3687, 34.0370], "Amasya": [40.6499, 35.8353], "Ankara": [39.9334, 32.8597], "Antalya": [36.8969, 30.7133], "Ardahan": [41.1105, 42.7022], "Artvin": [41.1828, 41.8183], "Aydın": [37.8560, 27.8416], "Balıkesir": [39.6484, 27.8826], "Bartın": [41.6344, 32.3375], "Batman": [37.8812, 41.1351], "Bayburt": [40.2552, 40.2249], "Bilecik": [40.1451, 29.9798], "Bingöl": [38.8855, 40.4980], "Bitlis": [38.3938, 42.1232], "Bolu": [40.7350, 31.6061], "Burdur": [37.7203, 30.2908], "Bursa": [40.1885, 29.0610], "Çanakkale": [40.1553, 26.4142], "Çankırı": [40.6013, 33.6134], "Çorum": [40.5506, 34.9556], "Denizli": [37.7765, 29.0864], "Diyarbakır": [37.9144, 40.2306], "Düzce": [40.8438, 31.1565], "Edirne": [41.6768, 26.5603], "Elazığ": [38.6810, 39.2264], "Erzincan": [39.7500, 39.5000], "Erzurum": [39.9043, 41.2679], "Eskişehir": [39.7767, 30.5206], "Gaziantep": [37.0662, 37.3833], "Giresun": [40.9128, 38.3895], "Gümüşhane": [40.4600, 39.4814], "Hakkari": [37.5833, 43.7333], "Hatay": [36.4018, 36.3498], "Iğdır": [39.9167, 44.0333], "Isparta": [37.7648, 30.5566], "İstanbul": [41.0082, 28.9784], "İzmir": [38.4192, 27.1287], "Kahramanmaraş": [37.5858, 36.9371], "Karabük": [41.2061, 32.6204], "Karaman": [37.1759, 33.2287], "Kars": [40.6172, 43.0958], "Kastamonu": [41.3887, 33.7827], "Kayseri": [38.7312, 35.4787], "Kırıkkale": [39.8468, 33.5153], "Kırklareli": [41.7333, 27.2167], "Kırşehir": [39.1425, 34.1709], "Kilis": [36.7184, 37.1212], "Kocaeli": [40.8533, 29.8815], "Konya": [37.8667, 32.4833], "Kütahya": [39.4167, 29.9833], "Malatya": [38.3552, 38.3095], "Manisa": [38.6191, 27.4289], "Mardin": [37.3212, 40.7245], "Mersin": [36.8000, 34.6333], "Muğla": [37.2153, 28.3636], "Muş": [38.9462, 41.7539], "Nevşehir": [38.6939, 34.6857], "Niğde": [37.9667, 34.6833], "Ordu": [40.9839, 37.8764], "Osmaniye": [37.0742, 36.2478], "Rize": [41.0201, 40.5234], "Sakarya": [40.7569, 30.3783], "Samsun": [41.2928, 36.3313], "Siirt": [37.9333, 41.9500], "Sinop": [42.0231, 35.1531], "Sivas": [39.7477, 37.0179], "Şanlıurfa": [37.1674, 38.7939], "Şırnak": [37.5164, 42.4611], "Tekirdağ": [40.9833, 27.5167], "Tokat": [40.3167, 36.5500], "Trabzon": [41.0015, 39.7178], "Tunceli": [39.1079, 39.5401], "Uşak": [38.6823, 29.4082], "Van": [38.4891, 43.4089], "Yalova": [40.6500, 29.2667], "Yozgat": [39.8181, 34.8147], "Zonguldak": [41.4564, 31.7987] };
-        const cities = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"];
         const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
         const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
         const stationLogos = { 'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } };
@@ -721,6 +736,77 @@
         function setTheme(mode) { currentTheme = mode; localStorage.setItem('litre_theme', mode); document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add('active'); let isDark = mode === 'system' ? window.matchMedia('(prefers-color-scheme: dark)').matches : mode === 'dark'; document.body.classList.toggle('dark-mode', isDark); updateMapLayer(leafletMap, 'map'); updateMapLayer(miniMap, 'miniMap'); }
         function initAppIcon() { const savedIcon = localStorage.getItem('litre_icon') || 'light'; setAppIcon(savedIcon, false); }
         function setAppIcon(type, manual = true) { localStorage.setItem('litre_icon', type); document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active')); document.getElementById(type === 'light' ? 'iconLight' : 'iconDark').classList.add('active'); const iconFile = type === 'dark' ? 'logosiyah.png' : 'logobeyaz.png'; document.getElementById('faviconLink').href = iconFile; document.getElementById('appleTouchIcon').href = iconFile; }
+
+        // --- LEGAL TEXTS & ABOUT ---
+        function openAbout() { document.getElementById('aboutOverlay').style.display = 'flex'; }
+        function closeAbout() { document.getElementById('aboutOverlay').style.display = 'none'; }
+        
+        function openLegalDetail(type) {
+            let title = "";
+            let content = "";
+            
+            if (type === 'what') {
+                title = "Litre Nedir?";
+                content = `
+                    <div class="space-y-4">
+                        <div class="bg-blue-500/10 p-6 rounded-3xl border border-blue-500/20 text-center">
+                            <h4 class="text-xl font-black mb-2 text-blue-500">Akaryakıtın Robin Hood'u</h4>
+                            <p class="opacity-70 text-sm">Litre, en ucuz yakıtı bulmanı sağlayan, harcamalarını takip eden ve tasarruf etmene yardımcı olan akıllı asistanındır.</p>
+                        </div>
+                        <h4 class="font-bold text-lg">Neler Yapabilirsin?</h4>
+                        <ul class="space-y-3 opacity-80 text-sm">
+                            <li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>En yakın ve en ucuz istasyonları gör.</span></li>
+                            <li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Fişlerini taratıp dijital garajında sakla.</span></li>
+                            <li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Zam ve indirimlerden anında haberdar ol.</span></li>
+                            <li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Aylık yakıt giderlerini analiz et.</span></li>
+                        </ul>
+                        <div class="text-center pt-6 opacity-40 text-xs font-bold">
+                            <p>Sürüm 1.0.0</p>
+                            <p>Made with ❤️ in İstanbul</p>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'privacy') {
+                title = "Gizlilik Politikası";
+                content = `
+                    <p class="font-bold mb-2">1. Veri Toplama</p>
+                    <p class="opacity-70 mb-4 text-sm">Litre uygulaması, size daha iyi hizmet verebilmek amacıyla konum verilerinizi (en yakın istasyonu bulmak için) ve kamera izninizi (fiş taramak için) talep eder. Bu veriler Firebase sunucularında şifreli olarak saklanır.</p>
+                    <p class="font-bold mb-2">2. Veri Kullanımı</p>
+                    <p class="opacity-70 mb-4 text-sm">Toplanan veriler sadece uygulama içi özelliklerin çalışması için kullanılır. Üçüncü taraflarla reklam amacıyla paylaşılmaz.</p>
+                    <p class="font-bold mb-2">3. Çerezler</p>
+                    <p class="opacity-70 mb-4 text-sm">Uygulama deneyimini iyileştirmek için yerel depolama ve çerezler kullanılmaktadır.</p>
+                    <p class="text-xs opacity-40 mt-6">*Bu metin taslak niteliğindedir. Hukuki geçerliliği için bir avukata danışılmalıdır.</p>
+                `;
+            } else if (type === 'terms') {
+                title = "Kullanıcı Sözleşmesi";
+                content = `
+                    <p class="font-bold mb-2">1. Hizmetin Tanımı</p>
+                    <p class="opacity-70 mb-4 text-sm">Litre, kullanıcılara akaryakıt fiyatlarını karşılaştırma ve harcama takibi hizmeti sunar.</p>
+                    <p class="font-bold mb-2">2. Sorumluluk Reddi</p>
+                    <p class="opacity-70 mb-4 text-sm">Uygulamadaki fiyatlar EPDK ve istasyon verilerine dayanır ancak anlık değişiklik gösterebilir. Litre, fiyat uyuşmazlıklarından sorumlu tutulamaz.</p>
+                    <p class="font-bold mb-2">3. Hesap Güvenliği</p>
+                    <p class="opacity-70 mb-4 text-sm">Kullanıcı, hesap şifresinin güvenliğinden kendisi sorumludur.</p>
+                    <p class="text-xs opacity-40 mt-6">*Bu metin taslak niteliğindedir.</p>
+                `;
+            } else if (type === 'kvkk') {
+                title = "KVKK Aydınlatma";
+                content = `
+                    <p class="font-bold mb-2">Veri Sorumlusu</p>
+                    <p class="opacity-70 mb-4 text-sm">6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verileriniz Litre tarafından işlenmektedir.</p>
+                    <p class="font-bold mb-2">İşlenen Veriler</p>
+                    <p class="opacity-70 mb-4 text-sm">- Kimlik Bilgileri (Ad, Soyad)<br>- İletişim Bilgileri (E-posta)<br>- Lokasyon Bilgisi<br>- Araç Bilgileri (Plaka, Model)</p>
+                    <p class="font-bold mb-2">Haklarınız</p>
+                    <p class="opacity-70 mb-4 text-sm">KVKK'nın 11. maddesi gereği verilerinizin silinmesini veya düzeltilmesini talep etme hakkına sahipsiniz.</p>
+                `;
+            }
+
+            document.getElementById('legalTitle').innerText = title;
+            document.getElementById('legalContent').innerHTML = content;
+            document.getElementById('legalDetailOverlay').style.display = 'flex';
+            lucide.createIcons();
+        }
+        
+        function closeLegalDetail() { document.getElementById('legalDetailOverlay').style.display = 'none'; }
 
         // --- GARAGE LOGIC ---
         function startVehicleFlow() { 
@@ -858,7 +944,6 @@
             if (!plate) return { cost: 0, liters: 0 };
             const records = fuelRecords.filter(r => r.plate === plate);
             const totalCost = records.reduce((sum, r) => sum + r.amount, 0);
-            // Assuming we don't track liters perfectly yet, just cost for now
             return { cost: totalCost, liters: 0 }; 
         }
 
