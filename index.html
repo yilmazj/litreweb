@@ -644,6 +644,7 @@
         } catch (e) { console.error("Firebase error", e); }
 
         let leafletMap, miniMap, currentTheme = 'light'; 
+        // LOAD SAVED DATA FROM LOCALSTORAGE
         let fuelRecords = JSON.parse(localStorage.getItem('litre_fuel_history')) || [];
         let videoStream = null;
         let userMarker = null;
@@ -1012,6 +1013,7 @@
                     
                     updateGarageAnalysis(); 
                     renderGarageUI(); 
+                    updateRadarAnalysis(); // ADDED: Update Radar Chart
                     setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); 
                 } else { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); } 
             }).catch(err => { console.error(err); document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); }); 
@@ -1067,6 +1069,7 @@
             closeManualFuelAdd();
             updateGarageAnalysis();
             renderGarageUI(); // Update totals on car card
+            updateRadarAnalysis(); // Update Radar Chart
         }
 
         function openEditRecord(index) {
@@ -1088,6 +1091,7 @@
                 localStorage.setItem('litre_fuel_history', JSON.stringify(fuelRecords));
                 updateGarageAnalysis();
                 renderGarageUI();
+                updateRadarAnalysis();
             }
         }
 
@@ -1138,6 +1142,25 @@
                 lucide.createIcons();
             }
         }
+        
+        function updateRadarAnalysis() {
+            const total = fuelRecords.reduce((sum, r) => sum + r.amount, 0);
+            const radarContent = document.getElementById('radarAnalysisContent');
+            if (total === 0) {
+                radarContent.innerHTML = '<p class="text-center opacity-40 py-10 w-full">Henüz veri yok.</p>';
+            } else {
+                radarContent.innerHTML = `
+                    <p class="text-sm font-bold opacity-60 mb-2">Toplam Harcama</p>
+                    <h2 class="text-3xl font-black mb-4">${total.toLocaleString('tr-TR')} TL</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><span>Akaryakıt</span><span>100%</span></div>
+                            <div class="bar-container"><div class="bar-fill bg-blue-500" style="width: 100%"></div></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
 
         function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + (el.clientHeight / 2); for (let item of items) { const itemCenter = item.offsetTop + (item.clientHeight / 2); if (Math.abs(center - itemCenter) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
         function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
@@ -1170,11 +1193,13 @@
         function closeSortPicker() { document.getElementById('sortOverlay').style.display = 'none'; }
         function applySort(type) { const list = document.getElementById('stationList'); const cards = Array.from(list.children); if(type === 'cheapest') { cards.sort((a,b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price)); document.getElementById('sortLabel').innerText = 'En Ucuz'; } else { cards.sort((a,b) => parseFloat(a.dataset.dist) - parseFloat(b.dataset.dist)); document.getElementById('sortLabel').innerText = 'En Yakın'; } list.innerHTML = ''; cards.forEach(c => list.appendChild(c)); closeSortPicker(); }
 
-        function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; }
+        function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; recognition.onend = () => { micIcon.classList.remove('mic-active'); }; }
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
 
         window.addEventListener('load', () => { 
             initTheme(); initAppIcon(); initMiniMap(); updateGarageAnalysis(); selectCity('İstanbul'); checkLoginStatus(); 
+            // Ensures Radar chart is updated on load even if user is not on that tab
+            updateRadarAnalysis(); 
             setTimeout(() => { 
                 const splash = document.getElementById('splash');
                 const content = document.getElementById('app-content');
