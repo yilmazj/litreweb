@@ -112,7 +112,9 @@
         .silver-grad { background: linear-gradient(145deg, #000, #666); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; }
         body.dark-mode .silver-grad { background: linear-gradient(145deg, #fff, #999); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .profile-icon { background: var(--input-bg); color: var(--text); transition: background-color 0.3s, color 0.3s; }
+        /* PROFILE PICTURE UPDATE */
+        .profile-icon { background: var(--input-bg); color: var(--text); transition: background-color 0.3s, color 0.3s; background-size: cover; background-position: center; position: relative; }
+        .profile-upload-btn { position: absolute; bottom: 0; right: 0; width: 32px; height: 32px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid var(--bg); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
         .city-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .city-item:active { background: var(--input-bg); }
@@ -545,7 +547,12 @@
 
             <div id="profile" class="tab-content no-scrollbar pb-44 px-5 pt-14">
                 <div class="flex flex-col items-center mb-10">
-                    <div class="w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-5 shadow-3xl ring-1 ring-white/10 shadow-2xl text-current profile-icon"></div>
+                    <div class="w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-5 shadow-3xl ring-1 ring-white/10 shadow-2xl text-current profile-icon" id="profileCircle">
+                        <button onclick="document.getElementById('profileUpload').click()" class="profile-upload-btn">
+                            <i data-lucide="camera" class="w-4 h-4"></i>
+                        </button>
+                        <input type="file" id="profileUpload" hidden accept="image/*" onchange="handleProfileUpload(this)">
+                    </div>
                     <h2 class="text-2xl font-black silver-grad" id="profileName">Misafir</h2>
                     <div class="mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase opacity-60 text-current" id="profileStatus">Giriş Yapılmadı</div>
                 </div>
@@ -646,7 +653,6 @@
         } catch (e) { console.error("Firebase error", e); }
 
         let leafletMap, miniMap, currentTheme = 'light'; 
-        // FIXED: Load from localStorage
         let fuelRecords = JSON.parse(localStorage.getItem('fuelRecords')) || [];
         
         let videoStream = null;
@@ -661,7 +667,6 @@
         let isEditMode = false; 
         let editTargetField = null; 
         let editingRecordIndex = -1;
-        // FIXED: Global station data storage
         let stationData = [];
 
         let pickingSubModel = false;
@@ -679,6 +684,15 @@
         let step = 0, selections = savedGarage || [], tempValue = '', tempSelection = {};
         
         function checkLoginStatus() {
+            // LOAD PROFILE PICTURE
+            const savedPic = localStorage.getItem('profile_pic');
+            if(savedPic) {
+                document.getElementById('profileCircle').style.backgroundImage = `url(${savedPic})`;
+                document.getElementById('profileCircle').innerText = ''; 
+                document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
+                document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
+            }
+
             if (typeof firebase === 'undefined' || !firebase.apps.length) { 
                 document.getElementById('profileName').innerText = "Misafir";
                 document.getElementById('profileStatus').innerText = "Giriş Yapılmadı";
@@ -758,6 +772,22 @@
                 if(newEmail !== user.email) await user.updateEmail(newEmail);
                 alert("Bilgiler güncellendi!"); closeAccountSettings(); checkLoginStatus();
             } catch(e) { alert(e.message); }
+        }
+
+        function handleProfileUpload(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const res = e.target.result;
+                localStorage.setItem('profile_pic', res);
+                document.getElementById('profileCircle').style.backgroundImage = `url(${res})`;
+                document.getElementById('profileCircle').innerText = ''; 
+                // Re-append button so it doesn't disappear
+                document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
+                document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
+            }
+            reader.readAsDataURL(file);
         }
 
         function saveGarageData() {
@@ -882,10 +912,20 @@
             }
         }
 
-        // FIXED: Added Liters Calculation
         function getCarExpenses(plate) {
             if (!plate) return { cost: 0, liters: 0 };
-            const records = fuelRecords.filter(r => r.plate === plate);
+            
+            // DYNAMIC MONTH FILTER
+            const now = new Date();
+            const currentMonth = now.getMonth(); // 0-11
+            const currentYear = now.getFullYear();
+
+            const records = fuelRecords.filter(r => {
+                const [d, m, y] = r.date.split('.').map(Number); // date is DD.MM.YYYY
+                // Check plate AND check if month/year matches current month
+                return r.plate === plate && (m - 1) === currentMonth && y === currentYear;
+            });
+
             const totalCost = records.reduce((sum, r) => sum + r.amount, 0);
             const totalLiters = records.reduce((sum, r) => sum + (parseFloat(r.liters) || 0), 0);
             return { cost: totalCost, liters: totalLiters }; 
@@ -897,6 +937,9 @@
             const dots = document.getElementById('garageDots');
             
             container.innerHTML = ''; controls.innerHTML = ''; dots.innerHTML = '';
+
+            // DYNAMIC MONTH NAME
+            const currentMonthName = new Date().toLocaleDateString('tr-TR', { month: 'long' });
 
             if (selections.length > 0) {
                  const editClass = isEditMode ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-blue-500/20 text-blue-500';
@@ -919,8 +962,8 @@
                             <div class="${editClass}" onclick="editCurrentCar('plate')"><p class="text-[9px] opacity-40 uppercase mb-1">Plaka</p><p class="text-lg font-black tracking-tighter">${car.Plaka}</p></div>
                         </div>
                         <div class="pt-2 grid grid-cols-2 gap-4 border-t border-white/5 mt-4 pt-4 text-current">
-                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Masrafı</p><p class="text-2xl font-black text-blue-500">${expenses.cost.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</p></div>
-                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">Ocak Litre</p><p class="text-2xl font-black">${expenses.liters.toFixed(1)} L</p></div>
+                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">${currentMonthName} Masrafı</p><p class="text-2xl font-black text-blue-500">${expenses.cost.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</p></div>
+                            <div class="text-center"><p class="text-[9px] opacity-40 font-black uppercase mb-1">${currentMonthName} Litre</p><p class="text-2xl font-black">${expenses.liters.toFixed(1)} L</p></div>
                         </div>
                     </div>`;
                     container.innerHTML += carCard;
@@ -948,19 +991,71 @@
         
         function openCamera() { navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => { videoStream = stream; document.getElementById('cameraView').srcObject = stream; document.getElementById('cameraView').style.display = 'block'; document.getElementById('scanOverlay').style.display = 'flex'; }).catch((err) => { showPermModal('camera', 'Fiş taramak için kamera izni vermeniz gerekiyor.'); }); }
 
-        function getPricesForCity(city) { if(city === 'İstanbul') { return [ { brand: 'Shell', name: 'Shell - İstanbul Avrupa', benzin: 54.07, motorin: 57.34, lpg: 29.29, dist: 3.5 }, { brand: 'Shell', name: 'Shell - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 1.2 }, { brand: 'Opet', name: 'Opet - İstanbul Avrupa', benzin: 54.05, motorin: 57.28, lpg: 29.29, dist: 5.1 }, { brand: 'Opet', name: 'Opet - İstanbul Anadolu', benzin: 53.90, motorin: 57.16, lpg: 28.69, dist: 0.8 }, { brand: 'PO', name: 'PO - İstanbul Avrupa', benzin: 54.10, motorin: 57.34, lpg: 29.29, dist: 4.8 }, { brand: 'PO', name: 'PO - İstanbul Anadolu', benzin: 53.92, motorin: 57.16, lpg: 28.69, dist: 2.2 }, { brand: 'Total', name: 'Total - İstanbul Avrupa', benzin: 54.07, motorin: 57.35, lpg: 29.57, dist: 6.2 }, { brand: 'Total', name: 'Total - İstanbul Anadolu', benzin: 53.88, motorin: 57.16, lpg: 28.69, dist: 2.8 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Avrupa', benzin: 50.87, motorin: 52.57, lpg: 28.93, dist: 4.1 }, { brand: 'Türkiye Petrolleri', name: 'TP - İstanbul Anadolu', benzin: 50.80, motorin: 52.50, lpg: 28.85, dist: 7.1 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Avrupa', benzin: 54.04, motorin: 57.27, lpg: 29.41, dist: 5.5 }, { brand: 'Aytemiz', name: 'Aytemiz - İstanbul Anadolu', benzin: 53.89, motorin: 57.15, lpg: 28.95, dist: 8.5 }, ]; } const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; let cityStations = []; const seed = city.length * 0.05; Object.keys(basePrices).forEach(brand => { if(Math.random() > 0.9 && city !== 'Ankara' && city !== 'İzmir') return; const pDiff = (Math.random() * 0.5) - 0.1 + seed; cityStations.push({ brand: brand, name: `${brand === 'Türkiye Petrolleri' ? 'TP' : brand} - ${city} Merkez`, benzin: (basePrices[brand] + pDiff).toFixed(2), motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2), lpg: (29.00 + pDiff).toFixed(2), dist: (Math.random() * 5 + 0.5).toFixed(1) }); }); return cityStations.sort((a,b) => a.dist - b.dist); }
+        function getPricesForCity(city) { 
+            if(city === 'İstanbul') { 
+                // FIXED: LAND BASED COORDINATES FOR ISTANBUL
+                const districts = [
+                    { name: 'Maslak', lat: 41.1122, lng: 29.0203 },
+                    { name: 'Levent', lat: 41.0822, lng: 29.0143 },
+                    { name: 'Beşiktaş', lat: 41.0450, lng: 29.0000 },
+                    { name: 'Kadıköy', lat: 40.9900, lng: 29.0250 },
+                    { name: 'Üsküdar', lat: 41.0250, lng: 29.0150 },
+                    { name: 'Etiler', lat: 41.0833, lng: 29.0333 },
+                    { name: 'Ataşehir', lat: 40.9932, lng: 29.1143 },
+                    { name: 'Başakşehir', lat: 41.1070, lng: 28.8077 },
+                    { name: 'Şişli', lat: 41.0600, lng: 28.9870 },
+                    { name: 'Bakırköy', lat: 40.9780, lng: 28.8730 },
+                    { name: 'Beykoz', lat: 41.1333, lng: 29.1000 },
+                    { name: 'Sarıyer', lat: 41.1667, lng: 29.0500 }
+                ];
+
+                const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; 
+                let cityStations = []; 
+                
+                districts.forEach(d => {
+                    const brands = Object.keys(basePrices);
+                    const brand = brands[Math.floor(Math.random() * brands.length)];
+                    const pDiff = (Math.random() * 0.5) - 0.1;
+                    
+                    cityStations.push({
+                        brand: brand,
+                        name: `${brand} - ${d.name}`,
+                        benzin: (basePrices[brand] + pDiff).toFixed(2),
+                        motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2),
+                        lpg: (29.00 + pDiff).toFixed(2),
+                        dist: (Math.random() * 5 + 1).toFixed(1),
+                        lat: d.lat + (Math.random() * 0.01 - 0.005), // Small jitter for markers
+                        lng: d.lng + (Math.random() * 0.01 - 0.005)
+                    });
+                });
+                return cityStations.sort((a,b) => a.dist - b.dist); 
+            } 
+            
+            // Generic logic for other cities (kept small radius to avoid sea)
+            const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; 
+            let cityStations = []; 
+            const seed = city.length * 0.05; 
+            Object.keys(basePrices).forEach(brand => { 
+                if(Math.random() > 0.9 && city !== 'Ankara' && city !== 'İzmir') return; 
+                const pDiff = (Math.random() * 0.5) - 0.1 + seed; 
+                cityStations.push({ 
+                    brand: brand, 
+                    name: `${brand === 'Türkiye Petrolleri' ? 'TP' : brand} - ${city} Merkez`, 
+                    benzin: (basePrices[brand] + pDiff).toFixed(2), 
+                    motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2), 
+                    lpg: (29.00 + pDiff).toFixed(2), 
+                    dist: (Math.random() * 5 + 0.5).toFixed(1),
+                    // No explicit lat/lng here, rely on center jitter in selectCity
+                }); 
+            }); 
+            return cityStations.sort((a,b) => a.dist - b.dist); 
+        }
+
         function renderStationList(data, cityName) { const list = document.getElementById('stationList'); list.innerHTML = ''; data.forEach(item => { const style = stationLogos[item.brand] || stationLogos['Shell']; list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" data-price="${item.benzin}" data-dist="${item.dist}"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${style.bg}"><span class="font-black text-[8px]" style="color:${style.text}">${style.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${item.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3">${item.dist} km uzaklıkta</p><div class="grid grid-cols-3 gap-2 text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3"><div class="text-center"><div class="opacity-40 mb-1">BENZİN</div><div class="text-current text-xs">${item.benzin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">MOTORİN</div><div class="text-current text-xs">${item.motorin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.lpg}</div></div></div><div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button><button onclick="openNavPicker('${item.name}')" class="flex-1 action-btn-small text-current bg-blue-500 text-white shadow-lg shadow-blue-500/30"><i data-lucide="navigation-2" class="w-4 h-4 mr-2"></i><span class="text-xs font-bold">Yol Tarifi</span></button><button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`; }); lucide.createIcons(); }
         
         function reportPrice() { document.getElementById('reportInputOverlay').style.display = 'flex'; }
-        // FIXED: Added close function for Report Input
         function closeReportInput() { document.getElementById('reportInputOverlay').style.display = 'none'; }
-        
-        // FIXED: Added selectFuelType function
-        function selectFuelType(type, btn) {
-            selectedFuelType = type;
-            document.querySelectorAll('.fuel-type-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
+        function selectFuelType(type, btn) { selectedFuelType = type; document.querySelectorAll('.fuel-type-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 
         function submitPriceReport() { document.getElementById('reportInputOverlay').style.display = 'none'; document.getElementById('priceReportOverlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reportLoading').classList.add('hidden'); document.getElementById('reportSuccess').classList.remove('hidden'); document.getElementById('reportSuccess').classList.remove('scale-90'); }, 1500); setTimeout(() => { document.getElementById('priceReportOverlay').style.display = 'none'; document.getElementById('reportSuccess').classList.add('hidden'); document.getElementById('reportLoading').classList.remove('hidden'); }, 3500); }
         function openSortPicker() { document.getElementById('sortOverlay').style.display = 'flex'; }
@@ -1009,7 +1104,6 @@
                     document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanSuccess').style.display = 'flex'; document.getElementById('resStation').innerText = foundStation; document.getElementById('resDate').innerText = foundDate; document.getElementById('resTotal').innerText = foundPrice + " TL"; 
                     const newRec = { station: foundStation, date: foundDate, amount: rawPrice, liters: (rawPrice / 40).toFixed(1), plate: tempScanCarPlate, details: `Yakıt Alımı · ${foundPrice} TL` }; 
                     fuelRecords.unshift(newRec); tempScanCarPlate = null; updateGarageAnalysis(); renderGarageUI(); updateRadarAnalysis();
-                    // FIXED: Save to local storage after scan
                     localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
 
                     setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); 
@@ -1020,10 +1114,8 @@
         function closePermModal() { document.getElementById('permModal').style.display = 'none'; }
         function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); const tile = document.body.classList.contains('dark-mode') ? tileDark : tileLight; L.tileLayer(tile).addTo(mapObj); const el = document.getElementById(elementId); if(document.body.classList.contains('dark-mode')) { el.classList.add('google-dark-mode'); } else { el.classList.remove('google-dark-mode'); } }
         
-        // FIXED: initMap now relies on global stationData
         function initMap() { 
             if (leafletMap) {
-                 // If map exists, just refresh markers
                  refreshMapMarkers();
                  return;
             }
@@ -1034,7 +1126,6 @@
             refreshMapMarkers();
         }
 
-        // FIXED: New function to refresh markers whenever city changes
         function refreshMapMarkers() {
             if (!markers || !stationData) return;
             markers.clearLayers();
@@ -1045,15 +1136,14 @@
                 else if (station.brand === 'Shell') { iconClass += ' shell-marker'; iconHtml = 'SHELL'; } 
                 else if (station.brand === 'PO') { iconClass += ' po-marker'; iconHtml = 'PO'; } 
                 else if (station.brand === 'Türkiye Petrolleri') { iconClass += ' po-marker'; iconHtml = 'TP'; }
-                else if (station.brand === 'Total') { iconClass += ' shell-marker'; iconHtml = 'TOTAL'; iconClass.replace('shell-marker',''); /* total style same as shell for now in css or add new */ }
+                else if (station.brand === 'Total') { iconClass += ' shell-marker'; iconHtml = 'TOTAL'; iconClass.replace('shell-marker',''); }
                 
                 const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); 
-                // jitter position slightly so markers don't overlap perfectly if simulated
-                const marker = L.marker([station.lat || (41.0 + Math.random()/10), station.lng || (28.9 + Math.random()/10)], { icon: customIcon }); 
-                // Since we don't have real lat/lng in simulated data, we can't place them accurately on map without real coords. 
-                // BUT the user said "markers were there". 
-                // Let's assume simulate logic needs lat/lng. 
-                // Updating getPricesForCity to include mock lat/lng relative to city center.
+                
+                const lat = station.lat || (41.0 + Math.random()/10);
+                const lng = station.lng || (28.9 + Math.random()/10);
+
+                const marker = L.marker([lat, lng], { icon: customIcon }); 
                 marker.on('click', () => { openNavPicker(station.name); }); 
                 markers.addLayer(marker); 
             }); 
@@ -1083,11 +1173,9 @@
 
             if (!station || !liters || !amount || !dateVal) { alert("Lütfen tüm alanları doldurun."); return; }
 
-            // Convert date from YYYY-MM-DD to DD.MM.YYYY format
             const [year, month, day] = dateVal.split('-');
             const formattedDate = `${day}.${month}.${year}`;
 
-            // Logic to attach record to current car if it exists
             const currentCar = selections[currentGarageIndex];
             const plate = currentCar ? currentCar.Plaka : null;
 
@@ -1103,16 +1191,13 @@
             if (editingRecordIndex > -1) { fuelRecords[editingRecordIndex] = record; } 
             else { fuelRecords.unshift(record); }
 
-            // FIXED: Save to local storage
             localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
 
-            // Push changes to UI immediately
             closeManualFuelAdd();
             updateGarageAnalysis();
             renderGarageUI();
             updateRadarAnalysis();
             
-            // Switch to history tab to show user the result
             if(document.getElementById('historyOverlay').style.display === 'flex') {
                 // already open
             } else {
@@ -1126,7 +1211,6 @@
             document.getElementById('manualFuelTitle').innerText = "Fişi Düzenle";
             document.getElementById('manualStation').value = record.station;
             
-            // Convert DD.MM.YYYY back to YYYY-MM-DD for input
             const [day, month, year] = record.date.split('.');
             document.getElementById('manualDate').value = `${year}-${month}-${day}`;
             
@@ -1138,7 +1222,6 @@
         function deleteFuelRecord(index) {
             if(confirm("Bu fişi silmek istediğine emin misin?")) {
                 fuelRecords.splice(index, 1);
-                // FIXED: Save to local storage
                 localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
                 
                 updateGarageAnalysis();
@@ -1150,15 +1233,12 @@
         function updateGarageAnalysis() { 
             let displayRecords = [];
             
-            // If we have cars, filter by current car plate. 
-            // If no cars (guest mode testing), show everything or handle gracefully.
             if (selections.length > 0) {
                 const currentCar = selections[currentGarageIndex];
                 if (currentCar) {
                      displayRecords = fuelRecords.map((r, i) => ({...r, originalIndex: i})).filter(r => r.plate === currentCar.Plaka);
                 }
             } else { 
-                // Guest mode or no car selected -> show all records for now so it doesn't look broken
                 displayRecords = fuelRecords.map((r, i) => ({...r, originalIndex: i})); 
             }
 
@@ -1235,7 +1315,6 @@
         function closeCityPicker() { document.getElementById('cityOverlay').style.display = 'none'; }
         function filterCities() { const q = document.getElementById('citySearch').value.toLowerCase(); const list = document.getElementById('cityList'); list.innerHTML = ''; cities.filter(c => c.toLowerCase().includes(q)).forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); }
         
-        // FIXED: selectCity now updates global stationData and refreshes map markers
         function selectCity(name) { 
             document.getElementById('selectedCity').innerText = name; 
             closeCityPicker(); 
@@ -1248,7 +1327,6 @@
             } 
             
             setTimeout(() => { 
-                // get prices and mock locations
                 const data = getPricesForCity(name); 
                 
                 // Add fake lat/lng to data for markers based on city center
@@ -1256,10 +1334,12 @@
                 const centerLat = coords ? coords[0] : 41.0;
                 const centerLng = coords ? coords[1] : 28.9;
                 
+                // If data doesn't have explicit lat/lng (other cities), add jitter
+                // If it does (Istanbul), it uses the predefined ones
                 stationData = data.map((st, i) => ({
                     ...st,
-                    lat: centerLat + (Math.random() * 0.1 - 0.05),
-                    lng: centerLng + (Math.random() * 0.1 - 0.05)
+                    lat: st.lat || centerLat + (Math.random() * 0.04 - 0.02), // Reduced jitter for other cities
+                    lng: st.lng || centerLng + (Math.random() * 0.04 - 0.02)
                 }));
                 
                 renderStationList(stationData, name); 
