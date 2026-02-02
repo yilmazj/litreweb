@@ -674,7 +674,6 @@
         const carData = { 'Audi': ['A3', 'A4', 'A6', 'Q2', 'Q3', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi', 'X1', 'X3'], 'Chevrolet': ['Aveo', 'Cruze', 'Captiva', 'Spark', 'Camaro'], 'Citroen': ['C3', 'C4', 'C5 Aircross', 'Berlingo', 'C-Elysee'], 'Dacia': ['Sandero', 'Logan', 'Duster', 'Jogger', 'Lodgy'], 'Fiat': ['Egea', 'Linea', 'Punto', 'Doblo', 'Fiorino'], 'Ford': ['Fiesta', 'Focus', 'Mondeo', 'Kuga', 'Courier'], 'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'], 'Hyundai': ['i10', 'i20', 'i30', 'Accent Blue', 'Tucson'], 'Jeep': ['Renegade', 'Compass', 'Cherokee', 'Grand Cherokee', 'Wrangler'], 'Kia': ['Picanto', 'Rio', 'Ceed', 'Cerato', 'Sportage'], 'Mazda': ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3', 'CX-5'], 'Mercedes-Benz': ['A Serisi', 'C Serisi', 'E Serisi', 'CLA', 'GLC'], 'Mini': ['Cooper', 'One', 'Countryman', 'Clubman', 'Cabrio'], 'Mitsubishi': ['Colt', 'Lancer', 'ASX', 'Outlander', 'Pajero'], 'Nissan': ['Micra', 'Juke', 'Qashqai', 'X-Trail', 'Note'], 'Opel': ['Corsa', 'Astra', 'Insignia', 'Mokka', 'Crossland'], 'Peugeot': ['208', '301', '308', '3008', '5008'], 'Renault': ['Clio', 'Megane', 'Talisman', 'Captur', 'Kadjar'], 'Seat': ['Ibiza', 'Leon', 'Arona', 'Ateca', 'Toledo'], 'Skoda': ['Fabia', 'Octavia', 'Superb', 'Scala', 'Kodiaq'], 'Suzuki': ['Swift', 'Baleno', 'Vitara', 'SX4 S-Cross', 'Jimny'], 'Tesla': ['Model S', 'Model 3', 'Model X', 'Model Y'], 'Toyota': ['Yaris', 'Corolla', 'Auris', 'C-HR', 'RAV4'], 'Volkswagen': ['Polo', 'Golf', 'Passat', 'Jetta', 'Tiguan'], 'Volvo': ['S60', 'S90', 'XC40', 'XC60', 'XC90'] };
         const years = Array.from({length: 2024 - 1990 + 1}, (_, i) => 2024 - i);
         const cityCoordinates = { "Adana": [37.0000, 35.3213], "Adıyaman": [37.7648, 38.2786], "Afyonkarahisar": [38.7507, 30.5567], "Ağrı": [39.7191, 43.0503], "Aksaray": [38.3687, 34.0370], "Amasya": [40.6499, 35.8353], "Ankara": [39.9334, 32.8597], "Antalya": [36.8969, 30.7133], "Ardahan": [41.1105, 42.7022], "Artvin": [41.1828, 41.8183], "Aydın": [37.8560, 27.8416], "Balıkesir": [39.6484, 27.8826], "Bartın": [41.6344, 32.3375], "Batman": [37.8812, 41.1351], "Bayburt": [40.2552, 40.2249], "Bilecik": [40.1451, 29.9798], "Bingöl": [38.8855, 40.4980], "Bitlis": [38.3938, 42.1232], "Bolu": [40.7350, 31.6061], "Burdur": [37.7203, 30.2908], "Bursa": [40.1885, 29.0610], "Çanakkale": [40.1553, 26.4142], "Çankırı": [40.6013, 33.6134], "Çorum": [40.5506, 34.9556], "Denizli": [37.7765, 29.0864], "Diyarbakır": [37.9144, 40.2306], "Düzce": [40.8438, 31.1565], "Edirne": [41.6768, 26.5603], "Elazığ": [38.6810, 39.2264], "Erzincan": [39.7500, 39.5000], "Erzurum": [39.9043, 41.2679], "Eskişehir": [39.7767, 30.5206], "Gaziantep": [37.0662, 37.3833], "Giresun": [40.9128, 38.3895], "Gümüşhane": [40.4600, 39.4814], "Hakkari": [37.5833, 43.7333], "Hatay": [36.4018, 36.3498], "Iğdır": [39.9167, 44.0333], "Isparta": [37.7648, 30.5566], "İstanbul": [41.0082, 28.9784], "İzmir": [38.4192, 27.1287], "Kahramanmaraş": [37.5858, 36.9371], "Karabük": [41.2061, 32.6204], "Karaman": [37.1759, 33.2287], "Kars": [40.6172, 43.0958], "Kastamonu": [41.3887, 33.7827], "Kayseri": [38.7312, 35.4787], "Kırıkkale": [39.8468, 33.5153], "Kırklareli": [41.7333, 27.2167], "Kırşehir": [39.1425, 34.1709], "Kilis": [36.7184, 37.1212], "Kocaeli": [40.8533, 29.8815], "Konya": [37.8667, 32.4833], "Kütahya": [39.4167, 29.9833], "Malatya": [38.3552, 38.3095], "Manisa": [38.6191, 27.4289], "Mardin": [37.3212, 40.7245], "Mersin": [36.8000, 34.6333], "Muğla": [37.2153, 28.3636], "Muş": [38.9462, 41.7539], "Nevşehir": [38.6939, 34.6857], "Niğde": [37.9667, 34.6833], "Ordu": [40.9839, 37.8764], "Osmaniye": [37.0742, 36.2478], "Rize": [41.0201, 40.5234], "Sakarya": [40.7569, 30.3783], "Samsun": [41.2928, 36.3313], "Siirt": [37.9333, 41.9500], "Sinop": [42.0231, 35.1531], "Sivas": [39.7477, 37.0179], "Şanlıurfa": [37.1674, 38.7939], "Şırnak": [37.5164, 42.4611], "Tekirdağ": [40.9833, 27.5167], "Tokat": [40.3167, 36.5500], "Trabzon": [41.0015, 39.7178], "Tunceli": [39.1079, 39.5401], "Uşak": [38.6823, 29.4082], "Van": [38.4891, 43.4089], "Yalova": [40.6500, 29.2667], "Yozgat": [39.8181, 34.8147], "Zonguldak": [41.4564, 31.7987] };
-        const cities = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"];
         const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
         const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
         const stationLogos = { 'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } };
@@ -685,12 +684,18 @@
         
         function checkLoginStatus() {
             // LOAD PROFILE PICTURE
-            const savedPic = localStorage.getItem('profile_pic');
-            if(savedPic) {
-                document.getElementById('profileCircle').style.backgroundImage = `url(${savedPic})`;
-                document.getElementById('profileCircle').innerText = ''; 
-                document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
-                document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
+            try {
+                const savedPic = localStorage.getItem('profile_pic');
+                if(savedPic && savedPic.startsWith('data:image')) {
+                    document.getElementById('profileCircle').style.backgroundImage = `url(${savedPic})`;
+                    document.getElementById('profileCircle').innerText = ''; 
+                    document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
+                    document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
+                }
+            } catch(e) {
+                console.error("Resim yüklenirken hata:", e);
+                // If local storage is corrupted or full, clear pic
+                localStorage.removeItem('profile_pic');
             }
 
             if (typeof firebase === 'undefined' || !firebase.apps.length) { 
@@ -741,14 +746,14 @@
         function performLogin() {
             const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPass').value;
-            firebase.auth().signInWithEmailAndPassword(email, pass).then(() => { alert("Giriş Başarılı!"); closeAuth(); }).catch(e => alert(e.message));
+            firebase.auth().signInWithEmailAndPassword(email, pass).then(() => { closeAuth(); }).catch(e => alert(e.message));
         }
         function performRegister() {
             const email = document.getElementById('regEmail').value;
             const pass = document.getElementById('regPass').value;
             firebase.auth().createUserWithEmailAndPassword(email, pass).then((uc) => {
                 firebase.firestore().collection("users").doc(uc.user.uid).set({ garage: [], createdAt: new Date() });
-                alert("Kayıt Başarılı!"); closeAuth();
+                closeAuth();
             }).catch(e => alert(e.message));
         }
         function logout() { firebase.auth().signOut().then(() => { alert("Çıkış Yapıldı."); location.reload(); }); }
@@ -774,18 +779,51 @@
             } catch(e) { alert(e.message); }
         }
 
+        // FIXED: Image Compression to prevent LocalStorage Overflow & Freeze
         function handleProfileUpload(input) {
             const file = input.files[0];
             if(!file) return;
+            
             const reader = new FileReader();
             reader.onload = function(e) {
-                const res = e.target.result;
-                localStorage.setItem('profile_pic', res);
-                document.getElementById('profileCircle').style.backgroundImage = `url(${res})`;
-                document.getElementById('profileCircle').innerText = ''; 
-                // Re-append button so it doesn't disappear
-                document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
-                document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Resize to max 300x300
+                    const MAX_WIDTH = 300;
+                    const MAX_HEIGHT = 300;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Compress quality to 0.7 JPEG
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    try {
+                        localStorage.setItem('profile_pic', dataUrl);
+                        document.getElementById('profileCircle').style.backgroundImage = `url(${dataUrl})`;
+                    } catch(err) {
+                        alert("Fotoğraf çok büyük, kaydedilemedi.");
+                        console.error(err);
+                    }
+                }
             }
             reader.readAsDataURL(file);
         }
@@ -993,7 +1031,6 @@
 
         function getPricesForCity(city) { 
             if(city === 'İstanbul') { 
-                // FIXED: LAND BASED COORDINATES FOR ISTANBUL
                 const districts = [
                     { name: 'Maslak', lat: 41.1122, lng: 29.0203 },
                     { name: 'Levent', lat: 41.0822, lng: 29.0143 },
@@ -1024,14 +1061,13 @@
                         motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2),
                         lpg: (29.00 + pDiff).toFixed(2),
                         dist: (Math.random() * 5 + 1).toFixed(1),
-                        lat: d.lat + (Math.random() * 0.01 - 0.005), // Small jitter for markers
+                        lat: d.lat + (Math.random() * 0.01 - 0.005), 
                         lng: d.lng + (Math.random() * 0.01 - 0.005)
                     });
                 });
                 return cityStations.sort((a,b) => a.dist - b.dist); 
             } 
             
-            // Generic logic for other cities (kept small radius to avoid sea)
             const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; 
             let cityStations = []; 
             const seed = city.length * 0.05; 
@@ -1045,7 +1081,6 @@
                     motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2), 
                     lpg: (29.00 + pDiff).toFixed(2), 
                     dist: (Math.random() * 5 + 0.5).toFixed(1),
-                    // No explicit lat/lng here, rely on center jitter in selectCity
                 }); 
             }); 
             return cityStations.sort((a,b) => a.dist - b.dist); 
@@ -1060,7 +1095,26 @@
         function submitPriceReport() { document.getElementById('reportInputOverlay').style.display = 'none'; document.getElementById('priceReportOverlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reportLoading').classList.add('hidden'); document.getElementById('reportSuccess').classList.remove('hidden'); document.getElementById('reportSuccess').classList.remove('scale-90'); }, 1500); setTimeout(() => { document.getElementById('priceReportOverlay').style.display = 'none'; document.getElementById('reportSuccess').classList.add('hidden'); document.getElementById('reportLoading').classList.remove('hidden'); }, 3500); }
         function openSortPicker() { document.getElementById('sortOverlay').style.display = 'flex'; }
         function closeSortPicker() { document.getElementById('sortOverlay').style.display = 'none'; }
-        function applySort(type) { document.getElementById('check-nearest').classList.add('hidden'); document.getElementById('check-cheapest').classList.add('hidden'); document.getElementById(`check-${type}`).classList.remove('hidden'); if(type === 'nearest') { document.getElementById('sortLabel').innerText = "En Yakın"; } else { document.getElementById('sortLabel').innerText = "En Ucuz"; } closeSortPicker(); }
+        
+        // FIXED: Sort Logic Trigger
+        function applySort(type) { 
+            document.getElementById('check-nearest').classList.add('hidden'); 
+            document.getElementById('check-cheapest').classList.add('hidden'); 
+            document.getElementById(`check-${type}`).classList.remove('hidden'); 
+            
+            if(type === 'nearest') { 
+                document.getElementById('sortLabel').innerText = "En Yakın"; 
+                // Re-sort stationData by distance
+                stationData.sort((a,b) => parseFloat(a.dist) - parseFloat(b.dist));
+            } else { 
+                document.getElementById('sortLabel').innerText = "En Ucuz"; 
+                // Sort stationData by gasoline price
+                stationData.sort((a,b) => parseFloat(a.benzin) - parseFloat(b.benzin));
+            } 
+            // RE-RENDER LIST
+            renderStationList(stationData, document.getElementById('selectedCity').innerText);
+            closeSortPicker(); 
+        }
 
         function openNavPicker(target) { 
             currentNavTarget = target; 
@@ -1370,7 +1424,18 @@
 
         window.addEventListener('load', () => { 
             initTheme(); initAppIcon(); initMiniMap(); updateGarageAnalysis(); updateRadarAnalysis(); selectCity('İstanbul'); checkLoginStatus(); 
-            setTimeout(() => { const splash = document.getElementById('splash'); const content = document.getElementById('app-content'); if(splash) { splash.style.opacity = '0'; setTimeout(() => { splash.style.display = 'none'; if(content) content.style.opacity = '1'; }, 500); } }, 2500); 
+            // FIXED: Splash Screen Timeout Logic with Failsafe
+            setTimeout(() => { 
+                const splash = document.getElementById('splash'); 
+                const content = document.getElementById('app-content'); 
+                if(splash) { 
+                    splash.style.opacity = '0'; 
+                    setTimeout(() => { 
+                        splash.style.display = 'none'; 
+                        if(content) content.style.opacity = '1'; 
+                    }, 500); 
+                } 
+            }, 2500); 
         });
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
