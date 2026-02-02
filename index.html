@@ -114,7 +114,7 @@
         
         /* PROFILE PICTURE UPDATE */
         .profile-icon { background: var(--input-bg); color: var(--text); transition: background-color 0.3s, color 0.3s; background-size: cover; background-position: center; position: relative; }
-        .profile-upload-btn { position: absolute; bottom: 0; right: 0; width: 32px; height: 32px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid var(--bg); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .profile-upload-btn { position: absolute; bottom: 0; right: 0; width: 32px; height: 32px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid var(--bg); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: border-color 0.3s; }
 
         .city-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .city-item:active { background: var(--input-bg); }
@@ -163,7 +163,6 @@
         .po-marker { background-color: #DE2128; }
         .total-marker { background-color: #ed1c24; color: white; border-color: #005598; }
         .tp-marker { background-color: #E30613; }
-        .aytemiz-marker { background-color: #E30613; border-color: #ffffff; color: white; }
         
         /* NEW STYLES */
         .history-tab-btn { padding: 10px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; color: var(--subtext); transition: 0.3s; background: transparent; }
@@ -546,8 +545,8 @@
                 <button onclick="recenterUser()" class="find-me-btn haptic-btn"><i data-lucide="crosshair" class="w-6 h-6 text-blue-500"></i></button>
             </div>
 
-            <div id="radar" class="tab-content no-scrollbar pb-44 px-5 pt-14"><h2 class="text-3xl font-black silver-grad mb-6">Radar</h2><div class="news-slider flex overflow-x-auto gap-4 snap-x no-scrollbar"><div class="news-card bg-gradient-to-br from-red-500/10 to-transparent min-w-[85%] snap-center border-red-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="zap" class="text-red-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-red-600 px-2 py-1 rounded-full uppercase">23.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">Benzin +1,02 TL</h4><p class="text-xs opacity-60 text-current">Fiyat güncellemesi bu gece pompada.</p></div><div class="news-card bg-gradient-to-br from-blue-500/10 to-transparent min-w-[85%] snap-center border-blue-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="gift" class="text-blue-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-blue-600 px-2 py-1 rounded-full uppercase">22.01.2026</span></div><h4 class="font-bold text-xl mb-1 text-current">World 200 TL Puan</h4><p class="text-xs opacity-60 text-current">Akaryakıt alımlarına özel fırsat.</p></div></div>
-                <div class="mt-10"><h3 class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4 text-current">Bildirim Geçmişi</h3><div class="space-y-3 text-current"><div class="glass-card p-5 flex items-center gap-5 haptic-btn"><div class="bg-red-500/10 p-2.5 rounded-2xl"><i data-lucide="trending-up" class="text-red-500 w-4 h-4"></i></div><div><p class="font-bold text-sm">Benzin Zammı</p><p class="text-[10px] opacity-40">23.01.2026 · +1,02 TL</p></div></div></div></div>
+            <div id="radar" class="tab-content no-scrollbar pb-44 px-5 pt-14"><h2 class="text-3xl font-black silver-grad mb-6">Radar</h2><div class="news-slider flex overflow-x-auto gap-4 snap-x no-scrollbar"><div class="news-card bg-gradient-to-br from-red-500/10 to-transparent min-w-[85%] snap-center border-red-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="zap" class="text-red-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-red-600 px-2 py-1 rounded-full uppercase">Bugün</span></div><h4 class="font-bold text-xl mb-1 text-current">Benzin +1,35 TL</h4><p class="text-xs opacity-60 text-current">Bu gece yarısından itibaren geçerli.</p></div><div class="news-card bg-gradient-to-br from-blue-500/10 to-transparent min-w-[85%] snap-center border-blue-500/10"><div class="flex justify-between items-start mb-4"><i data-lucide="gift" class="text-blue-500 w-6 h-6"></i><span class="text-[9px] font-black text-white bg-blue-600 px-2 py-1 rounded-full uppercase">Fırsat</span></div><h4 class="font-bold text-xl mb-1 text-current">Shell ClubSmart</h4><p class="text-xs opacity-60 text-current">500 TL üzeri alımda 50 TL puan.</p></div></div>
+                <div class="mt-10"><h3 class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4 text-current">Bildirim Geçmişi</h3><div class="space-y-3 text-current"><div class="glass-card p-5 flex items-center gap-5 haptic-btn"><div class="bg-red-500/10 p-2.5 rounded-2xl"><i data-lucide="trending-up" class="text-red-500 w-4 h-4"></i></div><div><p class="font-bold text-sm">Benzin Zammı</p><p class="text-[10px] opacity-40">Dün · +1,35 TL</p></div></div></div></div>
                 <div class="mt-10"><h3 class="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4 text-current text-current">Harcama Analizi</h3>
                 
                 <div class="glass-card p-6 text-current" id="radarAnalysisContent">
@@ -658,11 +657,9 @@
                                 const data = doc.data();
                                 selections = data.garage || [];
                                 fuelRecords = data.fuelRecords || [];
-                                // Save to local for fast access
                                 localStorage.setItem('garage', JSON.stringify(selections));
                                 localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
                                 
-                                // Sync Profile Pic if exists (Optional, if we save base64 to firestore)
                                 if(data.profilePic) {
                                     localStorage.setItem('profile_pic', data.profilePic);
                                 }
@@ -695,27 +692,23 @@
         let editTargetField = null; 
         let editingRecordIndex = -1;
         let stationData = [];
-        
-        // GLOBAL CITY LIST FIXED
-        const cities = [ "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak" ];
 
         let pickingSubModel = false;
         const subCarData = { 'Mercedes-Benz': { 'A Serisi': ['A160', 'A180', 'A200', 'A250'], 'B Serisi': ['B180', 'B200'], 'C Serisi': ['C180', 'C200', 'C220d', 'C300'], 'E Serisi': ['E180', 'E200', 'E220d', 'E300'], 'S Serisi': ['S320', 'S350', 'S400'], 'CLA': ['CLA180', 'CLA200', 'CLA250'], 'CLA Serisi': ['CLA180', 'CLA200', 'CLA250'], 'CLS Serisi': ['CLS250', 'CLS350'], 'GLA Serisi': ['GLA180', 'GLA200', 'GLA250'], 'GLC Serisi': ['GLC200', 'GLC220d', 'GLC300'], 'GLE Serisi': ['GLE250d', 'GLE300d', 'GLE350'] }, 'BMW': { '1 Serisi': ['116i', '118i', '120i'], '2 Serisi': ['218i', '220i'], '3 Serisi': ['316i', '318i', '320i', '330i'], '4 Serisi': ['420i', '430i'], '5 Serisi': ['520i', '530i'], '7 Serisi': ['730i', '740i'], 'X1 Serisi': ['sDrive16i', 'sDrive18i', 'sDrive20i'], 'X3 Serisi': ['20i', '30i'], 'X5 Serisi': ['25d', '30d', '40i'] } };
         const carData = { 'Audi': ['A3', 'A4', 'A6', 'Q2', 'Q3', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi', 'X1', 'X3'], 'Chevrolet': ['Aveo', 'Cruze', 'Captiva', 'Spark', 'Camaro'], 'Citroen': ['C3', 'C4', 'C5 Aircross', 'Berlingo', 'C-Elysee'], 'Dacia': ['Sandero', 'Logan', 'Duster', 'Jogger', 'Lodgy'], 'Fiat': ['Egea', 'Linea', 'Punto', 'Doblo', 'Fiorino'], 'Ford': ['Fiesta', 'Focus', 'Mondeo', 'Kuga', 'Courier'], 'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'], 'Hyundai': ['i10', 'i20', 'i30', 'Accent Blue', 'Tucson'], 'Jeep': ['Renegade', 'Compass', 'Cherokee', 'Grand Cherokee', 'Wrangler'], 'Kia': ['Picanto', 'Rio', 'Ceed', 'Cerato', 'Sportage'], 'Mazda': ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3', 'CX-5'], 'Mercedes-Benz': ['A Serisi', 'C Serisi', 'E Serisi', 'CLA', 'GLC'], 'Mini': ['Cooper', 'One', 'Countryman', 'Clubman', 'Cabrio'], 'Mitsubishi': ['Colt', 'Lancer', 'ASX', 'Outlander', 'Pajero'], 'Nissan': ['Micra', 'Juke', 'Qashqai', 'X-Trail', 'Note'], 'Opel': ['Corsa', 'Astra', 'Insignia', 'Mokka', 'Crossland'], 'Peugeot': ['208', '301', '308', '3008', '5008'], 'Renault': ['Clio', 'Megane', 'Talisman', 'Captur', 'Kadjar'], 'Seat': ['Ibiza', 'Leon', 'Arona', 'Ateca', 'Toledo'], 'Skoda': ['Fabia', 'Octavia', 'Superb', 'Scala', 'Kodiaq'], 'Suzuki': ['Swift', 'Baleno', 'Vitara', 'SX4 S-Cross', 'Jimny'], 'Tesla': ['Model S', 'Model 3', 'Model X', 'Model Y'], 'Toyota': ['Yaris', 'Corolla', 'Auris', 'C-HR', 'RAV4'], 'Volkswagen': ['Polo', 'Golf', 'Passat', 'Jetta', 'Tiguan'], 'Volvo': ['S60', 'S90', 'XC40', 'XC60', 'XC90'] };
         const years = Array.from({length: 2024 - 1990 + 1}, (_, i) => 2024 - i);
+        
+        // FIXED: 81 Provinces A-Z, Istanbul & Ankara at top
+        const allCities = [ "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak" ];
+        const priorityCities = ["İstanbul", "Ankara"];
+        const sortedOtherCities = allCities.filter(c => !priorityCities.includes(c)).sort((a, b) => a.localeCompare(b, 'tr'));
+        const cities = [...priorityCities, ...sortedOtherCities];
 
         const cityCoordinates = { "Adana": [37.0000, 35.3213], "Adıyaman": [37.7648, 38.2786], "Afyonkarahisar": [38.7507, 30.5567], "Ağrı": [39.7191, 43.0503], "Aksaray": [38.3687, 34.0370], "Amasya": [40.6499, 35.8353], "Ankara": [39.9334, 32.8597], "Antalya": [36.8969, 30.7133], "Ardahan": [41.1105, 42.7022], "Artvin": [41.1828, 41.8183], "Aydın": [37.8560, 27.8416], "Balıkesir": [39.6484, 27.8826], "Bartın": [41.6344, 32.3375], "Batman": [37.8812, 41.1351], "Bayburt": [40.2552, 40.2249], "Bilecik": [40.1451, 29.9798], "Bingöl": [38.8855, 40.4980], "Bitlis": [38.3938, 42.1232], "Bolu": [40.7350, 31.6061], "Burdur": [37.7203, 30.2908], "Bursa": [40.1885, 29.0610], "Çanakkale": [40.1553, 26.4142], "Çankırı": [40.6013, 33.6134], "Çorum": [40.5506, 34.9556], "Denizli": [37.7765, 29.0864], "Diyarbakır": [37.9144, 40.2306], "Düzce": [40.8438, 31.1565], "Edirne": [41.6768, 26.5603], "Elazığ": [38.6810, 39.2264], "Erzincan": [39.7500, 39.5000], "Erzurum": [39.9043, 41.2679], "Eskişehir": [39.7767, 30.5206], "Gaziantep": [37.0662, 37.3833], "Giresun": [40.9128, 38.3895], "Gümüşhane": [40.4600, 39.4814], "Hakkari": [37.5833, 43.7333], "Hatay": [36.4018, 36.3498], "Iğdır": [39.9167, 44.0333], "Isparta": [37.7648, 30.5566], "İstanbul": [41.0082, 28.9784], "İzmir": [38.4192, 27.1287], "Kahramanmaraş": [37.5858, 36.9371], "Karabük": [41.2061, 32.6204], "Karaman": [37.1759, 33.2287], "Kars": [40.6172, 43.0958], "Kastamonu": [41.3887, 33.7827], "Kayseri": [38.7312, 35.4787], "Kırıkkale": [39.8468, 33.5153], "Kırklareli": [41.7333, 27.2167], "Kırşehir": [39.1425, 34.1709], "Kilis": [36.7184, 37.1212], "Kocaeli": [40.8533, 29.8815], "Konya": [37.8667, 32.4833], "Kütahya": [39.4167, 29.9833], "Malatya": [38.3552, 38.3095], "Manisa": [38.6191, 27.4289], "Mardin": [37.3212, 40.7245], "Mersin": [36.8000, 34.6333], "Muğla": [37.2153, 28.3636], "Muş": [38.9462, 41.7539], "Nevşehir": [38.6939, 34.6857], "Niğde": [37.9667, 34.6833], "Ordu": [40.9839, 37.8764], "Osmaniye": [37.0742, 36.2478], "Rize": [41.0201, 40.5234], "Sakarya": [40.7569, 30.3783], "Samsun": [41.2928, 36.3313], "Siirt": [37.9333, 41.9500], "Sinop": [42.0231, 35.1531], "Sivas": [39.7477, 37.0179], "Şanlıurfa": [37.1674, 38.7939], "Şırnak": [37.5164, 42.4611], "Tekirdağ": [40.9833, 27.5167], "Tokat": [40.3167, 36.5500], "Trabzon": [41.0015, 39.7178], "Tunceli": [39.1079, 39.5401], "Uşak": [38.6823, 29.4082], "Van": [38.4891, 43.4089], "Yalova": [40.6500, 29.2667], "Yozgat": [39.8181, 34.8147], "Zonguldak": [41.4564, 31.7987] };
         const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
         const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-        // FIXED: All brands included
-        const stationLogos = { 
-            'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 
-            'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 
-            'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 
-            'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 
-            'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 
-            'TP': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 
-        };
+        
+        const stationLogos = { 'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } };
         
         let savedGarage = JSON.parse(localStorage.getItem('garage'));
         if (savedGarage && !Array.isArray(savedGarage)) savedGarage = [savedGarage];
@@ -724,17 +717,13 @@
         function checkLoginStatus() {
             try {
                 const savedPic = localStorage.getItem('profile_pic');
+                // CLEAN UP first
+                const pc = document.getElementById('profileCircle');
+                // Remove existing image style but keep buttons
+                pc.style.backgroundImage = 'none';
+                
                 if(savedPic && savedPic.startsWith('data:image')) {
-                    document.getElementById('profileCircle').style.backgroundImage = `url(${savedPic})`;
-                    document.getElementById('profileCircle').innerText = ''; 
-                    document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
-                    document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
-                } else {
-                    // RESET TO DEFAULT IF NO PIC
-                    document.getElementById('profileCircle').style.backgroundImage = 'none';
-                    document.getElementById('profileCircle').innerText = ''; 
-                    document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
-                    document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
+                    pc.style.backgroundImage = `url(${savedPic})`;
                 }
             } catch(e) { console.error(e); }
 
@@ -819,12 +808,14 @@
             } catch(e) { alert(e.message); }
         }
 
-        // NEW: Handle Profile Click (Check if exists)
+        // UPDATED: Handle Profile Click Logic
         function handleProfileClick() {
             const savedPic = localStorage.getItem('profile_pic');
             if(savedPic && savedPic.startsWith('data:image')) {
+                // Photo exists -> Show options to Change or Remove
                 document.getElementById('profileOptionsOverlay').style.display = 'flex';
             } else {
+                // No photo -> Direct upload
                 document.getElementById('profileUpload').click();
             }
         }
@@ -834,7 +825,6 @@
             localStorage.removeItem('profile_pic');
             checkLoginStatus(); // Refreshes UI
             closeProfileOptions();
-            // Sync removal to cloud
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ profilePic: firebase.firestore.FieldValue.delete() });
             }
@@ -871,7 +861,6 @@
                     try {
                         localStorage.setItem('profile_pic', dataUrl);
                         document.getElementById('profileCircle').style.backgroundImage = `url(${dataUrl})`;
-                        // SYNC PHOTO TO CLOUD
                         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                             firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ profilePic: dataUrl });
                         }
@@ -884,7 +873,6 @@
         function saveGarageData() {
             localStorage.setItem('garage', JSON.stringify(selections));
             renderGarageUI();
-            // SYNC GARAGE TO CLOUD
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ garage: selections });
             }
@@ -907,7 +895,7 @@
         
         function openLegalDetail(type) {
             let title = "", content = "";
-            if (type === 'what') { title = "Litre Nedir?"; content = `<div class="space-y-4"><div class="bg-blue-500/10 p-6 rounded-3xl border border-blue-500/20 text-center"><h4 class="text-xl font-black mb-2 text-blue-500">Akaryakıtın Robin Hood'u</h4><p class="opacity-70 text-sm">Litre, en ucuz yakıtı bulmanı sağlayan, harcamalarını takip eden ve tasarruf etmene yardımcı olan akıllı asistanındır.</p></div><h4 class="font-bold text-lg">Neler Yapabilirsin?</h4><ul class="space-y-3 opacity-80 text-sm"><li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>En yakın ve en ucuz istasyonları gör.</span></li><li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Fişlerini taratıp dijital garajında sakla.</span></li><li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Zam ve indirimlerden anında haberdar ol.</span></li><li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Aylık yakıt giderlerini analiz et.</span></li></ul><div class="text-center pt-6 opacity-40 text-xs font-bold"><p>Sürüm 1.0.0</p><p>Made with  in İstanbul</p></div></div>`; } 
+            if (type === 'what') { title = "Litre Nedir?"; content = `<div class="space-y-4"><div class="bg-blue-500/10 p-6 rounded-3xl border border-blue-500/20 text-center"><h4 class="text-xl font-black mb-2 text-blue-500">Akaryakıtın Robin Hood'u</h4><p class="opacity-70 text-sm">Litre, en ucuz yakıtı bulmanı sağlayan, harcamalarını takip eden ve tasarruf etmene yardımcı olan akıllı asistanındır.</p></div><h4 class="font-bold text-lg">Neler Yapabilirsin?</h4><ul class="space-y-3 opacity-80 text-sm"><li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>En yakın ve en ucuz istasyonları gör.</span></li><li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Fişlerini taratıp dijital garajında sakla.</span></li><li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Zam ve indirimlerden anında haberdar ol.</span></li><li class="flex gap-3"><i data-lucide="check-circle" class="text-green-500 w-5 h-5"></i><span>Aylık yakıt giderlerini analiz et.</span></li></ul><div class="text-center pt-6 opacity-40 text-xs font-bold"><p>Sürüm 1.0.0</p><p>Made with ❤️ in İstanbul</p></div></div>`; } 
             else if (type === 'privacy') { title = "Gizlilik Politikası"; content = `<p class="font-bold mb-2">1. Veri Toplama</p><p class="opacity-70 mb-4 text-sm">Konum ve kamera izni gereklidir.</p>`; }
             else if (type === 'terms') { title = "Kullanıcı Sözleşmesi"; content = `<p class="font-bold mb-2">1. Hizmet</p><p class="opacity-70 mb-4 text-sm">Fiyat karşılaştırma hizmeti.</p>`; }
             else if (type === 'kvkk') { title = "KVKK Aydınlatma"; content = `<p class="font-bold mb-2">Veri Sorumlusu</p><p class="opacity-70 mb-4 text-sm">KVKK uyarınca verileriniz işlenmektedir.</p>`; }
@@ -1075,21 +1063,13 @@
         
         function openCamera() { navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => { videoStream = stream; document.getElementById('cameraView').srcObject = stream; document.getElementById('cameraView').style.display = 'block'; document.getElementById('scanOverlay').style.display = 'flex'; }).catch((err) => { showPermModal('camera', 'Fiş taramak için kamera izni vermeniz gerekiyor.'); }); }
 
-        // FIXED: Only Istanbul Anadolu/Avrupa, others 81 cities.
         function getPricesForCity(city) { 
-            const basePrices = { 
-                'Shell': 42.10, 
-                'Total': 41.95, 
-                'Opet': 42.05, 
-                'TP': 40.50, 
-                'Aytemiz': 41.80, 
-                'PO': 42.00 
-            }; 
+            // UPDATED REALISTIC BASE PRICES
+            const basePrices = { 'Shell': 42.45, 'Total': 42.40, 'Opet': 42.50, 'Türkiye Petrolleri': 41.90, 'Aytemiz': 42.10, 'PO': 42.35 }; 
             let cityStations = []; 
-            const seed = city.length * 0.05; 
-
+            
             if(city === 'İstanbul') { 
-                // STRICTLY ONLY 2 ITEMS PER BRAND
+                // FIXED: Just Europe and Anatolia
                 const regions = [
                     { name: 'İstanbul Avrupa', lat: 41.0500, lng: 28.9500 },
                     { name: 'İstanbul Anadolu', lat: 41.0000, lng: 29.1000 }
@@ -1097,30 +1077,29 @@
                 
                 regions.forEach(reg => {
                      Object.keys(basePrices).forEach(brand => {
-                        const pDiff = (Math.random() * 0.5) - 0.1;
+                        const pDiff = (Math.random() * 0.5) - 0.2;
                         cityStations.push({
                             brand: brand,
-                            name: `${brand} - ${reg.name}`,
+                            name: `${brand} - ${reg.name.split(' ')[1]}`, // E.g., Shell - Avrupa
                             benzin: (basePrices[brand] + pDiff).toFixed(2),
-                            motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2),
+                            motorin: (basePrices[brand] + 1.2 + pDiff).toFixed(2),
                             lpg: (25.00 + pDiff).toFixed(2),
                             dist: (Math.random() * 8 + 2).toFixed(1),
-                            lat: reg.lat + (Math.random() * 0.04 - 0.02), 
-                            lng: reg.lng + (Math.random() * 0.04 - 0.02)
+                            lat: reg.lat + (Math.random() * 0.02 - 0.01), 
+                            lng: reg.lng + (Math.random() * 0.02 - 0.01)
                         });
                      });
                 });
                 return cityStations.sort((a,b) => a.dist - b.dist); 
             } 
             
-            // OTHER CITIES: Just 1 per brand
             Object.keys(basePrices).forEach(brand => { 
-                const pDiff = (Math.random() * 0.5) - 0.1 + seed; 
+                const pDiff = (Math.random() * 0.6) - 0.3; 
                 cityStations.push({ 
                     brand: brand, 
                     name: `${brand} - ${city}`, 
                     benzin: (basePrices[brand] + pDiff).toFixed(2), 
-                    motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2), 
+                    motorin: (basePrices[brand] + 1.2 + pDiff).toFixed(2), 
                     lpg: (25.00 + pDiff).toFixed(2), 
                     dist: (Math.random() * 5 + 0.5).toFixed(1),
                 }); 
@@ -1231,9 +1210,8 @@
                 if (station.brand === 'Opet') { iconClass += ' opet-marker'; iconHtml = 'OPET'; } 
                 else if (station.brand === 'Shell') { iconClass += ' shell-marker'; iconHtml = 'SHELL'; } 
                 else if (station.brand === 'PO') { iconClass += ' po-marker'; iconHtml = 'PO'; } 
-                else if (station.brand === 'TP') { iconClass += ' tp-marker'; iconHtml = 'TP'; }
+                else if (station.brand === 'Türkiye Petrolleri') { iconClass += ' po-marker'; iconHtml = 'TP'; }
                 else if (station.brand === 'Total') { iconClass += ' total-marker'; iconHtml = 'TOTAL'; }
-                else if (station.brand === 'Aytemiz') { iconClass += ' aytemiz-marker'; iconHtml = 'AYTEMİZ'; }
                 
                 const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); 
                 
@@ -1408,26 +1386,12 @@
         function openNotify() { document.getElementById('notifyOverlay').style.display = 'flex'; }
         function closeNotify() { document.getElementById('notifyOverlay').style.display = 'none'; }
         
-        // --- CITY PICKER FIXED (Istanbul/Ankara First, then A-Z) ---
+        // --- CITY PICKER FIXED ---
         function openCityPicker() { 
             const list = document.getElementById('cityList'); list.innerHTML = ''; 
-            const priorityCities = ["İstanbul", "Ankara"]; 
-            const otherCities = cities.filter(c => !priorityCities.includes(c)).sort((a, b) => a.localeCompare(b, 'tr')); 
-            
-            // Add priority cities
-            priorityCities.forEach(c => {
-                 list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item font-black text-blue-500 bg-blue-500/5">${c.toUpperCase()}</div>`;
-            });
-            
-            // Add separator
-            list.innerHTML += `<div class="p-2 text-xs font-bold opacity-30 uppercase tracking-widest pl-4">Diğer İller</div>`;
-
-            // Add others
-            otherCities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); 
-            
+            cities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); 
             document.getElementById('cityOverlay').style.display = 'flex'; 
         }
-
         function selectCurrentLocation() { if(!navigator.geolocation) { alert("Konum servisi desteklenmiyor."); return; } navigator.geolocation.getCurrentPosition((pos) => { const lat = pos.coords.latitude; const lng = pos.coords.longitude; let nearestCity = null; let minDist = Infinity; Object.keys(cityCoordinates).forEach(city => { const coords = cityCoordinates[city]; const dist = Math.sqrt(Math.pow(coords[0] - lat, 2) + Math.pow(coords[1] - lng, 2)); if(dist < minDist) { minDist = dist; nearestCity = city; } }); if(nearestCity) { selectCity(nearestCity); } else { alert("Yakınlarda bir şehir bulunamadı."); } }, (err) => { alert("Konum alınamadı."); }, { enableHighAccuracy: true }); }
         function closeCityPicker() { document.getElementById('cityOverlay').style.display = 'none'; }
         function filterCities() { const q = document.getElementById('citySearch').value.toLowerCase(); const list = document.getElementById('cityList'); list.innerHTML = ''; cities.filter(c => c.toLowerCase().includes(q)).forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); }
@@ -1446,13 +1410,12 @@
             setTimeout(() => { 
                 const data = getPricesForCity(name); 
                 
-                // Add fake lat/lng to data for markers based on city center
                 const centerLat = coords ? coords[0] : 41.0;
                 const centerLng = coords ? coords[1] : 28.9;
                 
                 stationData = data.map((st, i) => ({
                     ...st,
-                    lat: st.lat || centerLat + (Math.random() * 0.04 - 0.02), // Reduced jitter for other cities
+                    lat: st.lat || centerLat + (Math.random() * 0.04 - 0.02),
                     lng: st.lng || centerLng + (Math.random() * 0.04 - 0.02)
                 }));
                 
