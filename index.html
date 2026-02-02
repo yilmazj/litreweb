@@ -145,6 +145,7 @@
 
         /* MARKER ICON STYLES */
         .base-marker {
+            background-color: #333;
             border: 2px solid white;
             border-radius: 12px;
             color: white;
@@ -160,6 +161,8 @@
         .opet-marker { background-color: #005BAB; }
         .shell-marker { background-color: #FFD500; color: #DE2128; border-color: #DE2128; }
         .po-marker { background-color: #DE2128; }
+        .total-marker { background-color: #ed1c24; color: white; border-color: #005598; }
+        .tp-marker { background-color: #E30613; }
         
         /* NEW STYLES */
         .history-tab-btn { padding: 10px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; color: var(--subtext); transition: 0.3s; background: transparent; }
@@ -207,6 +210,21 @@
     <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoSplash" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoSplash)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <h1 class="text-4xl font-black silver-grad tracking-tight mt-3">Litre</h1>
 </div>
+
+    <div id="profileOptionsOverlay" class="picker-overlay" onclick="closeProfileOptions()"><div class="picker-container pb-10" onclick="event.stopPropagation()">
+        <div class="flex justify-between mb-6 px-4">
+            <h3 class="font-bold text-lg text-current">Profil Fotoğrafı</h3>
+            <button onclick="closeProfileOptions()" class="text-zinc-500 font-bold">Vazgeç</button>
+        </div>
+        <div class="space-y-3 px-4">
+            <button onclick="document.getElementById('profileUpload').click(); closeProfileOptions()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-3 haptic-btn">
+                <i data-lucide="image" class="w-5 h-5"></i>Fotoğrafı Değiştir
+            </button>
+            <button onclick="removeProfilePicture()" class="w-full bg-red-500/10 text-red-500 p-4 rounded-2xl font-bold flex items-center justify-center gap-3 haptic-btn">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>Fotoğrafı Kaldır
+            </button>
+        </div>
+    </div></div>
 
     <div id="vehicleSelectOverlay" class="picker-overlay" onclick="closeVehicleSelect()"><div class="picker-container pb-10" onclick="event.stopPropagation()">
         <div class="flex justify-between mb-6 px-4">
@@ -548,7 +566,7 @@
             <div id="profile" class="tab-content no-scrollbar pb-44 px-5 pt-14">
                 <div class="flex flex-col items-center mb-10">
                     <div class="w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-5 shadow-3xl ring-1 ring-white/10 shadow-2xl text-current profile-icon" id="profileCircle">
-                        <button onclick="document.getElementById('profileUpload').click()" class="profile-upload-btn">
+                        <button onclick="handleProfileClick()" class="profile-upload-btn">
                             <i data-lucide="camera" class="w-4 h-4"></i>
                         </button>
                         <input type="file" id="profileUpload" hidden accept="image/*" onchange="handleProfileUpload(this)">
@@ -633,12 +651,20 @@
                 auth.onAuthStateChanged(user => {
                     if (user) {
                         localStorage.setItem('litre_user', JSON.stringify({ name: user.email.split('@')[0], email: user.email }));
+                        // LOAD DATA FROM FIRESTORE
                         db.collection("users").doc(user.uid).get().then((doc) => {
                             if (doc.exists) {
-                                let data = doc.data().garage;
-                                if (data && !Array.isArray(data)) { data = [data]; }
-                                selections = data || [];
+                                const data = doc.data();
+                                selections = data.garage || [];
+                                fuelRecords = data.fuelRecords || [];
+                                // Save to local for fast access
                                 localStorage.setItem('garage', JSON.stringify(selections));
+                                localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+                                
+                                // Sync Profile Pic if exists (Optional, if we save base64 to firestore)
+                                if(data.profilePic) {
+                                    localStorage.setItem('profile_pic', data.profilePic);
+                                }
                             }
                             checkLoginStatus();
                         });
@@ -676,6 +702,7 @@
         const cityCoordinates = { "Adana": [37.0000, 35.3213], "Adıyaman": [37.7648, 38.2786], "Afyonkarahisar": [38.7507, 30.5567], "Ağrı": [39.7191, 43.0503], "Aksaray": [38.3687, 34.0370], "Amasya": [40.6499, 35.8353], "Ankara": [39.9334, 32.8597], "Antalya": [36.8969, 30.7133], "Ardahan": [41.1105, 42.7022], "Artvin": [41.1828, 41.8183], "Aydın": [37.8560, 27.8416], "Balıkesir": [39.6484, 27.8826], "Bartın": [41.6344, 32.3375], "Batman": [37.8812, 41.1351], "Bayburt": [40.2552, 40.2249], "Bilecik": [40.1451, 29.9798], "Bingöl": [38.8855, 40.4980], "Bitlis": [38.3938, 42.1232], "Bolu": [40.7350, 31.6061], "Burdur": [37.7203, 30.2908], "Bursa": [40.1885, 29.0610], "Çanakkale": [40.1553, 26.4142], "Çankırı": [40.6013, 33.6134], "Çorum": [40.5506, 34.9556], "Denizli": [37.7765, 29.0864], "Diyarbakır": [37.9144, 40.2306], "Düzce": [40.8438, 31.1565], "Edirne": [41.6768, 26.5603], "Elazığ": [38.6810, 39.2264], "Erzincan": [39.7500, 39.5000], "Erzurum": [39.9043, 41.2679], "Eskişehir": [39.7767, 30.5206], "Gaziantep": [37.0662, 37.3833], "Giresun": [40.9128, 38.3895], "Gümüşhane": [40.4600, 39.4814], "Hakkari": [37.5833, 43.7333], "Hatay": [36.4018, 36.3498], "Iğdır": [39.9167, 44.0333], "Isparta": [37.7648, 30.5566], "İstanbul": [41.0082, 28.9784], "İzmir": [38.4192, 27.1287], "Kahramanmaraş": [37.5858, 36.9371], "Karabük": [41.2061, 32.6204], "Karaman": [37.1759, 33.2287], "Kars": [40.6172, 43.0958], "Kastamonu": [41.3887, 33.7827], "Kayseri": [38.7312, 35.4787], "Kırıkkale": [39.8468, 33.5153], "Kırklareli": [41.7333, 27.2167], "Kırşehir": [39.1425, 34.1709], "Kilis": [36.7184, 37.1212], "Kocaeli": [40.8533, 29.8815], "Konya": [37.8667, 32.4833], "Kütahya": [39.4167, 29.9833], "Malatya": [38.3552, 38.3095], "Manisa": [38.6191, 27.4289], "Mardin": [37.3212, 40.7245], "Mersin": [36.8000, 34.6333], "Muğla": [37.2153, 28.3636], "Muş": [38.9462, 41.7539], "Nevşehir": [38.6939, 34.6857], "Niğde": [37.9667, 34.6833], "Ordu": [40.9839, 37.8764], "Osmaniye": [37.0742, 36.2478], "Rize": [41.0201, 40.5234], "Sakarya": [40.7569, 30.3783], "Samsun": [41.2928, 36.3313], "Siirt": [37.9333, 41.9500], "Sinop": [42.0231, 35.1531], "Sivas": [39.7477, 37.0179], "Şanlıurfa": [37.1674, 38.7939], "Şırnak": [37.5164, 42.4611], "Tekirdağ": [40.9833, 27.5167], "Tokat": [40.3167, 36.5500], "Trabzon": [41.0015, 39.7178], "Tunceli": [39.1079, 39.5401], "Uşak": [38.6823, 29.4082], "Van": [38.4891, 43.4089], "Yalova": [40.6500, 29.2667], "Yozgat": [39.8181, 34.8147], "Zonguldak": [41.4564, 31.7987] };
         const tileDark = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png'; 
         const tileLight = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+        // FIXED: Total logo colors
         const stationLogos = { 'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 'HIRFANLI PETROL': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' } };
         
         let savedGarage = JSON.parse(localStorage.getItem('garage'));
@@ -683,7 +710,6 @@
         let step = 0, selections = savedGarage || [], tempValue = '', tempSelection = {};
         
         function checkLoginStatus() {
-            // LOAD PROFILE PICTURE
             try {
                 const savedPic = localStorage.getItem('profile_pic');
                 if(savedPic && savedPic.startsWith('data:image')) {
@@ -691,12 +717,14 @@
                     document.getElementById('profileCircle').innerText = ''; 
                     document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
                     document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
+                } else {
+                    // RESET TO DEFAULT IF NO PIC
+                    document.getElementById('profileCircle').style.backgroundImage = 'none';
+                    document.getElementById('profileCircle').innerText = ''; 
+                    document.getElementById('profileCircle').appendChild(document.querySelector('.profile-upload-btn'));
+                    document.getElementById('profileCircle').appendChild(document.getElementById('profileUpload'));
                 }
-            } catch(e) {
-                console.error("Resim yüklenirken hata:", e);
-                // If local storage is corrupted or full, clear pic
-                localStorage.removeItem('profile_pic');
-            }
+            } catch(e) { console.error(e); }
 
             if (typeof firebase === 'undefined' || !firebase.apps.length) { 
                 document.getElementById('profileName').innerText = "Misafir";
@@ -779,7 +807,27 @@
             } catch(e) { alert(e.message); }
         }
 
-        // FIXED: Image Compression to prevent LocalStorage Overflow & Freeze
+        // NEW: Handle Profile Click (Check if exists)
+        function handleProfileClick() {
+            const savedPic = localStorage.getItem('profile_pic');
+            if(savedPic && savedPic.startsWith('data:image')) {
+                document.getElementById('profileOptionsOverlay').style.display = 'flex';
+            } else {
+                document.getElementById('profileUpload').click();
+            }
+        }
+        function closeProfileOptions() { document.getElementById('profileOptionsOverlay').style.display = 'none'; }
+        
+        function removeProfilePicture() {
+            localStorage.removeItem('profile_pic');
+            checkLoginStatus(); // Refreshes UI
+            closeProfileOptions();
+            // Sync removal to cloud
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ profilePic: firebase.firestore.FieldValue.delete() });
+            }
+        }
+
         function handleProfileUpload(input) {
             const file = input.files[0];
             if(!file) return;
@@ -792,37 +840,30 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    // Resize to max 300x300
                     const MAX_WIDTH = 300;
                     const MAX_HEIGHT = 300;
                     let width = img.width;
                     let height = img.height;
 
                     if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
                     }
                     canvas.width = width;
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Compress quality to 0.7 JPEG
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                     
                     try {
                         localStorage.setItem('profile_pic', dataUrl);
                         document.getElementById('profileCircle').style.backgroundImage = `url(${dataUrl})`;
-                    } catch(err) {
-                        alert("Fotoğraf çok büyük, kaydedilemedi.");
-                        console.error(err);
-                    }
+                        // SYNC PHOTO TO CLOUD
+                        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                            firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ profilePic: dataUrl });
+                        }
+                    } catch(err) { console.error(err); }
                 }
             }
             reader.readAsDataURL(file);
@@ -831,6 +872,7 @@
         function saveGarageData() {
             localStorage.setItem('garage', JSON.stringify(selections));
             renderGarageUI();
+            // SYNC GARAGE TO CLOUD
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ garage: selections });
             }
@@ -952,18 +994,13 @@
 
         function getCarExpenses(plate) {
             if (!plate) return { cost: 0, liters: 0 };
-            
-            // DYNAMIC MONTH FILTER
             const now = new Date();
-            const currentMonth = now.getMonth(); // 0-11
+            const currentMonth = now.getMonth(); 
             const currentYear = now.getFullYear();
-
             const records = fuelRecords.filter(r => {
-                const [d, m, y] = r.date.split('.').map(Number); // date is DD.MM.YYYY
-                // Check plate AND check if month/year matches current month
+                const [d, m, y] = r.date.split('.').map(Number); 
                 return r.plate === plate && (m - 1) === currentMonth && y === currentYear;
             });
-
             const totalCost = records.reduce((sum, r) => sum + r.amount, 0);
             const totalLiters = records.reduce((sum, r) => sum + (parseFloat(r.liters) || 0), 0);
             return { cost: totalCost, liters: totalLiters }; 
@@ -973,10 +1010,7 @@
             const container = document.getElementById('garageContainer');
             const controls = document.getElementById('garageControls');
             const dots = document.getElementById('garageDots');
-            
             container.innerHTML = ''; controls.innerHTML = ''; dots.innerHTML = '';
-
-            // DYNAMIC MONTH NAME
             const currentMonthName = new Date().toLocaleDateString('tr-TR', { month: 'long' });
 
             if (selections.length > 0) {
@@ -1032,18 +1066,18 @@
         function getPricesForCity(city) { 
             if(city === 'İstanbul') { 
                 const districts = [
-                    { name: 'Maslak', lat: 41.1122, lng: 29.0203 },
-                    { name: 'Levent', lat: 41.0822, lng: 29.0143 },
-                    { name: 'Beşiktaş', lat: 41.0450, lng: 29.0000 },
-                    { name: 'Kadıköy', lat: 40.9900, lng: 29.0250 },
-                    { name: 'Üsküdar', lat: 41.0250, lng: 29.0150 },
-                    { name: 'Etiler', lat: 41.0833, lng: 29.0333 },
-                    { name: 'Ataşehir', lat: 40.9932, lng: 29.1143 },
-                    { name: 'Başakşehir', lat: 41.1070, lng: 28.8077 },
-                    { name: 'Şişli', lat: 41.0600, lng: 28.9870 },
-                    { name: 'Bakırköy', lat: 40.9780, lng: 28.8730 },
-                    { name: 'Beykoz', lat: 41.1333, lng: 29.1000 },
-                    { name: 'Sarıyer', lat: 41.1667, lng: 29.0500 }
+                    { name: 'Maslak', region: 'Avrupa', lat: 41.1122, lng: 29.0203 },
+                    { name: 'Levent', region: 'Avrupa', lat: 41.0822, lng: 29.0143 },
+                    { name: 'Beşiktaş', region: 'Avrupa', lat: 41.0450, lng: 29.0000 },
+                    { name: 'Kadıköy', region: 'Anadolu', lat: 40.9900, lng: 29.0250 },
+                    { name: 'Üsküdar', region: 'Anadolu', lat: 41.0250, lng: 29.0150 },
+                    { name: 'Etiler', region: 'Avrupa', lat: 41.0833, lng: 29.0333 },
+                    { name: 'Ataşehir', region: 'Anadolu', lat: 40.9932, lng: 29.1143 },
+                    { name: 'Başakşehir', region: 'Avrupa', lat: 41.1070, lng: 28.8077 },
+                    { name: 'Şişli', region: 'Avrupa', lat: 41.0600, lng: 28.9870 },
+                    { name: 'Bakırköy', region: 'Avrupa', lat: 40.9780, lng: 28.8730 },
+                    { name: 'Beykoz', region: 'Anadolu', lat: 41.1333, lng: 29.1000 },
+                    { name: 'Sarıyer', region: 'Avrupa', lat: 41.1667, lng: 29.0500 }
                 ];
 
                 const basePrices = { 'Shell': 54.00, 'Total': 54.00, 'Opet': 54.00, 'Türkiye Petrolleri': 50.90, 'Aytemiz': 54.00, 'PO': 54.00 }; 
@@ -1054,9 +1088,12 @@
                     const brand = brands[Math.floor(Math.random() * brands.length)];
                     const pDiff = (Math.random() * 0.5) - 0.1;
                     
+                    // FIXED: Station naming convention "Brand - District" or "Brand - Istanbul Region"
+                    const stationName = Math.random() > 0.5 ? `${brand} - İstanbul ${d.region}` : `${brand} - ${d.name}`;
+
                     cityStations.push({
                         brand: brand,
-                        name: `${brand} - ${d.name}`,
+                        name: stationName,
                         benzin: (basePrices[brand] + pDiff).toFixed(2),
                         motorin: (basePrices[brand] + 3.2 + pDiff).toFixed(2),
                         lpg: (29.00 + pDiff).toFixed(2),
@@ -1096,7 +1133,6 @@
         function openSortPicker() { document.getElementById('sortOverlay').style.display = 'flex'; }
         function closeSortPicker() { document.getElementById('sortOverlay').style.display = 'none'; }
         
-        // FIXED: Sort Logic Trigger
         function applySort(type) { 
             document.getElementById('check-nearest').classList.add('hidden'); 
             document.getElementById('check-cheapest').classList.add('hidden'); 
@@ -1104,14 +1140,11 @@
             
             if(type === 'nearest') { 
                 document.getElementById('sortLabel').innerText = "En Yakın"; 
-                // Re-sort stationData by distance
                 stationData.sort((a,b) => parseFloat(a.dist) - parseFloat(b.dist));
             } else { 
                 document.getElementById('sortLabel').innerText = "En Ucuz"; 
-                // Sort stationData by gasoline price
                 stationData.sort((a,b) => parseFloat(a.benzin) - parseFloat(b.benzin));
             } 
-            // RE-RENDER LIST
             renderStationList(stationData, document.getElementById('selectedCity').innerText);
             closeSortPicker(); 
         }
@@ -1159,6 +1192,10 @@
                     const newRec = { station: foundStation, date: foundDate, amount: rawPrice, liters: (rawPrice / 40).toFixed(1), plate: tempScanCarPlate, details: `Yakıt Alımı · ${foundPrice} TL` }; 
                     fuelRecords.unshift(newRec); tempScanCarPlate = null; updateGarageAnalysis(); renderGarageUI(); updateRadarAnalysis();
                     localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+                    // SYNC TO CLOUD
+                    if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                        firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ fuelRecords: fuelRecords });
+                    }
 
                     setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); 
                 } else { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); } 
@@ -1190,7 +1227,8 @@
                 else if (station.brand === 'Shell') { iconClass += ' shell-marker'; iconHtml = 'SHELL'; } 
                 else if (station.brand === 'PO') { iconClass += ' po-marker'; iconHtml = 'PO'; } 
                 else if (station.brand === 'Türkiye Petrolleri') { iconClass += ' po-marker'; iconHtml = 'TP'; }
-                else if (station.brand === 'Total') { iconClass += ' shell-marker'; iconHtml = 'TOTAL'; iconClass.replace('shell-marker',''); }
+                // FIXED: Total Marker Logic
+                else if (station.brand === 'Total') { iconClass += ' total-marker'; iconHtml = 'TOTAL'; }
                 
                 const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); 
                 
@@ -1246,6 +1284,10 @@
             else { fuelRecords.unshift(record); }
 
             localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+            // SYNC TO CLOUD
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ fuelRecords: fuelRecords });
+            }
 
             closeManualFuelAdd();
             updateGarageAnalysis();
@@ -1277,6 +1319,10 @@
             if(confirm("Bu fişi silmek istediğine emin misin?")) {
                 fuelRecords.splice(index, 1);
                 localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+                // SYNC TO CLOUD
+                if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                    firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ fuelRecords: fuelRecords });
+                }
                 
                 updateGarageAnalysis();
                 renderGarageUI();
