@@ -303,6 +303,13 @@
             </div>
             
             <p class="text-[10px] opacity-40 text-center px-4 text-current">Güvenlik gereği E-posta veya Şifre değişikliği için mevcut şifrenizi girmeniz gerekmektedir.</p>
+
+            <div class="glass-card p-6 border-red-500/30 bg-red-500/5 mt-6">
+                <button onclick="deleteAccount()" class="w-full flex items-center justify-center gap-2 text-red-500 font-bold haptic-btn">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>Hesabımı Sil
+                </button>
+                <p class="text-[9px] opacity-40 mt-2 text-center text-red-500">Bu işlem geri alınamaz.</p>
+            </div>
         </div>
     </div></div>
 
@@ -422,13 +429,6 @@
                 </button>
             </div>
             <p class="text-[9px] opacity-40 mt-3 text-center">Not: Ana ekran simgesi değişikliği için uygulamayı tekrar eklemeniz gerekebilir.</p>
-        </div>
-
-        <div class="glass-card p-6 border-red-500/30 bg-red-500/5">
-            <button onclick="deleteAccount()" class="w-full flex items-center justify-center gap-2 text-red-500 font-bold haptic-btn">
-                <i data-lucide="trash-2" class="w-5 h-5"></i>Hesabımı Sil
-            </button>
-            <p class="text-[9px] opacity-40 mt-2 text-center text-red-500">Bu işlem geri alınamaz.</p>
         </div>
     </div></div></div>
 
@@ -646,7 +646,9 @@
         } catch (e) { console.error("Firebase error", e); }
 
         let leafletMap, miniMap, currentTheme = 'light'; 
-        let fuelRecords = [];
+        // FIXED: Load from localStorage
+        let fuelRecords = JSON.parse(localStorage.getItem('fuelRecords')) || [];
+        
         let videoStream = null;
         let userMarker = null;
         let miniUserMarker = null;
@@ -659,6 +661,8 @@
         let isEditMode = false; 
         let editTargetField = null; 
         let editingRecordIndex = -1;
+        // FIXED: Global station data storage
+        let stationData = [];
 
         let pickingSubModel = false;
         const subCarData = { 'Mercedes-Benz': { 'A Serisi': ['A160', 'A180', 'A200', 'A250'], 'B Serisi': ['B180', 'B200'], 'C Serisi': ['C180', 'C200', 'C220d', 'C300'], 'E Serisi': ['E180', 'E200', 'E220d', 'E300'], 'S Serisi': ['S320', 'S350', 'S400'], 'CLA': ['CLA180', 'CLA200', 'CLA250'], 'CLA Serisi': ['CLA180', 'CLA200', 'CLA250'], 'CLS Serisi': ['CLS250', 'CLS350'], 'GLA Serisi': ['GLA180', 'GLA200', 'GLA250'], 'GLC Serisi': ['GLC200', 'GLC220d', 'GLC300'], 'GLE Serisi': ['GLE250d', 'GLE300d', 'GLE350'] }, 'BMW': { '1 Serisi': ['116i', '118i', '120i'], '2 Serisi': ['218i', '220i'], '3 Serisi': ['316i', '318i', '320i', '330i'], '4 Serisi': ['420i', '430i'], '5 Serisi': ['520i', '530i'], '7 Serisi': ['730i', '740i'], 'X1 Serisi': ['sDrive16i', 'sDrive18i', 'sDrive20i'], 'X3 Serisi': ['20i', '30i'], 'X5 Serisi': ['25d', '30d', '40i'] } };
@@ -948,6 +952,16 @@
         function renderStationList(data, cityName) { const list = document.getElementById('stationList'); list.innerHTML = ''; data.forEach(item => { const style = stationLogos[item.brand] || stationLogos['Shell']; list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" data-price="${item.benzin}" data-dist="${item.dist}"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${style.bg}"><span class="font-black text-[8px]" style="color:${style.text}">${style.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${item.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3">${item.dist} km uzaklıkta</p><div class="grid grid-cols-3 gap-2 text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3"><div class="text-center"><div class="opacity-40 mb-1">BENZİN</div><div class="text-current text-xs">${item.benzin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">MOTORİN</div><div class="text-current text-xs">${item.motorin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.lpg}</div></div></div><div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button><button onclick="openNavPicker('${item.name}')" class="flex-1 action-btn-small text-current bg-blue-500 text-white shadow-lg shadow-blue-500/30"><i data-lucide="navigation-2" class="w-4 h-4 mr-2"></i><span class="text-xs font-bold">Yol Tarifi</span></button><button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`; }); lucide.createIcons(); }
         
         function reportPrice() { document.getElementById('reportInputOverlay').style.display = 'flex'; }
+        // FIXED: Added close function for Report Input
+        function closeReportInput() { document.getElementById('reportInputOverlay').style.display = 'none'; }
+        
+        // FIXED: Added selectFuelType function
+        function selectFuelType(type, btn) {
+            selectedFuelType = type;
+            document.querySelectorAll('.fuel-type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
         function submitPriceReport() { document.getElementById('reportInputOverlay').style.display = 'none'; document.getElementById('priceReportOverlay').style.display = 'flex'; setTimeout(() => { document.getElementById('reportLoading').classList.add('hidden'); document.getElementById('reportSuccess').classList.remove('hidden'); document.getElementById('reportSuccess').classList.remove('scale-90'); }, 1500); setTimeout(() => { document.getElementById('priceReportOverlay').style.display = 'none'; document.getElementById('reportSuccess').classList.add('hidden'); document.getElementById('reportLoading').classList.remove('hidden'); }, 3500); }
         function openSortPicker() { document.getElementById('sortOverlay').style.display = 'flex'; }
         function closeSortPicker() { document.getElementById('sortOverlay').style.display = 'none'; }
@@ -995,6 +1009,9 @@
                     document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanSuccess').style.display = 'flex'; document.getElementById('resStation').innerText = foundStation; document.getElementById('resDate').innerText = foundDate; document.getElementById('resTotal').innerText = foundPrice + " TL"; 
                     const newRec = { station: foundStation, date: foundDate, amount: rawPrice, liters: (rawPrice / 40).toFixed(1), plate: tempScanCarPlate, details: `Yakıt Alımı · ${foundPrice} TL` }; 
                     fuelRecords.unshift(newRec); tempScanCarPlate = null; updateGarageAnalysis(); renderGarageUI(); updateRadarAnalysis();
+                    // FIXED: Save to local storage after scan
+                    localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+
                     setTimeout(() => { closeScan(); document.getElementById('scanSuccess').style.display = 'none'; document.getElementById('scanUI').style.display = 'flex'; showTab('radar', document.querySelector('.nav-item:nth-child(4)')); }, 3000); 
                 } else { document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); } 
             }).catch(err => { console.error(err); document.getElementById('scanProcessing').style.display = 'none'; document.getElementById('scanError').style.display = 'flex'; lucide.createIcons(); }); 
@@ -1002,7 +1019,46 @@
         function showPermModal(icon, text) { document.getElementById('permIcon').setAttribute('data-lucide', icon); document.getElementById('permText').innerText = text; document.getElementById('permModal').style.display = 'flex'; lucide.createIcons(); }
         function closePermModal() { document.getElementById('permModal').style.display = 'none'; }
         function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); const tile = document.body.classList.contains('dark-mode') ? tileDark : tileLight; L.tileLayer(tile).addTo(mapObj); const el = document.getElementById(elementId); if(document.body.classList.contains('dark-mode')) { el.classList.add('google-dark-mode'); } else { el.classList.remove('google-dark-mode'); } }
-        function initMap() { if (leafletMap) return; leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); updateMapLayer(leafletMap, 'map'); markers = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 50 }); stationData.forEach(station => { let iconClass = 'base-marker'; let iconHtml = ''; if (station.type === 'opet') { iconClass += ' opet-marker'; iconHtml = 'OPET'; } else if (station.type === 'shell') { iconClass += ' shell-marker'; iconHtml = 'SHELL'; } else if (station.type === 'po') { iconClass += ' po-marker'; iconHtml = 'PO'; } const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); const marker = L.marker([station.lat, station.lng], { icon: customIcon }); marker.on('click', () => { openNavPicker(station.name); }); markers.addLayer(marker); }); leafletMap.addLayer(markers); }
+        
+        // FIXED: initMap now relies on global stationData
+        function initMap() { 
+            if (leafletMap) {
+                 // If map exists, just refresh markers
+                 refreshMapMarkers();
+                 return;
+            }
+            leafletMap = L.map('map', { zoomControl: false, attributionControl: false }).setView([41.0082, 28.9784], 11); 
+            updateMapLayer(leafletMap, 'map'); 
+            markers = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 50 }); 
+            leafletMap.addLayer(markers);
+            refreshMapMarkers();
+        }
+
+        // FIXED: New function to refresh markers whenever city changes
+        function refreshMapMarkers() {
+            if (!markers || !stationData) return;
+            markers.clearLayers();
+            stationData.forEach(station => { 
+                let iconClass = 'base-marker'; 
+                let iconHtml = ''; 
+                if (station.brand === 'Opet') { iconClass += ' opet-marker'; iconHtml = 'OPET'; } 
+                else if (station.brand === 'Shell') { iconClass += ' shell-marker'; iconHtml = 'SHELL'; } 
+                else if (station.brand === 'PO') { iconClass += ' po-marker'; iconHtml = 'PO'; } 
+                else if (station.brand === 'Türkiye Petrolleri') { iconClass += ' po-marker'; iconHtml = 'TP'; }
+                else if (station.brand === 'Total') { iconClass += ' shell-marker'; iconHtml = 'TOTAL'; iconClass.replace('shell-marker',''); /* total style same as shell for now in css or add new */ }
+                
+                const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); 
+                // jitter position slightly so markers don't overlap perfectly if simulated
+                const marker = L.marker([station.lat || (41.0 + Math.random()/10), station.lng || (28.9 + Math.random()/10)], { icon: customIcon }); 
+                // Since we don't have real lat/lng in simulated data, we can't place them accurately on map without real coords. 
+                // BUT the user said "markers were there". 
+                // Let's assume simulate logic needs lat/lng. 
+                // Updating getPricesForCity to include mock lat/lng relative to city center.
+                marker.on('click', () => { openNavPicker(station.name); }); 
+                markers.addLayer(marker); 
+            }); 
+        }
+
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
         
@@ -1047,6 +1103,9 @@
             if (editingRecordIndex > -1) { fuelRecords[editingRecordIndex] = record; } 
             else { fuelRecords.unshift(record); }
 
+            // FIXED: Save to local storage
+            localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+
             // Push changes to UI immediately
             closeManualFuelAdd();
             updateGarageAnalysis();
@@ -1079,6 +1138,9 @@
         function deleteFuelRecord(index) {
             if(confirm("Bu fişi silmek istediğine emin misin?")) {
                 fuelRecords.splice(index, 1);
+                // FIXED: Save to local storage
+                localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+                
                 updateGarageAnalysis();
                 renderGarageUI();
                 updateRadarAnalysis();
@@ -1172,7 +1234,40 @@
         function selectCurrentLocation() { if(!navigator.geolocation) { alert("Konum servisi desteklenmiyor."); return; } navigator.geolocation.getCurrentPosition((pos) => { const lat = pos.coords.latitude; const lng = pos.coords.longitude; let nearestCity = null; let minDist = Infinity; Object.keys(cityCoordinates).forEach(city => { const coords = cityCoordinates[city]; const dist = Math.sqrt(Math.pow(coords[0] - lat, 2) + Math.pow(coords[1] - lng, 2)); if(dist < minDist) { minDist = dist; nearestCity = city; } }); if(nearestCity) { selectCity(nearestCity); } else { alert("Yakınlarda bir şehir bulunamadı."); } }, (err) => { alert("Konum alınamadı."); }, { enableHighAccuracy: true }); }
         function closeCityPicker() { document.getElementById('cityOverlay').style.display = 'none'; }
         function filterCities() { const q = document.getElementById('citySearch').value.toLowerCase(); const list = document.getElementById('cityList'); list.innerHTML = ''; cities.filter(c => c.toLowerCase().includes(q)).forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); }
-        function selectCity(name) { document.getElementById('selectedCity').innerText = name; closeCityPicker(); document.getElementById('stationList').style.opacity = '0.5'; if(cityCoordinates[name]) { if(leafletMap) leafletMap.setView(cityCoordinates[name], 10); if(miniMap) miniMap.setView(cityCoordinates[name], 10); } setTimeout(() => { const data = getPricesForCity(name); renderStationList(data, name); document.getElementById('stationList').style.opacity = '1'; }, 300); }
+        
+        // FIXED: selectCity now updates global stationData and refreshes map markers
+        function selectCity(name) { 
+            document.getElementById('selectedCity').innerText = name; 
+            closeCityPicker(); 
+            document.getElementById('stationList').style.opacity = '0.5'; 
+            
+            const coords = cityCoordinates[name];
+            if(coords) { 
+                if(leafletMap) leafletMap.setView(coords, 10); 
+                if(miniMap) miniMap.setView(coords, 10); 
+            } 
+            
+            setTimeout(() => { 
+                // get prices and mock locations
+                const data = getPricesForCity(name); 
+                
+                // Add fake lat/lng to data for markers based on city center
+                // This simulates "locations" for the markers
+                const centerLat = coords ? coords[0] : 41.0;
+                const centerLng = coords ? coords[1] : 28.9;
+                
+                stationData = data.map((st, i) => ({
+                    ...st,
+                    lat: centerLat + (Math.random() * 0.1 - 0.05),
+                    lng: centerLng + (Math.random() * 0.1 - 0.05)
+                }));
+                
+                renderStationList(stationData, name); 
+                refreshMapMarkers();
+
+                document.getElementById('stationList').style.opacity = '1'; 
+            }, 300); 
+        }
         
         // --- MAP SEARCH & MIC FIXED ---
         function handleMapSearch() { 
@@ -1183,7 +1278,7 @@
             const matches = cities.filter(c => c.toLowerCase().includes(val)); 
             if(matches.length > 0) { results.innerHTML = ''; matches.forEach(c => { results.innerHTML += `<div class="map-search-item" onclick="flyToCity('${c}')"><div class="map-search-icon"><i data-lucide="map-pin" class="text-white w-4 h-4"></i></div><div><p class="font-bold text-md text-current">${c}</p><p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Şehir Merkezi</p></div></div>`; }); lucide.createIcons(); results.style.display = 'block'; } else { results.style.display = 'none'; } 
         }
-        function flyToCity(name) { document.getElementById('mapSearchInput').value = name; document.getElementById('mapSearchResults').style.display = 'none'; const key = Object.keys(cityCoordinates).find(k => k.toLowerCase() === name.toLowerCase()); if(key && cityCoordinates[key]) { leafletMap.flyTo(cityCoordinates[key], 12, { duration: 1.5 }); } }
+        function flyToCity(name) { document.getElementById('mapSearchInput').value = name; document.getElementById('mapSearchResults').style.display = 'none'; const key = Object.keys(cityCoordinates).find(k => k.toLowerCase() === name.toLowerCase()); if(key && cityCoordinates[key]) { leafletMap.flyTo(cityCoordinates[key], 12, { duration: 1.5 }); selectCity(key); } }
         function startVoiceSearch() { 
             if (!('webkitSpeechRecognition' in window)) { alert("Sesli arama bu tarayıcıda desteklenmiyor."); return; } 
             const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); 
