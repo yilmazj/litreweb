@@ -38,7 +38,7 @@
         :root { 
             --bg: #f2f2f7; 
             --text: #000; 
-            --card: rgba(255, 255, 255, 0.95); /* Changed from 0.75 to 0.95 for vibrancy */
+            --card: rgba(255, 255, 255, 0.95); 
             --border: rgba(0, 0, 0, 0.05); 
             --subtext: #636366;
             --input-bg: rgba(120, 120, 128, 0.12);
@@ -57,7 +57,7 @@
 
         body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
         
-        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
+        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; pointer-events: none; }
         
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -99,7 +99,6 @@
 
         /* MAP BUTTONS */
         .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
-        
         .type-toggle-btn { position: absolute; bottom: 110px; right: 80px; width: 50px; height: 50px; background: var(--card); border: var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
 
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); z-index: 5000; display: none; align-items: flex-end; }
@@ -731,7 +730,7 @@
         let videoStream = null, userMarker = null, miniUserMarker = null, lastKnownUserPos = null, currentNavTarget = null, markers = null;
         let isPremiumUser = false, selectedFuelType = 'benzin', currentGarageIndex = 0, isEditMode = false, editTargetField = null, editingRecordIndex = -1;
         let stationData = [];
-        let currentStationType = 'fuel'; // 'fuel' or 'electric'
+        let currentStationType = 'fuel'; 
 
         let pickingSubModel = false;
         const subCarData = { 'Mercedes-Benz': { 'A Serisi': ['A160', 'A180', 'A200', 'A250'], 'B Serisi': ['B180', 'B200'], 'C Serisi': ['C180', 'C200', 'C220d', 'C300'], 'E Serisi': ['E180', 'E200', 'E220d', 'E300'] }, 'BMW': { '1 Serisi': ['116i', '118i'], '3 Serisi': ['320i', '330i'] } };
@@ -745,14 +744,13 @@
         const tileLight = 'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
         const subdomains = ['mt0','mt1','mt2','mt3']; 
 
-        // UPDATED LOGOS & STYLING
         const stationLogos = { 
             'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 
             'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 
             'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 
             'Petrol Ofisi': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 
             'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 
-            'BP': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, // BP -> PO
+            'BP': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 
             
             // EV LOGOS
             'Trugo': { bg: '#FFFFFF', html: '<span style="color:black; font-weight:900;">Tru</span><span style="color:#00B5E2; font-weight:900;">go</span>', isEv: true },
@@ -804,11 +802,9 @@
         // --- FILTER & TYPE LOGIC ---
         function toggleStationType(type) {
             currentStationType = type;
-            // Update Checkmarks in Filter UI
             document.getElementById('check-fuel').innerHTML = type === 'fuel' ? '<div class="w-3 h-3 bg-current rounded-full"></div>' : '';
             document.getElementById('check-electric').innerHTML = type === 'electric' ? '<div class="w-3 h-3 bg-current rounded-full"></div>' : '';
             
-            // Update Map Toggle Icon
             const icon = document.getElementById('mapTypeIcon');
             if(type === 'electric') {
                 icon.setAttribute('data-lucide', 'fuel');
@@ -820,8 +816,7 @@
                 icon.classList.add('text-orange-500');
             }
             lucide.createIcons();
-
-            fetchRealStations(); // Re-fetch data
+            fetchRealStations(); 
             closeSortPicker();
         }
 
@@ -855,7 +850,6 @@
             const north = bounds.getNorth();
             const east = bounds.getEast();
 
-            // Construct Overpass QL query based on type
             let query = '';
             if (currentStationType === 'fuel') {
                 query = `[out:json];node["amenity"="fuel"](${south},${west},${north},${east});out;`;
@@ -869,19 +863,15 @@
                 .then(response => response.json())
                 .then(data => {
                     stationData = [];
-                    // Fuel Base Prices
                     const fuelBase = { 'Shell': 42.45, 'Total': 42.40, 'Opet': 42.50, 'PO': 42.35 }; 
 
                     data.elements.forEach(el => {
                         let name = el.tags.name || (currentStationType === 'fuel' ? "Bilinmeyen İstasyon" : "Şarj İstasyonu");
                         let brand = el.tags.brand || el.tags.operator || detectBrand(name);
                         
-                        // BP to PO Conversion Logic
                         if (brand === 'BP') brand = 'PO';
 
-                        // Calculate distance
                         const center = leafletMap.getCenter();
-                        // If user pos is known, calculate from user
                         const targetLoc = lastKnownUserPos ? L.latLng(lastKnownUserPos[0], lastKnownUserPos[1]) : center;
                         const dist = (L.latLng(el.lat, el.lon).distanceTo(targetLoc) / 1000).toFixed(1);
 
@@ -898,9 +888,8 @@
                             };
                             priceVal = priceObj.benzin;
                         } else {
-                            // EV Pricing Logic
                             priceObj = getEVPricing(brand);
-                            priceVal = 0; // Sorting logic simpler for now
+                            priceVal = 0; 
                         }
 
                         stationData.push({
@@ -940,28 +929,11 @@
 
         function getEVPricing(brand) {
             if (brand === 'Trugo') {
-                return { 
-                    lines: [
-                        { label: '150 kW Altı', val: '13,78 ₺' },
-                        { label: '150 kW Üstü', val: '15,36 ₺' },
-                        { label: 'AC 22kW', val: '9,95 ₺' }
-                    ]
-                };
+                return { lines: [{ label: '150 kW Altı', val: '13,78 ₺' }, { label: '150 kW Üstü', val: '15,36 ₺' }, { label: 'AC 22kW', val: '9,95 ₺' }] };
             } else if (brand === 'ZES') {
-                return {
-                    lines: [
-                        { label: 'AC 22kW', val: '9,99 ₺' },
-                        { label: 'DC <180kW', val: '12,99 ₺' },
-                        { label: 'DC >180kW', val: '16,49 ₺' }
-                    ]
-                };
+                return { lines: [{ label: 'AC 22kW', val: '9,99 ₺' }, { label: 'DC <180kW', val: '12,99 ₺' }, { label: 'DC >180kW', val: '16,49 ₺' }] };
             } else if (brand === 'Eşarj') {
-                return {
-                    lines: [
-                        { label: 'AC Tümü', val: '9,90 ₺' },
-                        { label: 'DC Tümü', val: '13,50 ₺' }
-                    ]
-                };
+                return { lines: [{ label: 'AC Tümü', val: '9,90 ₺' }, { label: 'DC Tümü', val: '13,50 ₺' }] };
             }
             return { lines: [{ label: 'AC', val: 'Bilinmiyor' }, { label: 'DC', val: 'Bilinmiyor' }] };
         }
@@ -987,13 +959,7 @@
                         <div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.prices.lpg}</div></div>
                     </div>`;
                 } else {
-                    // EV PRICING UI
-                    let linesHtml = item.prices.lines.map(l => `
-                        <div class="flex justify-between items-center border-b border-white/5 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
-                            <span class="opacity-60">${l.label}</span>
-                            <span class="text-current">${l.val}</span>
-                        </div>
-                    `).join('');
+                    let linesHtml = item.prices.lines.map(l => `<div class="flex justify-between items-center border-b border-white/5 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0"><span class="opacity-60">${l.label}</span><span class="text-current">${l.val}</span></div>`).join('');
                     priceHtml = `<div class="text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3 space-y-1">${linesHtml}</div>`;
                 }
 
@@ -1026,13 +992,11 @@
                 const logo = stationLogos[station.brand];
                 if (logo) {
                     if (logo.isEv) {
-                        // EV Styling
                         if (station.brand === 'Trugo') iconClass += ' trugo-marker';
                         else if (station.brand === 'ZES') iconClass += ' zes-marker';
                         else if (station.brand === 'Eşarj') iconClass += ' esarj-marker';
                         iconHtml = logo.html;
                     } else {
-                        // Fuel Styling
                         if (station.brand === 'Opet') iconClass += ' opet-marker';
                         else if (station.brand === 'Shell') iconClass += ' shell-marker';
                         else if (station.brand === 'PO') iconClass += ' po-marker';
@@ -1099,7 +1063,6 @@
                             miniMap.setView(latlng, 14); 
                         }
 
-                        // AUTO-LOAD STATIONS ON FIRST GPS FIX
                         if (isFirstFix) {
                             document.getElementById('selectedCity').innerText = "Konumum";
                             fetchRealStations();
@@ -1150,12 +1113,10 @@
         }
 
         function launchMap(provider, target) {
-            // Encode target to handle coordinates or addresses
             const q = encodeURIComponent(target);
             if(provider === 'apple') {
                 window.location.href = `http://maps.apple.com/?daddr=${q}&dirflg=d`;
             } else {
-                // UNIVERSAL LINK FOR GOOGLE MAPS APP
                 window.location.href = `https://www.google.com/maps/search/?api=1&query=${q}`;
             }
         }
@@ -1187,7 +1148,7 @@
         function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
         function sharePrice(station, price) { if (navigator.share) { navigator.share({ title: 'Litre', text: `${station} istasyonunu buldum!`, url: window.location.href }); } else { alert('Panoya kopyalandı!'); } }
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
-        function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Sesli arama desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; recognition.onend = () => { micIcon.classList.remove('mic-active'); }; }
+        function startVoiceSearch() { if (!('webkitSpeechSpeechRecognition' in window)) { alert("Sesli arama desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; recognition.onend = () => { micIcon.classList.remove('mic-active'); }; }
         function handleMapSearch() { const input = document.getElementById('mapSearchInput'); const results = document.getElementById('mapSearchResults'); const val = input.value.toLowerCase(); if(val.length < 2) { results.style.display = 'none'; return; } const matches = cities.filter(c => c.toLowerCase().includes(val)); if(matches.length > 0) { results.innerHTML = ''; matches.forEach(c => { results.innerHTML += `<div class="map-search-item" onclick="flyToCity('${c}')"><div class="map-search-icon"><i data-lucide="map-pin" class="text-white w-4 h-4"></i></div><div><p class="font-bold text-md text-current">${c}</p><p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Şehir Merkezi</p></div></div>`; }); lucide.createIcons(); results.style.display = 'block'; } else { results.style.display = 'none'; } }
         function flyToCity(name) { document.getElementById('mapSearchInput').value = name; document.getElementById('mapSearchResults').style.display = 'none'; const key = Object.keys(cityCoordinates).find(k => k.toLowerCase() === name.toLowerCase()); if(key && cityCoordinates[key]) { leafletMap.flyTo(cityCoordinates[key], 12, { duration: 1.5 }); document.getElementById('selectedCity').innerText = name; } }
         function openCityPicker() { const list = document.getElementById('cityList'); list.innerHTML = ''; cities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); document.getElementById('cityOverlay').style.display = 'flex'; }
@@ -1207,13 +1168,11 @@
         function closeLegalDetail() { document.getElementById('legalDetailOverlay').style.display='none'; }
         
         window.addEventListener('load', () => { 
-            initTheme(); initAppIcon(); initMiniMap(); 
-            // IMPORTANT: Auto-start map tracking (background)
-            initMap();
-            selectCity('İstanbul'); 
-            checkLoginStatus(); 
-            
-            setTimeout(() => { 
+            // 1. Initialize Basics
+            try { initTheme(); initAppIcon(); } catch(e) { console.error(e); }
+
+            // 2. Schedule Splash Removal REGARDLESS of errors below
+            setTimeout(() => {
                 const splash = document.getElementById('splash'); 
                 const content = document.getElementById('app-content'); 
                 if(splash) { 
@@ -1223,7 +1182,22 @@
                         if(content) content.style.opacity = '1'; 
                     }, 500); 
                 } 
-            }, 2500); 
+            }, 2500);
+
+            // 3. Initialize Complex Logic (Map, Firebase, etc.)
+            try {
+                initMiniMap(); 
+                // IMPORTANT: Auto-start map tracking (background)
+                initMap();
+                selectCity('İstanbul'); 
+                checkLoginStatus(); 
+                // Ensure UI is rendered even if empty
+                renderGarageUI();
+                updateGarageAnalysis();
+                updateRadarAnalysis();
+            } catch(e) {
+                console.error("Init Error:", e);
+            }
         });
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
