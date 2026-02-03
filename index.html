@@ -92,6 +92,9 @@
         .user-pulse { width: 80px; height: 80px; background: rgba(47, 124, 246, 0.2); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse 2.5s infinite ease-out; z-index: 90; pointer-events: none;}
         .user-beam { position: absolute; bottom: 50%; left: 50%; width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-top: 90px solid linear-gradient(to top, rgba(47, 124, 246, 0.4), transparent); background: linear-gradient(to top, rgba(47,124,246,0.3) 0%, transparent 100%); clip-path: polygon(0 0, 100% 0, 50% 100%); width: 100px; height: 100px; transform-origin: bottom center; transform: translateX(-50%) rotate(0deg); z-index: 80; transition: transform 0.2s linear; opacity: 0.6; pointer-events: none;}
         
+        /* MINI MAP MARKER (SIMPLE DOT) */
+        .mini-user-dot { width: 16px; height: 16px; background: #2f7cf6; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 100; }
+
         @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
 
         .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
@@ -169,7 +172,6 @@
         .po-marker { background-color: #DE2128; }
         .total-marker { background-color: #ed1c24; color: white; border-color: #005598; }
         .tp-marker { background-color: #E30613; }
-        .bp-marker { background-color: #009639; color: #FDB913; border-color: #FDB913; }
         
         /* NEW STYLES */
         .history-tab-btn { padding: 10px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; color: var(--subtext); transition: 0.3s; background: transparent; }
@@ -436,6 +438,16 @@
     <div id="settingsOverlay" class="picker-overlay" onclick="closeSettings()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Ayarlar</h3><div class="w-10"></div></div>
     
     <div class="space-y-4 pb-12 text-current overflow-y-auto max-h-[70vh]">
+        
+        <div class="glass-card p-6 border-blue-500/30">
+            <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Varsayılan Harita</p>
+            <div class="flex gap-2 mb-3">
+                <button onclick="setNavPreference('apple')" id="navApple" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">Apple Maps</button>
+                <button onclick="setNavPreference('google')" id="navGoogle" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">Google Maps</button>
+            </div>
+            <button onclick="setNavPreference(null)" id="navAsk" class="w-full theme-btn p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">Her Seferinde Sor</button>
+        </div>
+
         <div class="glass-card p-6 border-blue-500/30">
             <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Tema Tercihi</p>
             <div class="flex gap-2">
@@ -718,7 +730,18 @@
         const tileLight = 'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
         const subdomains = ['mt0','mt1','mt2','mt3']; 
 
-        const stationLogos = { 'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 'Petrol Ofisi': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 'TotalEnergies': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 'TP': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 'BP': { bg: '#009639', text: '#FDB913', html: 'BP' } };
+        // UPDATED LOGOS (BP IS NOW PO)
+        const stationLogos = { 
+            'Shell': { bg: '#FFD500', text: '#DE2128', html: 'SHELL' }, 
+            'Opet': { bg: '#005BAB', text: '#FFFFFF', html: 'OPET' }, 
+            'PO': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 
+            'Petrol Ofisi': { bg: '#DE2128', text: '#FFFFFF', html: 'PO' }, 
+            'Total': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 
+            'TotalEnergies': { bg: '#FFFFFF', text: '#ED1C24', html: 'TOTAL' }, 
+            'Aytemiz': { bg: '#FFFFFF', text: '#E30613', html: 'AYTEMİZ' }, 
+            'Türkiye Petrolleri': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }, 
+            'TP': { bg: '#E30613', text: '#FFFFFF', html: 'TP' }
+        };
         
         let savedGarage = JSON.parse(localStorage.getItem('garage'));
         if (savedGarage && !Array.isArray(savedGarage)) savedGarage = [savedGarage];
@@ -1076,26 +1099,6 @@
         // --- REAL STATION FETCHING (OVERPASS API) ---
         let fetchTimeout = null;
 
-        function getPricesForCity(city) { 
-            // UPDATED REALISTIC BASE PRICES FOR SIMULATION
-            const basePrices = { 'Shell': 42.45, 'Total': 42.40, 'Opet': 42.50, 'Türkiye Petrolleri': 41.90, 'Aytemiz': 42.10, 'PO': 42.35, 'BP': 42.48 }; 
-            
-            // Generate some initial data for the list view if map isn't ready
-            let cityStations = [];
-            Object.keys(basePrices).forEach(brand => { 
-                const pDiff = (Math.random() * 0.6) - 0.3; 
-                cityStations.push({ 
-                    brand: brand, 
-                    name: `${brand} - ${city}`, 
-                    benzin: (basePrices[brand] + pDiff).toFixed(2), 
-                    motorin: (basePrices[brand] + 1.2 + pDiff).toFixed(2), 
-                    lpg: (25.00 + pDiff).toFixed(2), 
-                    dist: (Math.random() * 5 + 0.5).toFixed(1),
-                }); 
-            }); 
-            return cityStations.sort((a,b) => a.dist - b.dist); 
-        }
-
         function fetchRealStations() {
             if(!leafletMap) return;
             const bounds = leafletMap.getBounds();
@@ -1112,12 +1115,16 @@
                 .then(response => response.json())
                 .then(data => {
                     stationData = [];
-                    const basePrices = { 'Shell': 42.45, 'Total': 42.40, 'Opet': 42.50, 'Türkiye Petrolleri': 41.90, 'Aytemiz': 42.10, 'PO': 42.35, 'BP': 42.48 }; 
+                    // Price Base
+                    const basePrices = { 'Shell': 42.45, 'Total': 42.40, 'Opet': 42.50, 'Türkiye Petrolleri': 41.90, 'Aytemiz': 42.10, 'PO': 42.35 }; 
 
                     data.elements.forEach(el => {
                         let name = el.tags.name || "Bilinmeyen İstasyon";
                         let brand = el.tags.brand || detectBrand(name);
                         
+                        // BP to PO Conversion Logic
+                        if (brand === 'BP') brand = 'PO';
+
                         // Price Simulation Logic for Real Stations
                         let priceBase = basePrices[brand] || 42.00;
                         const pDiff = (Math.random() * 0.5) - 0.25;
@@ -1141,6 +1148,13 @@
                     // Update UI
                     refreshMapMarkers();
                     const cityName = document.getElementById('selectedCity').innerText;
+                    // IF we are tracking user, render list sorted by user dist
+                    if (lastKnownUserPos) {
+                         // Re-calculate distance based on USER pos, not map center
+                         stationData.forEach(s => {
+                             s.dist = (L.latLng(s.lat, s.lng).distanceTo(L.latLng(lastKnownUserPos[0], lastKnownUserPos[1])) / 1000).toFixed(1);
+                         });
+                    }
                     renderStationList(stationData.sort((a,b) => a.dist - b.dist), cityName);
                 })
                 .catch(err => console.error("Overpass API Error:", err));
@@ -1151,7 +1165,7 @@
             if (n.includes('opet')) return 'Opet';
             if (n.includes('shell')) return 'Shell';
             if (n.includes('petrol ofisi') || n.includes(' po ')) return 'PO';
-            if (n.includes('bp')) return 'BP';
+            if (n.includes('bp')) return 'PO'; // FORCE BP TO PO
             if (n.includes('total')) return 'Total';
             if (n.includes('aytemiz')) return 'Aytemiz';
             if (n.includes('tp') || n.includes('türkiye petrolleri')) return 'Türkiye Petrolleri';
@@ -1184,6 +1198,27 @@
             closeSortPicker(); 
         }
 
+        // --- NAVIGATION PREFERENCES FIXED ---
+        function setNavPreference(pref) {
+            if (pref) {
+                localStorage.setItem('litre_nav_pref', pref);
+            } else {
+                localStorage.removeItem('litre_nav_pref');
+            }
+            initNavSettings();
+        }
+
+        function initNavSettings() {
+            const pref = localStorage.getItem('litre_nav_pref');
+            document.getElementById('navApple').classList.remove('active');
+            document.getElementById('navGoogle').classList.remove('active');
+            document.getElementById('navAsk').classList.remove('active');
+
+            if (pref === 'apple') document.getElementById('navApple').classList.add('active');
+            else if (pref === 'google') document.getElementById('navGoogle').classList.add('active');
+            else document.getElementById('navAsk').classList.add('active');
+        }
+
         function openNavPicker(target) { 
             currentNavTarget = target; 
             const pref = localStorage.getItem('litre_nav_pref');
@@ -1192,13 +1227,17 @@
                 else window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(target)}`, '_blank');
                 return;
             }
+            // If no pref, reset the "Remember" toggle
             document.querySelector('#navRememberToggle').classList.remove('active');
             document.getElementById('navPickerOverlay').style.display = 'flex'; 
         }
         
         function selectMapProvider(provider) {
             const isRemember = document.querySelector('#navRememberToggle').classList.contains('active');
-            if (isRemember) { localStorage.setItem('litre_nav_pref', provider); }
+            if (isRemember) { 
+                localStorage.setItem('litre_nav_pref', provider); 
+                initNavSettings(); // Sync with settings menu
+            }
             const q = encodeURIComponent(currentNavTarget);
             if(provider === 'apple') window.open(`http://maps.apple.com/?q=${q}`, '_blank');
             else window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank');
@@ -1279,10 +1318,11 @@
                     (pos) => {
                         const { latitude, longitude, heading } = pos.coords;
                         const latlng = [latitude, longitude];
+                        const isFirstFix = !lastKnownUserPos;
                         lastKnownUserPos = latlng;
 
+                        // 1. UPDATE MAIN MAP MARKER
                         if (!userMarker) {
-                            // Create Custom Apple Maps Style Marker
                             const icon = L.divIcon({
                                 className: 'user-location-marker',
                                 html: `
@@ -1295,17 +1335,35 @@
                                 iconSize: [60, 60],
                                 iconAnchor: [30, 30]
                             });
-                            
                             userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 1000 }).addTo(leafletMap);
-                            leafletMap.setView(latlng, 15); // Auto-center on first load
-                            fetchRealStations(); // Initial fetch
+                            leafletMap.setView(latlng, 15); 
                         } else {
                             userMarker.setLatLng(latlng);
-                            // Update beam rotation if heading exists
                             const beam = document.getElementById('userBeam');
-                            if(beam && heading) {
-                                beam.style.transform = `translateX(-50%) rotate(${heading}deg)`;
+                            if(beam && heading) { beam.style.transform = `translateX(-50%) rotate(${heading}deg)`; }
+                        }
+
+                        // 2. UPDATE MINI MAP MARKER & CENTER
+                        if (miniMap) {
+                            if (!miniUserMarker) {
+                                const miniIcon = L.divIcon({
+                                    className: 'user-location-marker',
+                                    html: '<div class="mini-user-dot"></div>',
+                                    iconSize: [16, 16],
+                                    iconAnchor: [8, 8]
+                                });
+                                miniUserMarker = L.marker(latlng, { icon: miniIcon }).addTo(miniMap);
+                            } else {
+                                miniUserMarker.setLatLng(latlng);
                             }
+                            miniMap.setView(latlng, 14); // Keep mini map centered on user
+                        }
+
+                        // 3. FETCH STATIONS BASED ON REAL LOCATION (ON START)
+                        if (isFirstFix) {
+                            document.getElementById('selectedCity').innerText = "Konumum";
+                            // Force map to fetch stations around user
+                            fetchRealStations();
                         }
                     },
                     (err) => { console.warn("Konum alınamadı:", err); },
@@ -1320,12 +1378,13 @@
             stationData.forEach(station => { 
                 let iconClass = 'base-marker'; 
                 let iconHtml = ''; 
+                
+                // BP IS HANDLED IN DATA FETCH, but double check style
                 if (station.brand === 'Opet') { iconClass += ' opet-marker'; iconHtml = 'OPET'; } 
                 else if (station.brand === 'Shell') { iconClass += ' shell-marker'; iconHtml = 'SHELL'; } 
-                else if (station.brand === 'PO') { iconClass += ' po-marker'; iconHtml = 'PO'; } 
+                else if (station.brand === 'PO' || station.brand === 'Petrol Ofisi') { iconClass += ' po-marker'; iconHtml = 'PO'; } 
                 else if (station.brand === 'Türkiye Petrolleri') { iconClass += ' po-marker'; iconHtml = 'TP'; }
                 else if (station.brand === 'Total') { iconClass += ' total-marker'; iconHtml = 'TOTAL'; }
-                else if (station.brand === 'BP') { iconClass += ' bp-marker'; iconHtml = 'BP'; }
                 else { iconClass += ' base-marker'; iconHtml = 'İST'; }
                 
                 const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); 
@@ -1493,7 +1552,7 @@
             }
         }
 
-        function openSettings() { document.getElementById('settingsOverlay').style.display = 'flex'; }
+        function openSettings() { document.getElementById('settingsOverlay').style.display = 'flex'; initNavSettings(); }
         function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
         function openNotify() { document.getElementById('notifyOverlay').style.display = 'flex'; }
         function closeNotify() { document.getElementById('notifyOverlay').style.display = 'none'; }
