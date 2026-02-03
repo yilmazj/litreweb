@@ -92,7 +92,7 @@
         .user-pulse { width: 80px; height: 80px; background: rgba(47, 124, 246, 0.2); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse 2.5s infinite ease-out; z-index: 90; pointer-events: none;}
         .user-beam { position: absolute; bottom: 50%; left: 50%; width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-top: 90px solid linear-gradient(to top, rgba(47, 124, 246, 0.4), transparent); background: linear-gradient(to top, rgba(47,124,246,0.3) 0%, transparent 100%); clip-path: polygon(0 0, 100% 0, 50% 100%); width: 100px; height: 100px; transform-origin: bottom center; transform: translateX(-50%) rotate(0deg); z-index: 80; transition: transform 0.2s linear; opacity: 0.6; pointer-events: none;}
         
-        /* MINI MAP MARKER (SIMPLE DOT) */
+        /* MINI MAP MARKER */
         .mini-user-dot { width: 16px; height: 16px; background: #2f7cf6; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 100; }
 
         @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
@@ -1609,7 +1609,7 @@
         }
         function flyToCity(name) { document.getElementById('mapSearchInput').value = name; document.getElementById('mapSearchResults').style.display = 'none'; const key = Object.keys(cityCoordinates).find(k => k.toLowerCase() === name.toLowerCase()); if(key && cityCoordinates[key]) { leafletMap.flyTo(cityCoordinates[key], 12, { duration: 1.5 }); selectCity(key); } }
         function startVoiceSearch() { 
-            if (!('webkitSpeechRecognition' in window)) { alert("Sesli arama bu tarayıcıda desteklenmiyor."); return; } 
+            if (!('webkitSpeechSpeechRecognition' in window)) { alert("Sesli arama bu tarayıcıda desteklenmiyor."); return; } 
             const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); 
             const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); 
             recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; 
@@ -1618,8 +1618,13 @@
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
 
         window.addEventListener('load', () => { 
-            initTheme(); initAppIcon(); initMiniMap(); updateGarageAnalysis(); updateRadarAnalysis(); selectCity('İstanbul'); checkLoginStatus(); 
-            // FIXED: Splash Screen Timeout Logic with Failsafe
+            initTheme(); initAppIcon(); initMiniMap(); updateGarageAnalysis(); updateRadarAnalysis(); 
+            // IMPORTANT: Auto-start map tracking (background)
+            initMap();
+            // Default select but will be overridden by GPS
+            selectCity('İstanbul'); 
+            checkLoginStatus(); 
+            
             setTimeout(() => { 
                 const splash = document.getElementById('splash'); 
                 const content = document.getElementById('app-content'); 
