@@ -741,6 +741,25 @@
         const allCities = [ "Adana", "Ankara", "Antalya", "Bursa", "Diyarbakır", "Erzurum", "Eskişehir", "Gaziantep", "İstanbul", "İzmir", "Kayseri", "Konya", "Mersin", "Samsun", "Trabzon" ];
         const cities = allCities.sort();
 
+        // MISSING COORDINATES ADDED HERE
+        const cityCoordinates = {
+            "İstanbul": [41.0082, 28.9784],
+            "Ankara": [39.9334, 32.8597],
+            "İzmir": [38.4192, 27.1287],
+            "Antalya": [36.8969, 30.7133],
+            "Bursa": [40.1885, 29.0610],
+            "Adana": [37.0000, 35.3213],
+            "Gaziantep": [37.0662, 37.3833],
+            "Konya": [37.8714, 32.4846],
+            "Mersin": [36.8000, 34.6333],
+            "Diyarbakır": [37.9144, 40.2306],
+            "Kayseri": [38.7312, 35.4787],
+            "Eskişehir": [39.7667, 30.5256],
+            "Samsun": [41.2867, 36.33],
+            "Trabzon": [41.0028, 39.7167],
+            "Erzurum": [39.9000, 41.2700]
+        };
+
         const tileDark = 'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'; 
         const tileLight = 'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
         const subdomains = ['mt0','mt1','mt2','mt3']; 
