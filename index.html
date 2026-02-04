@@ -100,7 +100,7 @@
         /* MAP BUTTONS */
         .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
         
-        /* NEW MAP TOGGLE BAR */
+        /* NEW MAP TOGGLE BAR (CAPSULE) */
         .map-toggle-container {
             position: absolute;
             bottom: 110px;
@@ -112,23 +112,27 @@
             height: 50px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             padding: 5px;
             z-index: 1500;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 220px; /* Sola doğru uzattık */
         }
         .map-toggle-btn {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            padding: 0 12px;
+            padding: 0 10px;
             height: 100%;
             border-radius: 20px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
             opacity: 0.5;
             transition: 0.3s;
             color: var(--text);
             cursor: pointer;
+            flex: 1;
         }
         .map-toggle-btn.active {
             background: white;
@@ -493,11 +497,11 @@
         </div>
         
         <p class="text-[10px] opacity-40 uppercase tracking-widest pl-1 mt-4">İstasyon Tipi</p>
-        <button onclick="toggleStationFilter('fuel')" class="w-full glass-card p-4 flex items-center justify-between haptic-btn text-current font-bold">
+        <button onclick="toggleStationType('fuel')" class="w-full glass-card p-4 flex items-center justify-between haptic-btn text-current font-bold">
             <div class="flex items-center gap-3"><i data-lucide="fuel" class="text-orange-500 w-5 h-5"></i>Akaryakıt İstasyonları</div>
             <div class="w-5 h-5 rounded-full border-2 border-current opacity-20 flex items-center justify-center" id="check-fuel"><div class="w-3 h-3 bg-current rounded-full hidden"></div></div>
         </button>
-        <button onclick="toggleStationFilter('electric')" class="w-full glass-card p-4 flex items-center justify-between haptic-btn text-current font-bold">
+        <button onclick="toggleStationType('electric')" class="w-full glass-card p-4 flex items-center justify-between haptic-btn text-current font-bold">
             <div class="flex items-center gap-3"><i data-lucide="zap" class="text-blue-500 w-5 h-5"></i>Elektrikli Şarj İstasyonları</div>
             <div class="w-5 h-5 rounded-full border-2 border-current opacity-20 flex items-center justify-center" id="check-electric"><div class="w-3 h-3 bg-current rounded-full hidden"></div></div>
         </button>
@@ -636,7 +640,7 @@
                     <div onclick="toggleMapType('fuel')" id="toggleFuel" class="map-toggle-btn active">
                         <i data-lucide="fuel" class="w-4 h-4 text-orange-500"></i>Akaryakıt
                     </div>
-                    <div onclick="toggleMapType('electric')" id="toggleElectric" class="map-toggle-btn">
+                    <div onclick="toggleMapType('electric')" id="toggleElectric" class="map-toggle-btn active">
                         <i data-lucide="zap" class="w-4 h-4 text-blue-500"></i>Şarj
                     </div>
                 </div>
@@ -1055,7 +1059,7 @@
                     } else {
                         if (station.brand === 'Opet') iconClass += ' opet-marker';
                         else if (station.brand === 'Shell') iconClass += ' shell-marker';
-                        else if (station.brand === 'PO' || station.brand === 'Petrol Ofisi') iconClass += ' po-marker';
+                        else if (station.brand === 'PO') iconClass += ' po-marker';
                         else if (station.brand === 'Total') iconClass += ' total-marker';
                         else iconClass += ' base-marker';
                         iconHtml = logo.html;
