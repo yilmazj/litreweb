@@ -38,7 +38,7 @@
         :root { 
             --bg: #f2f2f7; 
             --text: #000; 
-            --card: rgba(255, 255, 255, 0.95); /* Changed from 0.75 to 0.95 for vibrancy */
+            --card: rgba(255, 255, 255, 0.95); 
             --border: rgba(0, 0, 0, 0.05); 
             --subtext: #636366;
             --input-bg: rgba(120, 120, 128, 0.12);
@@ -57,7 +57,7 @@
 
         body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
         
-        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
+        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; pointer-events: none; }
         
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -100,7 +100,46 @@
         /* MAP BUTTONS */
         .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
         
-        .type-toggle-btn { position: absolute; bottom: 110px; right: 80px; width: 50px; height: 50px; background: var(--card); border: var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
+        /* NEW MAP TOGGLE BAR */
+        .map-toggle-container {
+            position: absolute;
+            bottom: 110px;
+            right: 80px;
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            border: var(--glass-border);
+            border-radius: 25px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            z-index: 1500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .map-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            height: 100%;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            opacity: 0.5;
+            transition: 0.3s;
+            color: var(--text);
+            cursor: pointer;
+        }
+        .map-toggle-btn.active {
+            background: white;
+            opacity: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: black;
+        }
+        body.dark-mode .map-toggle-btn.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
 
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); z-index: 5000; display: none; align-items: flex-end; }
         .picker-container { background: var(--card); width: 100%; border-radius: 30px 30px 0 0; padding: 25px; border-top: var(--glass-border); max-height: 85vh; display: flex; flex-direction: column; transition: background-color 0.3s, border-color 0.3s; }
@@ -454,11 +493,11 @@
         </div>
         
         <p class="text-[10px] opacity-40 uppercase tracking-widest pl-1 mt-4">İstasyon Tipi</p>
-        <button onclick="toggleStationType('fuel')" class="w-full glass-card p-4 flex items-center justify-between haptic-btn text-current font-bold">
+        <button onclick="toggleStationFilter('fuel')" class="w-full glass-card p-4 flex items-center justify-between haptic-btn text-current font-bold">
             <div class="flex items-center gap-3"><i data-lucide="fuel" class="text-orange-500 w-5 h-5"></i>Akaryakıt İstasyonları</div>
             <div class="w-5 h-5 rounded-full border-2 border-current opacity-20 flex items-center justify-center" id="check-fuel"><div class="w-3 h-3 bg-current rounded-full hidden"></div></div>
         </button>
-        <button onclick="toggleStationType('electric')" class="w-full glass-card p-4 flex items-center justify-between haptic-btn text-current font-bold">
+        <button onclick="toggleStationFilter('electric')" class="w-full glass-card p-4 flex items-center justify-between haptic-btn text-current font-bold">
             <div class="flex items-center gap-3"><i data-lucide="zap" class="text-blue-500 w-5 h-5"></i>Elektrikli Şarj İstasyonları</div>
             <div class="w-5 h-5 rounded-full border-2 border-current opacity-20 flex items-center justify-center" id="check-electric"><div class="w-3 h-3 bg-current rounded-full hidden"></div></div>
         </button>
@@ -593,9 +632,15 @@
                 </header>
                 <div id="map"></div>
                 
-                <button onclick="toggleMapType()" class="type-toggle-btn haptic-btn" id="mapTypeBtn">
-                    <i data-lucide="zap" class="w-6 h-6 text-orange-500" id="mapTypeIcon"></i>
-                </button>
+                <div class="map-toggle-container">
+                    <div onclick="toggleMapType('fuel')" id="toggleFuel" class="map-toggle-btn active">
+                        <i data-lucide="fuel" class="w-4 h-4 text-orange-500"></i>Akaryakıt
+                    </div>
+                    <div onclick="toggleMapType('electric')" id="toggleElectric" class="map-toggle-btn">
+                        <i data-lucide="zap" class="w-4 h-4 text-blue-500"></i>Şarj
+                    </div>
+                </div>
+                
                 <button onclick="recenterUser()" class="find-me-btn haptic-btn"><i data-lucide="crosshair" class="w-6 h-6 text-blue-500"></i></button>
             </div>
 
@@ -731,16 +776,20 @@
         let videoStream = null, userMarker = null, miniUserMarker = null, lastKnownUserPos = null, currentNavTarget = null, markers = null;
         let isPremiumUser = false, selectedFuelType = 'benzin', currentGarageIndex = 0, isEditMode = false, editTargetField = null, editingRecordIndex = -1;
         let stationData = [];
-        let currentStationType = 'fuel'; 
+        let activeFilters = { fuel: true, electric: true }; // BOTH ON BY DEFAULT
 
         let pickingSubModel = false;
-        const subCarData = { 'Mercedes-Benz': { 'A Serisi': ['A160', 'A180', 'A200', 'A250'], 'B Serisi': ['B180', 'B200'], 'C Serisi': ['C180', 'C200', 'C220d', 'C300'], 'E Serisi': ['E180', 'E200', 'E220d', 'E300'] }, 'BMW': { '1 Serisi': ['116i', '118i'], '3 Serisi': ['320i', '330i'] } };
-        const carData = { 'Audi': ['A3', 'A4'], 'BMW': ['3 Serisi', '5 Serisi'], 'Fiat': ['Egea'], 'Ford': ['Focus'], 'Honda': ['Civic'], 'Hyundai': ['i20'], 'Mercedes-Benz': ['C Serisi', 'E Serisi'], 'Renault': ['Clio', 'Megane'], 'Toyota': ['Corolla'], 'Volkswagen': ['Golf', 'Passat'] };
+        const subCarData = { 'Mercedes-Benz': { 'A Serisi': ['A160', 'A180', 'A200', 'A250'], 'B Serisi': ['B180', 'B200'], 'C Serisi': ['C180', 'C200', 'C220d', 'C300'], 'E Serisi': ['E180', 'E200', 'E220d', 'E300'], 'S Serisi': ['S320', 'S350', 'S400'], 'CLA': ['CLA180', 'CLA200', 'CLA250'], 'CLA Serisi': ['CLA180', 'CLA200', 'CLA250'], 'CLS Serisi': ['CLS250', 'CLS350'], 'GLA Serisi': ['GLA180', 'GLA200', 'GLA250'], 'GLC Serisi': ['GLC200', 'GLC220d', 'GLC300'], 'GLE Serisi': ['GLE250d', 'GLE300d', 'GLE350'] }, 'BMW': { '1 Serisi': ['116i', '118i', '120i'], '2 Serisi': ['218i', '220i'], '3 Serisi': ['316i', '318i', '320i', '330i'], '4 Serisi': ['420i', '430i'], '5 Serisi': ['520i', '530i'], '7 Serisi': ['730i', '740i'], 'X1 Serisi': ['sDrive16i', 'sDrive18i', 'sDrive20i'], 'X3 Serisi': ['20i', '30i'], 'X5 Serisi': ['25d', '30d', '40i'] } };
+        const carData = { 'Audi': ['A3', 'A4', 'A6', 'Q2', 'Q3', 'Q5'], 'BMW': ['1 Serisi', '3 Serisi', '5 Serisi', 'X1', 'X3'], 'Chevrolet': ['Aveo', 'Cruze', 'Captiva', 'Spark', 'Camaro'], 'Citroen': ['C3', 'C4', 'C5 Aircross', 'Berlingo', 'C-Elysee'], 'Dacia': ['Sandero', 'Logan', 'Duster', 'Jogger', 'Lodgy'], 'Fiat': ['Egea', 'Linea', 'Punto', 'Doblo', 'Fiorino'], 'Ford': ['Fiesta', 'Focus', 'Mondeo', 'Kuga', 'Courier'], 'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'], 'Hyundai': ['i10', 'i20', 'i30', 'Accent Blue', 'Tucson'], 'Jeep': ['Renegade', 'Compass', 'Cherokee', 'Grand Cherokee', 'Wrangler'], 'Kia': ['Picanto', 'Rio', 'Ceed', 'Cerato', 'Sportage'], 'Mazda': ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3', 'CX-5'], 'Mercedes-Benz': ['A Serisi', 'C Serisi', 'E Serisi', 'CLA', 'GLC'], 'Mini': ['Cooper', 'One', 'Countryman', 'Clubman', 'Cabrio'], 'Mitsubishi': ['Colt', 'Lancer', 'ASX', 'Outlander', 'Pajero'], 'Nissan': ['Micra', 'Juke', 'Qashqai', 'X-Trail', 'Note'], 'Opel': ['Corsa', 'Astra', 'Insignia', 'Mokka', 'Crossland'], 'Peugeot': ['208', '301', '308', '3008', '5008'], 'Renault': ['Clio', 'Megane', 'Talisman', 'Captur', 'Kadjar'], 'Seat': ['Ibiza', 'Leon', 'Arona', 'Ateca', 'Toledo'], 'Skoda': ['Fabia', 'Octavia', 'Superb', 'Scala', 'Kodiaq'], 'Suzuki': ['Swift', 'Baleno', 'Vitara', 'SX4 S-Cross', 'Jimny'], 'Tesla': ['Model S', 'Model 3', 'Model X', 'Model Y'], 'Toyota': ['Yaris', 'Corolla', 'Auris', 'C-HR', 'RAV4'], 'Volkswagen': ['Polo', 'Golf', 'Passat', 'Jetta', 'Tiguan'], 'Volvo': ['S60', 'S90', 'XC40', 'XC60', 'XC90'] };
         const years = Array.from({length: 2024 - 1990 + 1}, (_, i) => 2024 - i);
         
-        const allCities = [ "Adana", "Ankara", "Antalya", "Bursa", "Diyarbakır", "Erzurum", "Eskişehir", "Gaziantep", "İstanbul", "İzmir", "Kayseri", "Konya", "Mersin", "Samsun", "Trabzon" ];
-        const cities = allCities.sort();
-
+        // FIXED: 81 Provinces A-Z, Istanbul & Ankara at top
+        const allCities = [
+            "İstanbul", "Ankara", "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
+        ];
+        // Note: Coordinates map still needs keys matching these names
+        const cityCoordinates = { "Adana": [37.0000, 35.3213], "Adıyaman": [37.7648, 38.2786], "Afyonkarahisar": [38.7507, 30.5567], "Ağrı": [39.7191, 43.0503], "Aksaray": [38.3687, 34.0370], "Amasya": [40.6499, 35.8353], "Ankara": [39.9334, 32.8597], "Antalya": [36.8969, 30.7133], "Ardahan": [41.1105, 42.7022], "Artvin": [41.1828, 41.8183], "Aydın": [37.8560, 27.8416], "Balıkesir": [39.6484, 27.8826], "Bartın": [41.6344, 32.3375], "Batman": [37.8812, 41.1351], "Bayburt": [40.2552, 40.2249], "Bilecik": [40.1451, 29.9798], "Bingöl": [38.8855, 40.4980], "Bitlis": [38.3938, 42.1232], "Bolu": [40.7350, 31.6061], "Burdur": [37.7203, 30.2908], "Bursa": [40.1885, 29.0610], "Çanakkale": [40.1553, 26.4142], "Çankırı": [40.6013, 33.6134], "Çorum": [40.5506, 34.9556], "Denizli": [37.7765, 29.0864], "Diyarbakır": [37.9144, 40.2306], "Düzce": [40.8438, 31.1565], "Edirne": [41.6768, 26.5603], "Elazığ": [38.6810, 39.2264], "Erzincan": [39.7500, 39.5000], "Erzurum": [39.9043, 41.2679], "Eskişehir": [39.7767, 30.5206], "Gaziantep": [37.0662, 37.3833], "Giresun": [40.9128, 38.3895], "Gümüşhane": [40.4600, 39.4814], "Hakkari": [37.5833, 43.7333], "Hatay": [36.4018, 36.3498], "Iğdır": [39.9167, 44.0333], "Isparta": [37.7648, 30.5566], "İstanbul": [41.0082, 28.9784], "İzmir": [38.4192, 27.1287], "Kahramanmaraş": [37.5858, 36.9371], "Karabük": [41.2061, 32.6204], "Karaman": [37.1759, 33.2287], "Kars": [40.6172, 43.0958], "Kastamonu": [41.3887, 33.7827], "Kayseri": [38.7312, 35.4787], "Kırıkkale": [39.8468, 33.5153], "Kırklareli": [41.7333, 27.2167], "Kırşehir": [39.1425, 34.1709], "Kilis": [36.7184, 37.1212], "Kocaeli": [40.8533, 29.8815], "Konya": [37.8667, 32.4833], "Kütahya": [39.4167, 29.9833], "Malatya": [38.3552, 38.3095], "Manisa": [38.6191, 27.4289], "Mardin": [37.3212, 40.7245], "Mersin": [36.8000, 34.6333], "Muğla": [37.2153, 28.3636], "Muş": [38.9462, 41.7539], "Nevşehir": [38.6939, 34.6857], "Niğde": [37.9667, 34.6833], "Ordu": [40.9839, 37.8764], "Osmaniye": [37.0742, 36.2478], "Rize": [41.0201, 40.5234], "Sakarya": [40.7569, 30.3783], "Samsun": [41.2928, 36.3313], "Siirt": [37.9333, 41.9500], "Sinop": [42.0231, 35.1531], "Sivas": [39.7477, 37.0179], "Şanlıurfa": [37.1674, 38.7939], "Şırnak": [37.5164, 42.4611], "Tekirdağ": [40.9833, 27.5167], "Tokat": [40.3167, 36.5500], "Trabzon": [41.0015, 39.7178], "Tunceli": [39.1079, 39.5401], "Uşak": [38.6823, 29.4082], "Van": [38.4891, 43.4089], "Yalova": [40.6500, 29.2667], "Yozgat": [39.8181, 34.8147], "Zonguldak": [41.4564, 31.7987] };
+        
         const tileDark = 'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'; 
         const tileLight = 'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
         const subdomains = ['mt0','mt1','mt2','mt3']; 
@@ -802,28 +851,31 @@
 
         // --- FILTER & TYPE LOGIC ---
         function toggleStationType(type) {
-            currentStationType = type;
-            document.getElementById('check-fuel').innerHTML = type === 'fuel' ? '<div class="w-3 h-3 bg-current rounded-full"></div>' : '';
-            document.getElementById('check-electric').innerHTML = type === 'electric' ? '<div class="w-3 h-3 bg-current rounded-full"></div>' : '';
+            // Toggles individual filters
+            activeFilters[type] = !activeFilters[type];
+            updateFilterUI();
             
-            const icon = document.getElementById('mapTypeIcon');
-            if(type === 'electric') {
-                icon.setAttribute('data-lucide', 'fuel');
-                icon.classList.remove('text-orange-500');
-                icon.classList.add('text-blue-500');
-            } else {
-                icon.setAttribute('data-lucide', 'zap');
-                icon.classList.remove('text-blue-500');
-                icon.classList.add('text-orange-500');
-            }
-            lucide.createIcons();
+            // Refetch data based on new filter combination
             fetchRealStations(); 
-            closeSortPicker();
         }
 
-        function toggleMapType() {
-            const newType = currentStationType === 'fuel' ? 'electric' : 'fuel';
-            toggleStationType(newType);
+        function updateFilterUI() {
+            document.getElementById('check-fuel').innerHTML = activeFilters.fuel ? '<div class="w-3 h-3 bg-current rounded-full"></div>' : '';
+            document.getElementById('check-electric').innerHTML = activeFilters.electric ? '<div class="w-3 h-3 bg-current rounded-full"></div>' : '';
+            
+            // Update Map Toggle Buttons State
+            const fuelBtn = document.getElementById('toggleFuel');
+            const electricBtn = document.getElementById('toggleElectric');
+            
+            if(activeFilters.fuel) fuelBtn.classList.add('active'); else fuelBtn.classList.remove('active');
+            if(activeFilters.electric) electricBtn.classList.add('active'); else electricBtn.classList.remove('active');
+        }
+
+        function toggleMapType(type) {
+            // Map-side toggle function
+            activeFilters[type] = !activeFilters[type];
+            updateFilterUI();
+            fetchRealStations();
         }
 
         function applySort(type) { 
@@ -846,18 +898,20 @@
         function fetchRealStations() {
             if(!leafletMap) return;
             const bounds = leafletMap.getBounds();
-            const south = bounds.getSouth();
-            const west = bounds.getWest();
-            const north = bounds.getNorth();
-            const east = bounds.getEast();
-
-            let query = '';
-            if (currentStationType === 'fuel') {
-                query = `[out:json];node["amenity"="fuel"](${south},${west},${north},${east});out;`;
-            } else {
-                query = `[out:json];node["amenity"="charging_station"](${south},${west},${north},${east});out;`;
-            }
             
+            // Build Query based on active filters
+            let subqueries = [];
+            if(activeFilters.fuel) subqueries.push(`node["amenity"="fuel"](${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()});`);
+            if(activeFilters.electric) subqueries.push(`node["amenity"="charging_station"](${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()});`);
+
+            if(subqueries.length === 0) {
+                stationData = [];
+                refreshMapMarkers();
+                renderStationList([], "Yok");
+                return;
+            }
+
+            const query = `[out:json];(${subqueries.join('')});out;`;
             const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
 
             fetch(url)
@@ -867,8 +921,9 @@
                     const fuelBase = { 'Shell': 42.45, 'Total': 42.40, 'Opet': 42.50, 'PO': 42.35 }; 
 
                     data.elements.forEach(el => {
-                        let name = el.tags.name || (currentStationType === 'fuel' ? "Bilinmeyen İstasyon" : "Şarj İstasyonu");
-                        let brand = el.tags.brand || el.tags.operator || detectBrand(name);
+                        let type = el.tags.amenity === 'charging_station' ? 'electric' : 'fuel';
+                        let name = el.tags.name || (type === 'fuel' ? "Bilinmeyen İstasyon" : "Şarj İstasyonu");
+                        let brand = el.tags.brand || el.tags.operator || detectBrand(name, type);
                         
                         if (brand === 'BP') brand = 'PO';
 
@@ -879,7 +934,7 @@
                         let priceObj = {};
                         let priceVal = 0;
 
-                        if (currentStationType === 'fuel') {
+                        if (type === 'fuel') {
                             let priceBase = fuelBase[brand] || 42.00;
                             const pDiff = (Math.random() * 0.5) - 0.25;
                             priceObj = {
@@ -887,7 +942,7 @@
                                 motorin: (priceBase + 1.2 + pDiff).toFixed(2),
                                 lpg: (25.00 + pDiff).toFixed(2)
                             };
-                            priceVal = priceObj.benzin;
+                            priceVal = parseFloat(priceObj.benzin);
                         } else {
                             priceObj = getEVPricing(brand);
                             priceVal = 0; 
@@ -901,7 +956,7 @@
                             prices: priceObj,
                             priceVal: priceVal,
                             dist: dist,
-                            type: currentStationType
+                            type: type
                         });
                     });
                     
@@ -912,9 +967,9 @@
                 .catch(err => console.error("Overpass API Error:", err));
         }
 
-        function detectBrand(name) {
+        function detectBrand(name, type) {
             const n = name.toLowerCase();
-            if (currentStationType === 'fuel') {
+            if (type === 'fuel') {
                 if (n.includes('opet')) return 'Opet';
                 if (n.includes('shell')) return 'Shell';
                 if (n.includes('petrol ofisi') || n.includes(' po ') || n.includes('bp')) return 'PO';
@@ -1000,7 +1055,7 @@
                     } else {
                         if (station.brand === 'Opet') iconClass += ' opet-marker';
                         else if (station.brand === 'Shell') iconClass += ' shell-marker';
-                        else if (station.brand === 'PO') iconClass += ' po-marker';
+                        else if (station.brand === 'PO' || station.brand === 'Petrol Ofisi') iconClass += ' po-marker';
                         else if (station.brand === 'Total') iconClass += ' total-marker';
                         else iconClass += ' base-marker';
                         iconHtml = logo.html;
@@ -1126,7 +1181,7 @@
         function closeNavPicker() { document.getElementById('navPickerOverlay').style.display = 'none'; }
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
-        function openSortPicker() { document.getElementById('sortOverlay').style.display = 'flex'; }
+        function openSortPicker() { document.getElementById('sortOverlay').style.display = 'flex'; updateFilterUI(); }
         function closeSortPicker() { document.getElementById('sortOverlay').style.display = 'none'; }
         function updateMapLayer(mapObj, elementId) { if(!mapObj) return; mapObj.eachLayer(l => { if(l instanceof L.TileLayer) mapObj.removeLayer(l); }); const tile = document.body.classList.contains('dark-mode') ? tileDark : tileLight; L.tileLayer(tile, { subdomains: subdomains }).addTo(mapObj); const el = document.getElementById(elementId); if(document.body.classList.contains('dark-mode')) { el.classList.add('google-dark-mode'); } else { el.classList.remove('google-dark-mode'); } }
         
@@ -1149,7 +1204,7 @@
         function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
         function sharePrice(station, price) { if (navigator.share) { navigator.share({ title: 'Litre', text: `${station} istasyonunu buldum!`, url: window.location.href }); } else { alert('Panoya kopyalandı!'); } }
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
-        function startVoiceSearch() { if (!('webkitSpeechSpeechRecognition' in window)) { alert("Sesli arama desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; recognition.onend = () => { micIcon.classList.remove('mic-active'); }; }
+        function startVoiceSearch() { if (!('webkitSpeechRecognition' in window)) { alert("Sesli arama desteklenmiyor."); return; } const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; recognition.onend = () => { micIcon.classList.remove('mic-active'); }; }
         function handleMapSearch() { const input = document.getElementById('mapSearchInput'); const results = document.getElementById('mapSearchResults'); const val = input.value.toLowerCase(); if(val.length < 2) { results.style.display = 'none'; return; } const matches = cities.filter(c => c.toLowerCase().includes(val)); if(matches.length > 0) { results.innerHTML = ''; matches.forEach(c => { results.innerHTML += `<div class="map-search-item" onclick="flyToCity('${c}')"><div class="map-search-icon"><i data-lucide="map-pin" class="text-white w-4 h-4"></i></div><div><p class="font-bold text-md text-current">${c}</p><p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Şehir Merkezi</p></div></div>`; }); lucide.createIcons(); results.style.display = 'block'; } else { results.style.display = 'none'; } }
         function flyToCity(name) { document.getElementById('mapSearchInput').value = name; document.getElementById('mapSearchResults').style.display = 'none'; const key = Object.keys(cityCoordinates).find(k => k.toLowerCase() === name.toLowerCase()); if(key && cityCoordinates[key]) { leafletMap.flyTo(cityCoordinates[key], 12, { duration: 1.5 }); document.getElementById('selectedCity').innerText = name; } }
         function openCityPicker() { const list = document.getElementById('cityList'); list.innerHTML = ''; cities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); document.getElementById('cityOverlay').style.display = 'flex'; }
@@ -1192,6 +1247,7 @@
                 initMap();
                 selectCity('İstanbul'); 
                 checkLoginStatus(); 
+                updateFilterUI(); // Initialize filter icons
                 // Ensure UI is rendered even if empty
                 renderGarageUI();
                 updateGarageAnalysis();
