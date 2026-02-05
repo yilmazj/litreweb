@@ -72,11 +72,12 @@
         }
         .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
         
+        /* The wrapper ensures content is perfectly centered vertically & horizontally */
         .onboard-content-wrapper {
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* VERTICAL CENTERING */
+            justify-content: center; 
             align-items: center;
             width: 100%;
         }
@@ -85,7 +86,7 @@
         .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } 
 
         .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 20px; max-width: 300px; margin-left: auto; margin-right: auto; }
+        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; }
         
         .apple-btn { 
             width: 100%; padding: 18px; border-radius: 99px; font-size: 17px; font-weight: 600; 
@@ -104,11 +105,11 @@
 
         /* 3D IMAGE STYLES */
         .premium-3d-icon {
-            width: 160px;
-            height: 160px;
+            width: 180px;
+            height: 180px;
             object-fit: contain;
-            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15));
-            margin-bottom: 20px;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
+            margin-bottom: 30px;
             animation: float 6s ease-in-out infinite;
         }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
@@ -303,7 +304,7 @@
 
     <div class="onboard-slide" id="slide2">
         <div class="onboard-content-wrapper">
-            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Automobile.png" alt="Car" class="premium-3d-icon">
+            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Oncoming%20Automobile.png" alt="Car" class="premium-3d-icon">
             <h2 class="apple-title">Dijital Garajın.</h2>
             <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
         </div>
@@ -314,7 +315,7 @@
 
     <div class="onboard-slide" id="slide3">
         <div class="onboard-content-wrapper">
-            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Map%20with%20Location%20Pin.png" alt="Location" class="premium-3d-icon">
+            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Location" class="premium-3d-icon">
             <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
             <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
         </div>
@@ -940,9 +941,7 @@
         function checkLoginStatus() {
             try {
                 const savedPic = localStorage.getItem('profile_pic');
-                // CLEAN UP first
                 const pc = document.getElementById('profileCircle');
-                // Remove existing image style but keep buttons
                 pc.style.backgroundImage = 'none';
                 
                 if(savedPic && savedPic.startsWith('data:image')) {
@@ -1059,7 +1058,7 @@
         
         function removeProfilePicture() {
             localStorage.removeItem('profile_pic');
-            checkLoginStatus(); // Refreshes UI
+            checkLoginStatus(); 
             closeProfileOptions();
             if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
                 firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ profilePic: firebase.firestore.FieldValue.delete() });
@@ -1732,19 +1731,6 @@
                         // Force reflow
                         void next.offsetWidth;
                         next.classList.add('active');
-                        
-                        // AUTO TRIGGER PERMISSIONS LOGIC
-                        if (n === 3) {
-                            setTimeout(() => {
-                                // Attempt auto trigger
-                                requestLocationPermission();
-                            }, 2500);
-                        }
-                        if (n === 4) {
-                            setTimeout(() => {
-                                requestNotificationPermission();
-                            }, 2500);
-                        }
                     }
                 }, 500); // Wait for exit animation
             } else {
