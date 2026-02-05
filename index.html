@@ -62,19 +62,17 @@
         
         /* --- PREMIUM ONBOARDING ANIMATIONS --- */
         #onboardingOverlay { 
-            position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; 
-            padding: 20px 24px 40px 24px; /* Alt boşluğu artırdım */
+            position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 30px; 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
         
         .onboard-slide { 
-            display: none; flex-direction: column; height: 100%; text-align: center; 
-            opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-            justify-content: space-between; /* İçeriği dağıt */
+            display: none; flex-direction: column; height: 100%; mad-height:100%; text-align: center; 
+            opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden;
         }
         .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
         
-        /* Content Wrapper: Pushes content to optical center */
+        /* The wrapper ensures content is perfectly centered vertically & horizontally */
         .onboard-content-wrapper {
             flex: 1;
             display: flex;
@@ -84,44 +82,38 @@
             width: 100%;
         }
 
-        /* Button Wrapper: Pinned to bottom but safe */
-        .onboard-btn-wrapper {
-            width: 100%;
-            margin-top: 20px;
-            flex-shrink: 0; /* Butonların sıkışmasını engeller */
-        }
-
         .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
-        .onboard-logo.drop-active { transform: translateY(120vh) scale(0.8); } 
+        .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } 
 
-        .apple-title { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .apple-sub { font-size: 17px; line-height: 1.4; color: var(--subtext); font-weight: 500; margin-bottom: 10px; max-width: 300px; margin-left: auto; margin-right: auto; }
+        .apple-title { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; }
         
         .apple-btn { 
-            width: 100%; padding: 16px; border-radius: 99px; font-size: 16px; font-weight: 600; 
+            width: 100%; padding: 18px; border-radius: 99px; font-size: 17px; font-weight: 600; 
             background: var(--text); color: var(--bg); border: none; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         .apple-btn:active { transform: scale(0.97); }
-        .apple-btn.secondary { background: rgba(120, 120, 128, 0.08); color: var(--text); box-shadow: none; margin-top: 12px; }
+        .apple-btn.secondary { background: rgba(120, 120, 128, 0.1); color: var(--text); box-shadow: none; margin-top: 15px; }
 
-        .onboard-dots { display: flex; gap: 8px; margin-top: 20px; justify-content: center; }
+        .onboard-dots { display: flex; gap: 10px; margin-top: 20px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.2; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .dot.active { opacity: 1; background: var(--text); width: 24px; border-radius: 4px; }
 
         .slide-exit-up { animation: slideExitUp 0.6s forwards cubic-bezier(0.65, 0, 0.35, 1); }
         @keyframes slideExitUp { to { opacity: 0; transform: translateY(-30px) scale(0.95); } }
 
-        /* 3D IMAGE STYLES - Adjusted Size for better fit */
+        /* 3D IMAGE STYLES */
         .premium-3d-icon {
             width: 140px;
             height: 140px;
             object-fit: contain;
-            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.15));
-            margin-bottom: 25px;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
+            margin-bottom: 20px;
+            flex-shrink: 0;
             animation: float 6s ease-in-out infinite;
         }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
 
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -306,7 +298,7 @@
             <h2 class="apple-title">Hoş Geldin.</h2>
             <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
         </div>
-        <div class="onboard-btn-wrapper">
+        <div class="w-full pb-10 mt-auto">
             <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
         </div>
     </div>
@@ -317,36 +309,20 @@
             <h2 class="apple-title">Dijital Garajın.</h2>
             <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
         </div>
-        <div class="onboard-btn-wrapper">
+        <div class="w-full pb-10 mt-auto">
             <button onclick="nextSlide(3)" class="apple-btn">Devam Et</button>
-        </div>
-        <div class="flex justify-center pb-2">
-            <div class="onboard-dots">
-                <div class="dot" id="dot2-1"></div>
-                <div class="dot active" id="dot2-2"></div>
-                <div class="dot" id="dot2-3"></div>
-                <div class="dot" id="dot2-4"></div>
-            </div>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide3">
         <div class="onboard-content-wrapper">
-            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Round%20Pushpin.png" alt="Location" class="premium-3d-icon">
+            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Location" class="premium-3d-icon">
             <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
             <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
         </div>
-        <div class="onboard-btn-wrapper">
+        <div class="w-full px-4 pb-4 mt-auto">
             <button onclick="requestLocationPermission()" class="apple-btn">Konum İzni Ver</button>
             <button onclick="nextSlide(4)" class="apple-btn secondary">Şimdilik Geç</button>
-        </div>
-        <div class="flex justify-center pb-2">
-            <div class="onboard-dots">
-                <div class="dot" id="dot3-1"></div>
-                <div class="dot" id="dot3-2"></div>
-                <div class="dot active" id="dot3-3"></div>
-                <div class="dot" id="dot3-4"></div>
-            </div>
         </div>
     </div>
 
@@ -356,17 +332,18 @@
             <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
             <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
         </div>
-        <div class="onboard-btn-wrapper">
+        <div class="w-full px-4 pb-4 mt-auto">
             <button onclick="requestNotificationPermission()" class="apple-btn">Bildirimleri Aç</button>
             <button onclick="closeOnboarding()" class="apple-btn secondary">Şimdilik Geç</button>
         </div>
-        <div class="flex justify-center pb-2">
-            <div class="onboard-dots">
-                <div class="dot" id="dot4-1"></div>
-                <div class="dot" id="dot4-2"></div>
-                <div class="dot" id="dot4-3"></div>
-                <div class="dot active" id="dot4-4"></div>
-            </div>
+    </div>
+
+    <div class="flex justify-center pb-6">
+        <div class="onboard-dots">
+            <div class="dot active" id="dot1"></div>
+            <div class="dot" id="dot2"></div>
+            <div class="dot" id="dot3"></div>
+            <div class="dot" id="dot4"></div>
         </div>
     </div>
 </div>
@@ -1755,19 +1732,6 @@
                         // Force reflow
                         void next.offsetWidth;
                         next.classList.add('active');
-                        
-                        // AUTO TRIGGER PERMISSIONS LOGIC
-                        if (n === 3) {
-                            setTimeout(() => {
-                                // Attempt auto trigger
-                                requestLocationPermission();
-                            }, 2000);
-                        }
-                        if (n === 4) {
-                            setTimeout(() => {
-                                requestNotificationPermission();
-                            }, 2000);
-                        }
                     }
                 }, 500); // Wait for exit animation
             } else {
