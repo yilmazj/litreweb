@@ -312,28 +312,53 @@
         </div>
     </div>
 
-            <div class="onboard-slide" id="slide3">
-    <div class="onboard-content-wrapper">
-        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Location" class="premium-3d-icon">
-        <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
-        <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+                <div class="onboard-slide" id="slide3">
+        <div class="onboard-content-wrapper">
+            <div class="premium-icon-box">
+                <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Map" class="premium-3d-icon drop-shadow-2xl">
+                <div class="absolute inset-0 bg-blue-500 opacity-20 blur-3xl rounded-full -z-10"></div>
+            </div>
+            
+            <h2 class="apple-title mt-6">Yakınındakileri Keşfet</h2>
+            <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+        </div>
+        
+        <div class="w-full pb-10 mt-auto">
+            <div class="flex gap-3 justify-center">
+                <button onclick="handlePermission('location', true)" class="apple-capsule-btn-primary flex-1">
+                    Konum İzni Ver
+                </button>
+                <button onclick="handlePermission('location', false)" class="apple-capsule-btn-secondary flex-1">
+                    Şimdilik Geç
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="w-full pb-10 mt-auto flex gap-3 px-2">
-        <button onclick="requestLocationPermission()" class="apple-btn flex-1 text-sm whitespace-nowrap">Konum İzni Ver</button>
-        <button onclick="nextSlide(4)" class="apple-btn secondary flex-1 !mt-0 text-sm whitespace-nowrap">Şimdilik Geç</button>
-    </div>
-</div>
 
-<div class="onboard-slide" id="slide4">
-    <div class="onboard-content-wrapper">
-        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Notification" class="premium-3d-icon">
-        <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
-        <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+    <div class="onboard-slide" id="slide4">
+        <div class="onboard-content-wrapper">
+            <div class="premium-icon-box relative">
+                 <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Bell" class="premium-3d-icon drop-shadow-2xl">
+                 <div class="absolute top-0 right-2 w-4 h-4 bg-red-500 rounded-full border-2 border-white"></div>
+                 <div class="absolute inset-0 bg-yellow-400 opacity-20 blur-3xl rounded-full -z-10"></div>
+            </div>
+
+            <h2 class="apple-title mt-6">Fırsatları Kaçırma</h2>
+            <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+        </div>
+        
+        <div class="w-full pb-10 mt-auto">
+            <div class="flex gap-3 justify-center">
+                <button onclick="handlePermission('notification', true)" class="apple-capsule-btn-primary flex-1">
+                    İzin Ver
+                </button>
+                <button onclick="handlePermission('notification', false)" class="apple-capsule-btn-secondary flex-1">
+                    Şimdilik Geç
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="w-full pb-10 mt-auto flex gap-3 px-2">
-        <button onclick="requestNotificationPermission()" class="apple-btn flex-1 text-sm whitespace-nowrap">Bildirimleri Aç</button>
-        <button onclick="closeOnboarding()" class="apple-btn secondary flex-1 !mt-0 text-sm whitespace-nowrap">Şimdilik Geç</button>
-    </div>
+
 </div>
 
     <div class="flex justify-center pb-6">
