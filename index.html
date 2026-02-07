@@ -270,19 +270,27 @@
     <div class="flex justify-end p-2"><button onclick="closeOnboarding()" class="text-sm font-bold opacity-40">ATLA</button></div>
     
     <div class="onboard-slide active" id="slide1">
-        <div class="mb-4 mt-auto">
-            <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="onboard-content-wrapper">
+            <div class="mb-8 onboard-logo" id="logoAnim">
+                <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 class="apple-title">Hoş Geldin.</h2>
+            <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
         </div>
-        <h2 class="text-3xl font-black mb-4">Hoş Geldin!</h2>
-        <p class="opacity-60 mb-8 px-6">Litre ile çevrendeki en ucuz akaryakıtı ve elektrikli şarj istasyonlarını saniyeler içinde bul.</p>
-        <button onclick="nextSlide(2)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30 mt-auto">BAŞLAYALIM</button>
+        <div class="w-full pb-10 mt-auto">
+            <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
+        </div>
     </div>
 
     <div class="onboard-slide" id="slide2">
-        <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="onboard-image mt-auto">
-        <h2 class="text-2xl font-black mb-4">Tüm Araçların Tek Yerde</h2>
-        <p class="opacity-60 mb-8 px-4">Garajına birden fazla araç ekle, yakıt masraflarını, aldığın litreyi ve tüm geçmişini kuruşu kuruşuna takip et.</p>
-        <button onclick="nextSlide(3)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30 mt-auto">DEVAM ET</button>
+        <div class="onboard-content-wrapper">
+            <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="premium-3d-icon">
+            <h2 class="apple-title">Dijital Garajın.</h2>
+            <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
+        </div>
+        <div class="w-full pb-10 mt-auto">
+            <button onclick="nextSlide(3)" class="apple-btn">Devam Et</button>
+        </div>
     </div>
 
     <div class="onboard-slide" id="slide3">
