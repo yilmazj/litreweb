@@ -248,33 +248,10 @@
         <div class="mb-4">
             <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <h2 class="text-3xl font-black mb-4">Hoş Geldin!</h2>
-        <p class="opacity-60 mb-8 px-6">Litre ile çevrendeki en ucuz akaryakıtı ve elektrikli şarj istasyonlarını saniyeler içinde bul.</p>
-        <button onclick="nextSlide(2)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30">BAŞLAYALIM</button>
-    </div>
+        <h2 class="apple-title">Hoş Geldin.</h2> <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p> </div> <div class="w-full pb-10 mt-auto"> <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button> </div> </div> <div class="onboard-slide" id="slide2"> <div class="onboard-content-wrapper"> <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="premium-3d-icon"> <h2 class="apple-title">Dijital Garajın.</h2> <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p> </div> <div class="w-full pb-10 mt-auto"> <button onclick="nextSlide(3)" class="apple-btn">Devam Et</button> </div> </div>
 
-    <div class="onboard-slide" id="slide2">
-        <div class="onboard-img-box"><i data-lucide="car-front" class="w-12 h-12 text-blue-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Tüm Araçların Tek Yerde</h2>
-        <p class="opacity-60 mb-8 px-4">Garajına birden fazla araç ekle, yakıt masraflarını, aldığın litreyi ve tüm geçmişini kuruşu kuruşuna takip et.</p>
-        <button onclick="nextSlide(3)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30">DEVAM ET</button>
-    </div>
-
-    <div class="onboard-slide" id="slide3">
-        <div class="onboard-img-box"><i data-lucide="navigation" class="w-12 h-12 text-green-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Sana En Yakın Olanı Bulalım</h2>
-        <p class="opacity-60 mb-8 px-4">Sadece sana yakın istasyonları göstermek ve menziline göre sıralamak için konumuna ihtiyacımız var.</p>
-        <button onclick="requestLocationPermission()" class="w-full bg-green-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-green-500/30">KONUM İZNİ VER</button>
-        <button onclick="nextSlide(4)" class="mt-4 text-xs font-bold opacity-40">Şimdilik Geç</button>
-    </div>
-
-    <div class="onboard-slide" id="slide4">
-        <div class="onboard-img-box"><i data-lucide="bell" class="w-12 h-12 text-orange-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Zam Gelmeden Haber Verelim</h2>
-        <p class="opacity-60 mb-8 px-4">Akaryakıt zamlarını ve özel indirim fırsatlarını kaçırmaman için bildirim göndermemize izin ver.</p>
-        <button onclick="requestNotificationPermission()" class="w-full bg-orange-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-orange-500/30">BİLDİRİMLERİ AÇ</button>
-        <button onclick="closeOnboarding()" class="mt-4 text-xs font-bold opacity-40">Şimdilik Geç</button>
-    </div>
+    <div class="onboard-slide" id="slide3"> <div class="onboard-content-wrapper"> <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Location" class="premium-3d-icon"> <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2> <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p> </div> <div class="w-full pb-10 mt-auto"> <button onclick="requestLocationPermission()" class="apple-btn">Konum İzni Ver</button> <button onclick="nextSlide(4)" class="apple-btn secondary">Şimdilik Geç</button> </div> </div>
+    <div class="onboard-slide" id="slide4"> <div class="onboard-content-wrapper"> <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Notification" class="premium-3d-icon"> <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2> <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p> </div> <div class="w-full pb-10 mt-auto"> <button onclick="requestNotificationPermission()" class="apple-btn">Bildirimleri Aç</button> <button onclick="closeOnboarding()" class="apple-btn secondary">Şimdilik Geç</button> </div> </div>
 
     <div class="mt-auto flex justify-center pb-10">
         <div class="onboard-dots">
