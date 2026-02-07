@@ -36,7 +36,7 @@
         input { user-select: text; -webkit-user-select: text; background: transparent; }
         
         :root { 
-            --bg: #f5f5f7; /* Apple style light grey */
+            --bg: #f5f5f7; 
             --text: #1d1d1f; 
             --card: rgba(255, 255, 255, 0.8); 
             --border: rgba(0, 0, 0, 0.05); 
@@ -67,16 +67,26 @@
         }
         
         .onboard-slide { 
-            display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; 
+            display: none; flex-direction: column; height: 100%; text-align: center; 
             opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
         
-        .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
-        .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } /* Damlama Efekti */
+        /* The wrapper ensures content is perfectly centered vertically & horizontally */
+        .onboard-content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center;
+            width: 100%;
+        }
 
-        .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 15px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .apple-sub { font-size: 20px; line-height: 1.4; color: var(--subtext); font-weight: 500; margin-bottom: 40px; max-width: 320px; }
+        .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
+        .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } 
+
+        .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; }
         
         .apple-btn { 
             width: 100%; padding: 18px; border-radius: 99px; font-size: 17px; font-weight: 600; 
@@ -86,12 +96,34 @@
         .apple-btn:active { transform: scale(0.97); }
         .apple-btn.secondary { background: rgba(120, 120, 128, 0.1); color: var(--text); box-shadow: none; margin-top: 15px; }
 
-        .onboard-dots { display: flex; gap: 10px; margin-top: 30px; }
+        .onboard-dots { display: flex; gap: 10px; margin-top: 20px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.2; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .dot.active { opacity: 1; background: var(--text); width: 24px; border-radius: 4px; }
 
         .slide-exit-up { animation: slideExitUp 0.6s forwards cubic-bezier(0.65, 0, 0.35, 1); }
         @keyframes slideExitUp { to { opacity: 0; transform: translateY(-30px) scale(0.95); } }
+
+        /* 3D IMAGE STYLES FOR SLIDE 2 */
+        .premium-3d-icon {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
+            margin-bottom: 30px;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* BOXED ICON STYLES FOR SLIDE 3 & 4 (COMPACT) */
+        .onboard-img-box { 
+            width: 100px; height: 100px; 
+            background: var(--input-bg); 
+            border-radius: 30px; 
+            display: flex; align-items: center; justify-content: center; 
+            margin-bottom: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+        }
+
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
 
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -269,40 +301,52 @@
     <div class="flex justify-end p-2 mb-4"><button onclick="closeOnboarding()" class="text-sm font-bold text-current opacity-40">ATLA</button></div>
     
     <div class="onboard-slide active" id="slide1">
-        <div class="mb-8 onboard-logo" id="logoAnim">
-            <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="onboard-content-wrapper">
+            <div class="mb-8 onboard-logo" id="logoAnim">
+                <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 class="apple-title">Hoş Geldin.</h2>
+            <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
         </div>
-        <h2 class="apple-title">Hoş Geldin.</h2>
-        <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
-        <div class="mt-auto w-full pb-10">
+        <div class="w-full pb-10 mt-auto">
             <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide2">
-        <div class="mb-6"><i data-lucide="car-front" class="w-16 h-16 text-blue-500"></i></div>
-        <h2 class="apple-title">Dijital Garajın.</h2>
-        <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
-        <div class="mt-auto w-full pb-10">
+        <div class="onboard-content-wrapper">
+            <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="premium-3d-icon">
+            <h2 class="apple-title">Dijital Garajın.</h2>
+            <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
+        </div>
+        <div class="w-full pb-10 mt-auto">
             <button onclick="nextSlide(3)" class="apple-btn">Devam Et</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide3">
-        <div class="mb-6"><i data-lucide="map-pin" class="w-16 h-16 text-green-500"></i></div>
-        <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
-        <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
-        <div class="mt-auto w-full pb-10">
+        <div class="onboard-content-wrapper">
+            <div class="onboard-img-box">
+                <i data-lucide="map-pin" class="w-12 h-12 text-green-500"></i>
+            </div>
+            <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
+            <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+        </div>
+        <div class="w-full pb-10 mt-auto">
             <button onclick="requestLocationPermission()" class="apple-btn">Konum İzni Ver</button>
             <button onclick="nextSlide(4)" class="apple-btn secondary">Şimdilik Geç</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide4">
-        <div class="mb-6"><i data-lucide="bell-ring" class="w-16 h-16 text-orange-500"></i></div>
-        <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
-        <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
-        <div class="mt-auto w-full pb-10">
+        <div class="onboard-content-wrapper">
+            <div class="onboard-img-box">
+                <i data-lucide="bell" class="w-12 h-12 text-orange-500"></i>
+            </div>
+            <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
+            <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+        </div>
+        <div class="w-full pb-10 mt-auto">
             <button onclick="requestNotificationPermission()" class="apple-btn">Bildirimleri Aç</button>
             <button onclick="closeOnboarding()" class="apple-btn secondary">Şimdilik Geç</button>
         </div>
@@ -925,11 +969,7 @@
                 document.getElementById('profileStatus').innerText = "Giriş Yapılmadı";
                 document.getElementById('guestActions').classList.remove('hidden');
                 document.getElementById('logoutBtn').classList.add('hidden');
-                document.getElementById('premiumCard').classList.add('hidden'); 
-                
-                // Show Premium below login for Guest
                 document.getElementById('premiumCard').classList.remove('hidden');
-                
                 isPremiumUser = false;
                 return; 
             }
@@ -952,12 +992,10 @@
                 } else {
                     isPremiumUser = false;
                     document.getElementById('profileStatus').innerText = "Free Hesap";
-                    // For Logged In users, we want it at top (HTML order is default below profile info, we move it)
                     const profileSection = document.getElementById('profile');
                     const premiumCard = document.getElementById('premiumCard');
-                    const garageCard = document.querySelector('#profile .glass-card.p-7'); // Garage card
+                    const garageCard = document.querySelector('#profile .glass-card.p-7'); 
                     
-                    // Insert Premium Card before Garage Card
                     if(garageCard && premiumCard) {
                         garageCard.parentNode.insertBefore(premiumCard, garageCard);
                     }
@@ -1700,19 +1738,6 @@
                         // Force reflow
                         void next.offsetWidth;
                         next.classList.add('active');
-                        
-                        // AUTO TRIGGER PERMISSIONS LOGIC
-                        if (n === 3) {
-                            setTimeout(() => {
-                                // Attempt auto trigger
-                                requestLocationPermission();
-                            }, 2500);
-                        }
-                        if (n === 4) {
-                            setTimeout(() => {
-                                requestNotificationPermission();
-                            }, 2500);
-                        }
                     }
                 }, 500); // Wait for exit animation
             } else {
