@@ -62,9 +62,20 @@
         
         /* --- PREMIUM ONBOARDING ANIMATIONS --- */
         #onboardingOverlay { 
-            position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 30px; 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        }
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 8000;
+    display: none;
+    flex-direction: column;
+    padding: 30px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    height: 100dvh;
+    box-sizing: border-box;
+    overflow: hidden;
+}
         
         .onboard-slide { 
             display: none; flex-direction: column; height: 100%; text-align: center; 
@@ -105,13 +116,12 @@
 
         /* 3D IMAGE STYLES */
         .premium-3d-icon {
-            width: 180px;
-            height: 180px;
-            object-fit: contain;
-            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
-            margin-bottom: 30px;
-            animation: float 6s ease-in-out infinite;
-        }
+    width: 180px;
+    height: 180px;
+    max-height: 25vh;
+    object-fit: contain;
+    margin-bottom: 30px;
+}
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
 
         /* Auth Styles */
