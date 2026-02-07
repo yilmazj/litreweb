@@ -36,94 +36,63 @@
         input { user-select: text; -webkit-user-select: text; background: transparent; }
         
         :root { 
-            --bg: #f5f5f7; 
-            --text: #1d1d1f; 
-            --card: rgba(255, 255, 255, 0.8); 
+            --bg: #f2f2f7; 
+            --text: #000; 
+            --card: rgba(255, 255, 255, 0.75); 
             --border: rgba(0, 0, 0, 0.05); 
-            --subtext: #86868b;
+            --subtext: #636366;
             --input-bg: rgba(120, 120, 128, 0.12);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-            --apple-blue: #0071e3;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.4);
         }
         
         body.dark-mode { 
             --bg: #000000; 
-            --text: #f5f5f7; 
+            --text: #ffffff; 
             --card: rgba(28, 28, 30, 0.65); 
             --border: rgba(255, 255, 255, 0.1); 
-            --subtext: #86868b;
+            --subtext: #8e8e93;
             --input-bg: rgba(118, 118, 128, 0.24);
             --glass-border: 0.5px solid rgba(255, 255, 255, 0.1);
         }
 
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; transition: background-color 0.5s ease, color 0.5s ease; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
         
-        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
         
-        /* --- PREMIUM ONBOARDING ANIMATIONS --- */
+        /* ONBOARDING STYLES */
         #onboardingOverlay { 
-            position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 30px; 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 20px; 
+            /* Fix for vertical scrolling issues */
+            overflow: hidden;
         }
         
         .onboard-slide { 
-            display: none; flex-direction: column; height: 100%; text-align: center; 
-            opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            display: none; 
+            flex-direction: column; 
+            height: 100%; 
+            /* DİKEY ORTALAMAYI KALDIRDIM, ÜSTTEN HİZALAMA EKLEDİM */
+            justify-content: flex-start; 
+            align-items: center; 
+            text-align: center; 
+            animation: fadeIn 0.5s ease; 
+            padding-top: 10vh; /* İçeriği yukarı taşır ama en tepeye yapıştırmaz */
         }
-        .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
         
-        /* The wrapper ensures content is perfectly centered vertically & horizontally */
-        .onboard-content-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center;
-            width: 100%;
-        }
-
-        .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
-        .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } 
-
-        .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .onboard-slide.active { display: flex; }
         
-        .apple-btn { 
-            width: 100%; padding: 18px; border-radius: 99px; font-size: 17px; font-weight: 600; 
-            background: var(--text); color: var(--bg); border: none; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        .apple-btn:active { transform: scale(0.97); }
-        .apple-btn.secondary { background: rgba(120, 120, 128, 0.1); color: var(--text); box-shadow: none; margin-top: 15px; }
-
-        .onboard-dots { display: flex; gap: 10px; margin-top: 20px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.2; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .dot.active { opacity: 1; background: var(--text); width: 24px; border-radius: 4px; }
-
-        .slide-exit-up { animation: slideExitUp 0.6s forwards cubic-bezier(0.65, 0, 0.35, 1); }
-        @keyframes slideExitUp { to { opacity: 0; transform: translateY(-30px) scale(0.95); } }
-
-        /* 3D IMAGE STYLES FOR SLIDE 2 */
-        .premium-3d-icon {
-            width: 180px;
-            height: 180px;
+        /* GÖRSEL STİLİ DEĞİŞTİ */
+        .onboard-image {
+            width: 150px;
+            height: 150px;
             object-fit: contain;
-            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
-            margin-bottom: 30px;
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        /* BOXED ICON STYLES FOR SLIDE 3 & 4 (COMPACT) */
-        .onboard-img-box { 
-            width: 100px; height: 100px; 
-            background: var(--input-bg); 
-            border-radius: 30px; 
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            margin-bottom: 20px;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
         }
 
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        .onboard-dots { display: flex; gap: 8px; margin-top: 10px; margin-bottom: 30px;}
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.3; transition: 0.3s; }
+        .dot.active { opacity: 1; background: #3b82f6; width: 20px; border-radius: 4px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -298,61 +267,45 @@
 <body class="max-w-md mx-auto h-screen flex flex-col">
 
 <div id="onboardingOverlay">
-    <div class="flex justify-end p-2 mb-4"><button onclick="closeOnboarding()" class="text-sm font-bold text-current opacity-40">ATLA</button></div>
+    <div class="flex justify-end p-2"><button onclick="closeOnboarding()" class="text-sm font-bold opacity-40">ATLA</button></div>
     
     <div class="onboard-slide active" id="slide1">
-        <div class="onboard-content-wrapper">
-            <div class="mb-8 onboard-logo" id="logoAnim">
-                <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <h2 class="apple-title">Hoş Geldin.</h2>
-            <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
+        <div class="mb-4 mt-auto">
+            <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div class="w-full pb-10 mt-auto">
-            <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
-        </div>
+        <h2 class="text-3xl font-black mb-4">Hoş Geldin!</h2>
+        <p class="opacity-60 mb-8 px-6">Litre ile çevrendeki en ucuz akaryakıtı ve elektrikli şarj istasyonlarını saniyeler içinde bul.</p>
+        <button onclick="nextSlide(2)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30 mt-auto">BAŞLAYALIM</button>
     </div>
 
     <div class="onboard-slide" id="slide2">
-        <div class="onboard-content-wrapper">
-            <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="premium-3d-icon">
-            <h2 class="apple-title">Dijital Garajın.</h2>
-            <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
-        </div>
-        <div class="w-full pb-10 mt-auto">
-            <button onclick="nextSlide(3)" class="apple-btn">Devam Et</button>
-        </div>
+        <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="onboard-image mt-auto">
+        <h2 class="text-2xl font-black mb-4">Tüm Araçların Tek Yerde</h2>
+        <p class="opacity-60 mb-8 px-4">Garajına birden fazla araç ekle, yakıt masraflarını, aldığın litreyi ve tüm geçmişini kuruşu kuruşuna takip et.</p>
+        <button onclick="nextSlide(3)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30 mt-auto">DEVAM ET</button>
     </div>
 
     <div class="onboard-slide" id="slide3">
-        <div class="onboard-content-wrapper">
-            <div class="onboard-img-box">
-                <i data-lucide="map-pin" class="w-12 h-12 text-green-500"></i>
-            </div>
-            <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
-            <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
-        </div>
-        <div class="w-full pb-10 mt-auto">
-            <button onclick="requestLocationPermission()" class="apple-btn">Konum İzni Ver</button>
-            <button onclick="nextSlide(4)" class="apple-btn secondary">Şimdilik Geç</button>
+        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Location" class="onboard-image mt-auto">
+        <h2 class="text-2xl font-black mb-4">Sana En Yakın Olanı Bulalım</h2>
+        <p class="opacity-60 mb-8 px-4">Sadece sana yakın istasyonları göstermek ve menziline göre sıralamak için konumuna ihtiyacımız var.</p>
+        <div class="w-full mt-auto">
+            <button onclick="requestLocationPermission()" class="w-full bg-green-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-green-500/30">KONUM İZNİ VER</button>
+            <button onclick="nextSlide(4)" class="mt-4 text-xs font-bold opacity-40 mb-2 block">Şimdilik Geç</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide4">
-        <div class="onboard-content-wrapper">
-            <div class="onboard-img-box">
-                <i data-lucide="bell" class="w-12 h-12 text-orange-500"></i>
-            </div>
-            <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
-            <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
-        </div>
-        <div class="w-full pb-10 mt-auto">
-            <button onclick="requestNotificationPermission()" class="apple-btn">Bildirimleri Aç</button>
-            <button onclick="closeOnboarding()" class="apple-btn secondary">Şimdilik Geç</button>
+        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Notification" class="onboard-image mt-auto">
+        <h2 class="text-2xl font-black mb-4">Zam Gelmeden Haber Verelim</h2>
+        <p class="opacity-60 mb-8 px-4">Akaryakıt zamlarını ve özel indirim fırsatlarını kaçırmaman için bildirim göndermemize izin ver.</p>
+        <div class="w-full mt-auto">
+            <button onclick="requestNotificationPermission()" class="w-full bg-orange-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-orange-500/30">BİLDİRİMLERİ AÇ</button>
+            <button onclick="closeOnboarding()" class="mt-4 text-xs font-bold opacity-40 mb-2 block">Şimdilik Geç</button>
         </div>
     </div>
 
-    <div class="flex justify-center pb-6">
+    <div class="mt-4 flex justify-center pb-10">
         <div class="onboard-dots">
             <div class="dot active" id="dot1"></div>
             <div class="dot" id="dot2"></div>
@@ -1714,36 +1667,16 @@
 
         // Custom Start Logic for Slide 1 (Logo Drop)
         function startOnboarding() {
-            const logo = document.getElementById('logoAnim');
-            logo.classList.add('drop-active'); // Trigger CSS drop animation
-            
             // Wait for drop animation then transition
             setTimeout(() => {
                 nextSlide(2);
-            }, 600);
+            }, 300);
         }
 
         function nextSlide(n) {
             // Exit current slide
-            const current = document.querySelector('.onboard-slide.active');
-            if(current) {
-                current.classList.add('slide-exit-up');
-                setTimeout(() => {
-                    current.classList.remove('active', 'slide-exit-up');
-                    
-                    // Enter new slide
-                    const next = document.getElementById('slide' + n);
-                    if(next) {
-                        next.style.display = 'flex';
-                        // Force reflow
-                        void next.offsetWidth;
-                        next.classList.add('active');
-                    }
-                }, 500); // Wait for exit animation
-            } else {
-                // Fallback direct switch
-                document.getElementById('slide' + n).classList.add('active');
-            }
+            document.querySelectorAll('.onboard-slide').forEach(s => s.classList.remove('active'));
+            document.getElementById('slide' + n).classList.add('active');
             
             // Update dots
             document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
