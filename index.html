@@ -313,53 +313,60 @@
     </div>
 
                     <div class="onboard-slide" id="slide3">
-        <div class="onboard-content-wrapper flex-1 flex flex-col justify-center items-center">
-            
-            <div class="premium-icon-box">
-                <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Map" class="premium-3d-icon drop-shadow-2xl">
-                <div class="absolute inset-0 bg-blue-500 opacity-20 blur-3xl rounded-full -z-10"></div>
-            </div>
-            
-            <h2 class="apple-title mt-6">Yakınındakileri Keşfet</h2>
-            <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
-        </div>
+    <div class="onboard-content-wrapper">
         
-        <div class="w-full pb-10">
-            <div class="flex gap-3 justify-center">
-                <button onclick="handlePermission('location', true)" class="apple-capsule-btn-primary flex-1">
-                    Konum İzni Ver
-                </button>
-                <button onclick="handlePermission('location', false)" class="apple-capsule-btn-secondary flex-1">
-                    Şimdilik Geç
-                </button>
-            </div>
+        <!-- Harita benzeri premium görsel -->
+        <div class="relative mb-10 w-full h-52 rounded-3xl overflow-hidden bg-gradient-to-br from-blue-400/20 to-green-400/20">
+            <svg viewBox="0 0 300 200" class="absolute inset-0 w-full h-full opacity-40">
+                <path d="M20 150 Q80 100 140 120 T260 80" stroke="currentColor" stroke-width="3" fill="none"/>
+                <circle cx="150" cy="100" r="6" fill="currentColor"/>
+                <circle cx="90" cy="130" r="5" fill="currentColor"/>
+                <circle cx="210" cy="90" r="5" fill="currentColor"/>
+            </svg>
+        </div>
+
+        <h2 class="apple-title">Yakınındakileri Keşfet</h2>
+        <p class="apple-sub">
+            En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.
+        </p>
+
+        <div class="flex gap-4 mt-10 w-full">
+            <button onclick="requestLocation()" class="apple-btn flex-1">
+                Konum İzni Ver
+            </button>
+            <button onclick="skipLocation()" class="apple-btn-outline flex-1">
+                Şimdilik Geç
+            </button>
         </div>
     </div>
+</div>
 
     <div class="onboard-slide" id="slide4">
-        <div class="onboard-content-wrapper flex-1 flex flex-col justify-center items-center">
-            
-            <div class="premium-icon-box relative">
-                 <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Bell" class="premium-3d-icon drop-shadow-2xl">
-                 <div class="absolute top-0 right-2 w-4 h-4 bg-red-500 rounded-full border-2 border-white"></div>
-                 <div class="absolute inset-0 bg-yellow-400 opacity-20 blur-3xl rounded-full -z-10"></div>
-            </div>
+    <div class="onboard-content-wrapper">
 
-            <h2 class="apple-title mt-6">Fırsatları Kaçırma</h2>
-            <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+        <!-- Premium zil / bildirim sembolü -->
+        <div class="mb-10">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" class="mx-auto opacity-80">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2Z" fill="currentColor"/>
+                <path d="M18 16v-5a6 6 0 0 0-12 0v5l-2 2h16l-2-2Z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
         </div>
-        
-        <div class="w-full pb-10">
-            <div class="flex gap-3 justify-center">
-                <button onclick="handlePermission('notification', true)" class="apple-capsule-btn-primary flex-1">
-                    İzin Ver
-                </button>
-                <button onclick="handlePermission('notification', false)" class="apple-capsule-btn-secondary flex-1">
-                    Şimdilik Geç
-                </button>
-            </div>
+
+        <h2 class="apple-title">Fırsatları Kaçırma</h2>
+        <p class="apple-sub">
+            Zam haberleri ve özel indirimlerden anında haberdar ol.
+        </p>
+
+        <div class="flex gap-4 mt-10 w-full">
+            <button onclick="requestNotification()" class="apple-btn flex-1">
+                Bildirimlere İzin Ver
+            </button>
+            <button onclick="finishOnboarding()" class="apple-btn-outline flex-1">
+                Şimdilik Geç
+            </button>
         </div>
     </div>
+</div>
 
     <div class="flex justify-center pb-6">
         <div class="onboard-dots">
