@@ -3,15 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <link rel="icon" type="image/png" id="faviconLink" href="logobeyaz.png">
+    <link rel="apple-touch-icon" id="appleTouchIcon" href="logobeyaz.png">
+
+    <link rel="manifest" id="myManifest">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Litre">
+    <meta id="metaThemeColor" name="theme-color" content="#f2f2f7">
+    
     <title>Litre</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
     <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
+
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -19,41 +34,105 @@
     <style>
         * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
         input { user-select: text; -webkit-user-select: text; background: transparent; }
-        :root { --bg: #f2f2f7; --text: #000; --card: rgba(255, 255, 255, 0.75); --border: rgba(0, 0, 0, 0.05); --subtext: #636366; --input-bg: rgba(120, 120, 128, 0.12); --glass-border: 1px solid rgba(255, 255, 255, 0.4); }
-        body.dark-mode { --bg: #000000; --text: #ffffff; --card: rgba(28, 28, 30, 0.65); --border: rgba(255, 255, 255, 0.1); --subtext: #8e8e93; --input-bg: rgba(118, 118, 128, 0.24); --glass-border: 0.5px solid rgba(255, 255, 255, 0.1); }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
         
-        /* ONBOARDING STYLES - RESTORED & FIXED */
-        #onboardingOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 20px; overflow: hidden; }
+        :root { 
+            --bg: #f5f5f7; 
+            --text: #1d1d1f; 
+            --card: rgba(255, 255, 255, 0.8); 
+            --border: rgba(0, 0, 0, 0.05); 
+            --subtext: #86868b;
+            --input-bg: rgba(120, 120, 128, 0.12);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+            --apple-blue: #0071e3;
+        }
         
-        /* Varsayılan Slayt Stili (Ortalanmış - Sayfa 1 ve 2 için) */
-        .onboard-slide { display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; animation: fadeIn 0.5s ease; }
-        .onboard-slide.active { display: flex; }
+        body.dark-mode { 
+            --bg: #000000; 
+            --text: #f5f5f7; 
+            --card: rgba(28, 28, 30, 0.65); 
+            --border: rgba(255, 255, 255, 0.1); 
+            --subtext: #86868b;
+            --input-bg: rgba(118, 118, 128, 0.24);
+            --glass-border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
 
-        /* Sayfa 3 ve 4 için Özel Stil (Üstten Hizalı) */
-        .slide-top-aligned { justify-content: flex-start !important; padding-top: 12vh; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; transition: background-color 0.5s ease, color 0.5s ease; }
+        
+        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+        
+        /* --- PREMIUM ONBOARDING ANIMATIONS --- */
+        #onboardingOverlay { 
+            position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 30px; 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        
+        .onboard-slide { 
+            display: none; flex-direction: column; height: 100%; text-align: center; 
+            opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
+        
+        /* The wrapper ensures content is perfectly centered vertically & horizontally */
+        .onboard-content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center;
+            width: 100%;
+        }
 
-        /* DROP ANIMATION STYLES (RESTORED) */
-        #dropContainer { transition: transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
-        .drop-animating { transform: translateY(200vh) scale(0.8); opacity: 0; }
+        .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
+        .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } 
 
-        /* Image Styles */
-        .onboard-image-large { width: 80%; max-width: 300px; object-fit: contain; margin-bottom: 30px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
-        .onboard-image-emoji { width: 150px; height: 150px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); }
+        .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; }
+        
+        .apple-btn { 
+            width: 100%; padding: 18px; border-radius: 99px; font-size: 17px; font-weight: 600; 
+            background: var(--text); color: var(--bg); border: none; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .apple-btn:active { transform: scale(0.97); }
+        .apple-btn.secondary { background: rgba(120, 120, 128, 0.1); color: var(--text); box-shadow: none; margin-top: 15px; }
 
-        .onboard-dots { display: flex; gap: 8px; margin-top: 10px; margin-bottom: 30px; justify-content: center;}
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.3; transition: 0.3s; }
-        .dot.active { opacity: 1; background: #3b82f6; width: 20px; border-radius: 4px; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .onboard-dots { display: flex; gap: 10px; margin-top: 20px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.2; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .dot.active { opacity: 1; background: var(--text); width: 24px; border-radius: 4px; }
 
-        /* Other styles remain exactly the same */
-        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
+        .slide-exit-up { animation: slideExitUp 0.6s forwards cubic-bezier(0.65, 0, 0.35, 1); }
+        @keyframes slideExitUp { to { opacity: 0; transform: translateY(-30px) scale(0.95); } }
+
+        /* 3D IMAGE STYLES FOR SLIDE 2 */
+        .premium-3d-icon {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
+            margin-bottom: 30px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* NEW SVG ICONS FOR SLIDE 3 & 4 (Replacing the Box) */
+        .feature-svg-icon {
+            width: 160px;
+            height: 160px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+
+        /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
         .auth-input { background: var(--input-bg); border: var(--glass-border); border-radius: 16px; padding: 18px; color: var(--text); width: 100%; font-size: 16px; outline: none; margin-bottom: 15px; transition: 0.3s; }
         .auth-input:focus { border-color: #3b82f6; background: rgba(59,130,246,0.1); }
         .auth-btn { background: #3b82f6; color: white; font-weight: 800; padding: 18px; border-radius: 16px; width: 100%; margin-top: 10px; text-align: center; }
+
         .tab-content { display: none; height: 100%; overflow-y: auto; background-color: var(--bg); position: absolute; width: 100%; top: 0; left: 0; transition: background-color 0.3s; }
         .tab-content.active { display: block; }
+        
         .glass-card { background: var(--card); border: var(--glass-border); backdrop-filter: blur(25px) saturate(160%); border-radius: 2rem; transition: background-color 0.3s, border-color 0.3s; }
         .haptic-btn { transition: 0.1s; cursor: pointer; }
         .haptic-btn:active { transform: scale(0.96); opacity: 0.8; }
@@ -62,20 +141,60 @@
         .nav-item { color: var(--subtext); transition: 0.3s; position: relative; }
         .nav-item.active { color: var(--text); transform: translateY(-3px); }
         .nav-item.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 3px; height: 3px; background: var(--text); border-radius: 50%; }
+        
         #map, #miniMap { height: 100%; width: 100%; min-height: 220px; border-radius: 2rem; z-index: 1; background: var(--bg); transition: background-color 0.3s; }
-        .google-dark-mode .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(0.95) contrast(0.9) grayscale(20%); }
+        
+        /* GOOGLE MAPS DARK MODE FILTER */
+        .google-dark-mode .leaflet-tile-pane { 
+            filter: invert(100%) hue-rotate(180deg) brightness(0.95) contrast(0.9) grayscale(20%); 
+        }
         body:not(.dark-mode) .google-dark-mode .leaflet-tile-pane { filter: none; }
+        
+        /* APPLE MAPS STYLE MARKER */
         .user-location-marker { z-index: 999999 !important; pointer-events: none; background: transparent !important; border: none !important; }
         .location-container { position: relative; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; }
         .user-dot { width: 22px; height: 22px; background: #2f7cf6; border: 4px solid white; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
         .user-pulse { width: 80px; height: 80px; background: rgba(47, 124, 246, 0.2); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: pulse 2.5s infinite ease-out; z-index: 90; pointer-events: none;}
         .user-beam { position: absolute; bottom: 50%; left: 50%; width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-top: 90px solid linear-gradient(to top, rgba(47, 124, 246, 0.4), transparent); background: linear-gradient(to top, rgba(47,124,246,0.3) 0%, transparent 100%); clip-path: polygon(0 0, 100% 0, 50% 100%); width: 100px; height: 100px; transform-origin: bottom center; transform: translateX(-50%) rotate(0deg); z-index: 80; transition: transform 0.2s linear; opacity: 0.6; pointer-events: none;}
+        
+        /* MINI MAP MARKER */
         .mini-user-dot { width: 16px; height: 16px; background: #2f7cf6; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 100; }
+
         @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+
         .find-me-btn { position: absolute; bottom: 110px; right: 20px; width: 50px; height: 50px; background: var(--card); border: var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(20px); z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: background-color 0.3s, border-color 0.3s; }
-        .map-filter-capsule { position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%); background: var(--card); border: var(--glass-border); backdrop-filter: blur(25px); border-radius: 30px; padding: 5px; display: flex; align-items: center; z-index: 1500; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .filter-option { padding: 10px 15px; border-radius: 25px; font-size: 12px; font-weight: 800; color: var(--subtext); transition: 0.3s; white-space: nowrap; }
-        .filter-option.active { background: var(--text); color: var(--bg); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+
+        /* MAP FILTER CAPSULE */
+        .map-filter-capsule {
+            position: absolute;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            border: var(--glass-border);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            z-index: 1500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .filter-option {
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--subtext);
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+        .filter-option.active {
+            background: var(--text);
+            color: var(--bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
         .picker-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); z-index: 5000; display: none; align-items: flex-end; }
         .picker-container { background: var(--card); width: 100%; border-radius: 30px 30px 0 0; padding: 25px; border-top: var(--glass-border); max-height: 85vh; display: flex; flex-direction: column; transition: background-color 0.3s, border-color 0.3s; }
         .wheel-wrapper { position: relative; height: 200px; overflow: hidden; }
@@ -83,101 +202,178 @@
         .wheel-picker { height: 100%; overflow-y: scroll; overflow-x: hidden; scroll-snap-type: y mandatory; text-align: center; touch-action: pan-y; }
         .wheel-item { height: 44px; line-height: 44px; font-size: 16px; opacity: 0.4; color: var(--text); transition: 0.3s cubic-bezier(0.2, 1, 0.3, 1); }
         .wheel-item.selected { opacity: 1; font-weight: 800; font-size: 24px; transform: scale(1.1); color: var(--text); }
+
         .toggle-switch { width: 44px; height: 24px; background: var(--input-bg); border-radius: 20px; position: relative; transition: 0.3s; cursor: pointer; }
         .toggle-switch.active { background: #22c55e; }
         .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
         .toggle-switch.active .toggle-knob { left: 22px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .news-card { flex: 0 0 100%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: var(--glass-border); transition: background-color 0.3s, border-color 0.3s; }
+        
+        /* CAROUSEL FIXED */
         .garage-carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; }
         .carousel-card { flex: 0 0 100%; scroll-snap-align: center; padding: 18px; border-radius: 2rem; background: var(--card); border: var(--glass-border); transition: background-color 0.3s, border-color 0.3s; }
+
         .silver-grad { background: linear-gradient(145deg, #000, #666); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; }
         body.dark-mode .silver-grad { background: linear-gradient(145deg, #fff, #999); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* PROFILE PICTURE UPDATE */
         .profile-icon { background: var(--input-bg); color: var(--text); transition: background-color 0.3s, color 0.3s; background-size: cover; background-position: center; position: relative; }
         .profile-upload-btn { position: absolute; bottom: 0; right: 0; width: 32px; height: 32px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid var(--bg); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: border-color 0.3s; }
+
         .city-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .city-item:active { background: var(--input-bg); }
         .search-input { background: var(--input-bg); border-radius: 12px; width: 100%; padding: 12px 40px 12px 15px; color: var(--text); outline: none; font-size: 16px; transition: background-color 0.3s; }
+        
         .spinner { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
         #mapSearchResults { position: absolute; top: 70px; left: 20px; right: 20px; background: var(--card); border: var(--glass-border); border-radius: 1.5rem; backdrop-filter: blur(45px); max-height: 300px; overflow-y: auto; display: none; z-index: 3000; transition: background-color 0.3s, border-color 0.3s; }
         .map-search-item { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .map-search-item:last-child { border-bottom: none; }
         .map-search-icon { width: 32px; height: 32px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        
         .action-btn-small { background: var(--input-bg); padding: 8px; border-radius: 10px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .action-btn-small:active { transform: scale(0.9); background: rgba(128,128,128,0.2); }
+
         #cameraView { position: absolute; inset: 0; object-fit: cover; z-index: 0; display: none; }
         .camera-overlay-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
+        
         .mic-active { color: #ef4444; animation: pulse-red 1s infinite; }
         @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        
         .theme-btn { border: 1px solid transparent; transition: 0.3s; }
         .theme-btn.active { border-color: #3b82f6; background: rgba(59,130,246,0.1); color: #3b82f6; }
+
         .fuel-type-btn { background: var(--input-bg); color: var(--text); border: 1px solid transparent; transition: 0.2s; }
         .fuel-type-btn.active { background: #ef4444; color: white; border-color: #ef4444; }
-        .base-marker { background-color: #333; border: 2px solid white; border-radius: 12px; color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center; line-height: 1; }
+
+        /* MARKER ICON STYLES */
+        .base-marker { 
+            background-color: #333; 
+            border: 2px solid white; 
+            border-radius: 12px; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 8px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+            text-align: center; 
+            line-height: 1; 
+        }
         .opet-marker { background-color: #005BAB; }
         .shell-marker { background-color: #FFD500; color: #DE2128; border-color: #DE2128; }
         .po-marker { background-color: #DE2128; }
         .total-marker { background-color: #ed1c24; color: white; border-color: #005598; }
         .tp-marker { background-color: #E30613; }
+        /* EV MARKERS */
         .trugo-marker { background-color: #FFFFFF; color: #000; border-color: #00B5E2; }
         .zes-marker { background-color: #FFFFFF; color: #000080; border-color: #000080; }
         .esarj-marker { background-color: #FFFFFF; color: #800080; border-color: #800080; }
+        
+        /* NEW STYLES */
         .history-tab-btn { padding: 10px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; color: var(--subtext); transition: 0.3s; background: transparent; }
         .history-tab-btn.active { background: var(--card); color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
         .editable-field { border: 1px solid transparent; border-radius: 8px; transition: 0.2s; position: relative; }
         .editable-field.edit-active { border-color: #3b82f6; background: rgba(59,130,246,0.05); cursor: pointer; }
         .editable-field.edit-active::after { content: '✎'; position: absolute; top: -5px; right: -5px; background: #3b82f6; color: white; font-size: 8px; width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        /* FIX Z-INDEX ISSUES */
         #manualFuelOverlay { z-index: 6000 !important; }
         #historyOverlay { z-index: 5000; }
+
+        /* RADAR BAR CHART */
         .bar-container { width: 100%; height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin-top: 5px; }
         .bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease-out; }
+
         .filter-toggle-btn { flex:1; padding:15px; border-radius:16px; background:var(--input-bg); color:var(--text); font-weight:bold; font-size:14px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px; border:2px solid transparent;}
         .filter-toggle-btn.active { background:var(--bg); border-color:var(--text); box-shadow:0 4px 15px rgba(0,0,0,0.05); }
+
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
 
 <div id="onboardingOverlay">
-    <div class="flex justify-end p-2"><button onclick="closeOnboarding()" class="text-sm font-bold opacity-40">ATLA</button></div>
+    <div class="flex justify-end p-2 mb-4"><button onclick="closeOnboarding()" class="text-sm font-bold text-current opacity-40">ATLA</button></div>
     
     <div class="onboard-slide active" id="slide1">
-        <div class="mb-8" id="dropContainer">
-            <svg width="120" height="150" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="onboard-content-wrapper">
+            <div class="mb-8 onboard-logo" id="logoAnim">
+                <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 class="apple-title">Hoş Geldin.</h2>
+            <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
         </div>
-        <h2 class="text-3xl font-black mb-4">Hoş Geldin!</h2>
-        <p class="opacity-60 mb-12 px-6 font-medium">Litre ile çevrendeki en ucuz akaryakıtı ve elektrikli şarj istasyonlarını saniyeler içinde bul.</p>
-        <button onclick="animateDropAndGo()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30">BAŞLAYALIM</button>
+        <div class="w-full pb-10 mt-auto">
+            <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
+        </div>
     </div>
 
     <div class="onboard-slide" id="slide2">
-        <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="onboard-image-large">
-        <h2 class="text-2xl font-black mb-4">Tüm Araçların Tek Yerde</h2>
-        <p class="opacity-60 mb-12 px-4 font-medium">Garajına birden fazla araç ekle, yakıt masraflarını, aldığın litreyi ve tüm geçmişini kuruşu kuruşuna takip et.</p>
-        <button onclick="nextSlide(3)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30">DEVAM ET</button>
-    </div>
-
-    <div class="onboard-slide slide-top-aligned" id="slide3">
-        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Location" class="onboard-image-emoji">
-        <h2 class="text-2xl font-black mb-4">Sana En Yakın Olanı Bulalım</h2>
-        <p class="opacity-60 mb-8 px-4 font-medium">Sadece sana yakın istasyonları göstermek ve menziline göre sıralamak için konumuna ihtiyacımız var.</p>
-        <div class="w-full mt-auto">
-            <button onclick="requestLocationPermission()" class="w-full bg-green-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-green-500/30">KONUM İZNİ VER</button>
-            <button onclick="nextSlide(4)" class="mt-4 text-xs font-bold opacity-40 mb-2 block">Şimdilik Geç</button>
+        <div class="onboard-content-wrapper">
+            <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="premium-3d-icon">
+            <h2 class="apple-title">Dijital Garajın.</h2>
+            <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
+        </div>
+        <div class="w-full pb-10 mt-auto">
+            <button onclick="nextSlide(3)" class="apple-btn">Devam Et</button>
         </div>
     </div>
 
-    <div class="onboard-slide slide-top-aligned" id="slide4">
-        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Notification" class="onboard-image-emoji">
-        <h2 class="text-2xl font-black mb-4">Zam Gelmeden Haber Verelim</h2>
-        <p class="opacity-60 mb-8 px-4 font-medium">Akaryakıt zamlarını ve özel indirim fırsatlarını kaçırmaman için bildirim göndermemize izin ver.</p>
-        <div class="w-full mt-auto">
-            <button onclick="requestNotificationPermission()" class="w-full bg-orange-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-orange-500/30">BİLDİRİMLERİ AÇ</button>
-            <button onclick="closeOnboarding()" class="mt-4 text-xs font-bold opacity-40 mb-2 block">Şimdilik Geç</button>
+    <div class="onboard-slide" id="slide3">
+        <div class="onboard-content-wrapper">
+            <svg class="feature-svg-icon" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="mapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#3b82f6" />
+                        <stop offset="100%" stop-color="#2563eb" />
+                    </linearGradient>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="5" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+                <circle cx="100" cy="130" r="50" fill="rgba(59, 130, 246, 0.2)" transform="scale(1, 0.6) translate(0, 80)" />
+                <path d="M100 30 C 65 30, 35 60, 35 95 C 35 140, 100 190, 100 190 C 100 190, 165 140, 165 95 C 165 60, 135 30, 100 30 Z" fill="url(#mapGrad)" filter="url(#glow)"/>
+                <circle cx="100" cy="95" r="20" fill="white" fill-opacity="0.9" />
+            </svg>
+            <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
+            <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+        </div>
+        <div class="w-full pb-10 mt-auto">
+            <button onclick="requestLocationPermission()" class="apple-btn">Konum İzni Ver</button>
+            <button onclick="nextSlide(4)" class="apple-btn secondary">Şimdilik Geç</button>
         </div>
     </div>
 
-    <div class="mt-auto pb-10">
+    <div class="onboard-slide" id="slide4">
+        <div class="onboard-content-wrapper">
+            <svg class="feature-svg-icon" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="bellGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f97316" />
+                        <stop offset="100%" stop-color="#ea580c" />
+                    </linearGradient>
+                </defs>
+                <circle cx="100" cy="130" r="50" fill="rgba(249, 115, 22, 0.2)" transform="scale(1, 0.6) translate(0, 80)" />
+                <path d="M100 20 C 85 20, 75 30, 75 40 L 75 60 C 75 60, 50 110, 40 120 L 160 120 C 150 110, 125 60, 125 60 L 125 40 C 125 30, 115 20, 100 20 Z" fill="url(#bellGrad)" filter="url(#glow)"/>
+                <path d="M 85 130 Q 100 150 115 130" fill="none" stroke="url(#bellGrad)" stroke-width="12" stroke-linecap="round" />
+                <circle cx="160" cy="40" r="15" fill="#ef4444" />
+                <text x="160" y="45" text-anchor="middle" fill="white" font-size="14" font-weight="bold">1</text>
+            </svg>
+            <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
+            <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+        </div>
+        <div class="w-full pb-10 mt-auto">
+            <button onclick="requestNotificationPermission()" class="apple-btn">Bildirimleri Aç</button>
+            <button onclick="closeOnboarding()" class="apple-btn secondary">Şimdilik Geç</button>
+        </div>
+    </div>
+
+    <div class="flex justify-center pb-6">
         <div class="onboard-dots">
             <div class="dot active" id="dot1"></div>
             <div class="dot" id="dot2"></div>
@@ -1208,7 +1404,7 @@
              // IF we are tracking user, render list sorted by user dist
             if (lastKnownUserPos) {
                  stationData.forEach(s => {
-                     s.dist = (L.latLng(s.lat, s.lng).distanceTo(L.latLng(lastKnownUserPos[0], lastKnownUserPos[1])) / 1000).toFixed(1);
+                      s.dist = (L.latLng(s.lat, s.lng).distanceTo(L.latLng(lastKnownUserPos[0], lastKnownUserPos[1])) / 1000).toFixed(1);
                  });
             }
             renderStationList(stationData.sort((a,b) => a.dist - b.dist), cityName);
@@ -1513,11 +1709,12 @@
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
         
-        // --- ONBOARDING LOGIC FIXED ---
+        // --- ONBOARDING LOGIC ---
         function checkOnboarding() {
             const shown = localStorage.getItem('intro_shown');
             if(!shown) {
                 document.getElementById('onboardingOverlay').style.display = 'flex';
+                // Trigger Fade In for Slide 1
                 setTimeout(() => document.getElementById('slide1').classList.add('active'), 100);
             } else {
                 initMap(); 
@@ -1528,6 +1725,7 @@
             const overlay = document.getElementById('onboardingOverlay');
             overlay.style.opacity = '0';
             overlay.style.transition = 'opacity 0.5s ease';
+            
             setTimeout(() => {
                 overlay.style.display = 'none';
                 localStorage.setItem('intro_shown', 'true');
@@ -1535,18 +1733,40 @@
             }, 500);
         }
 
-        // NEW: Animate Drop and Transition
-        function animateDropAndGo() {
-            const container = document.getElementById('dropContainer');
-            container.classList.add('drop-animating');
+        // Custom Start Logic for Slide 1 (Logo Drop)
+        function startOnboarding() {
+            const logo = document.getElementById('logoAnim');
+            logo.classList.add('drop-active'); // Trigger CSS drop animation
+            
+            // Wait for drop animation then transition
             setTimeout(() => {
-                 nextSlide(2);
-            }, 800); // Wait for animation to complete
+                nextSlide(2);
+            }, 600);
         }
 
         function nextSlide(n) {
-            document.querySelectorAll('.onboard-slide').forEach(s => s.classList.remove('active'));
-            document.getElementById('slide' + n).classList.add('active');
+            // Exit current slide
+            const current = document.querySelector('.onboard-slide.active');
+            if(current) {
+                current.classList.add('slide-exit-up');
+                setTimeout(() => {
+                    current.classList.remove('active', 'slide-exit-up');
+                    
+                    // Enter new slide
+                    const next = document.getElementById('slide' + n);
+                    if(next) {
+                        next.style.display = 'flex';
+                        // Force reflow
+                        void next.offsetWidth;
+                        next.classList.add('active');
+                    }
+                }, 500); // Wait for exit animation
+            } else {
+                // Fallback direct switch
+                document.getElementById('slide' + n).classList.add('active');
+            }
+            
+            // Update dots
             document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
             document.getElementById('dot' + n).classList.add('active');
         }
@@ -1554,14 +1774,21 @@
         function requestLocationPermission() {
             navigator.geolocation.getCurrentPosition(
                 (pos) => { nextSlide(4); }, 
-                (err) => { nextSlide(4); }
+                (err) => { 
+                    // Silent fail or optional alert, but we move on
+                    nextSlide(4); 
+                }
             );
         }
 
         function requestNotificationPermission() {
             if ("Notification" in window) {
-                Notification.requestPermission().then(permission => { closeOnboarding(); });
-            } else { closeOnboarding(); }
+                Notification.requestPermission().then(permission => {
+                    closeOnboarding();
+                });
+            } else {
+                closeOnboarding();
+            }
         }
         
         // --- HISTORY MANAGEMENT ---
