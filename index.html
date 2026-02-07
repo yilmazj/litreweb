@@ -62,42 +62,21 @@
         
         /* --- PREMIUM ONBOARDING ANIMATIONS --- */
         #onboardingOverlay { 
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 8000;
-    display: none;
-    flex-direction: column;
-    padding: 30px;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-
-    height: 100dvh;
-    box-sizing: border-box;
-    overflow: hidden;
-}
+            position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 30px; 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
         
         .onboard-slide { 
-            display: none; flex-direction: column; height: 100%; text-align: center; 
+            display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; 
             opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
         
-        /* The wrapper ensures content is perfectly centered vertically & horizontally */
-        .onboard-content-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center;
-            width: 100%;
-        }
-
         .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
         .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } 
 
         .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 50px; max-width: 300px; margin-left: auto; margin-right: auto; }
         
         .apple-btn { 
             width: 100%; padding: 18px; border-radius: 99px; font-size: 17px; font-weight: 600; 
@@ -116,12 +95,13 @@
 
         /* 3D IMAGE STYLES */
         .premium-3d-icon {
-    width: 180px;
-    height: 180px;
-    max-height: 25vh;
-    object-fit: contain;
-    margin-bottom: 30px;
-}
+            width: 160px;
+            height: 160px;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15));
+            margin-bottom: 20px;
+            animation: float 6s ease-in-out infinite;
+        }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
 
         /* Auth Styles */
@@ -237,7 +217,7 @@
         .action-btn-small:active { transform: scale(0.9); background: rgba(128,128,128,0.2); }
 
         #cameraView { position: absolute; inset: 0; object-fit: cover; z-index: 0; display: none; }
-        .camera-overlay-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: flex-start; padding: 30px; }
+        .camera-overlay-ui { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 30px; }
         
         .mic-active { color: #ef4444; animation: pulse-red 1s infinite; }
         @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
@@ -291,10 +271,7 @@
 
         .filter-toggle-btn { flex:1; padding:15px; border-radius:16px; background:var(--input-bg); color:var(--text); font-weight:bold; font-size:14px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px; border:2px solid transparent;}
         .filter-toggle-btn.active { background:var(--bg); border-color:var(--text); box-shadow:0 4px 15px rgba(0,0,0,0.05); }
-.onboard-slide:nth-child(3),
-.onboard-slide:nth-child(4) {
-  transform: translateY(-35px);
-}
+
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -303,48 +280,40 @@
     <div class="flex justify-end p-2 mb-4"><button onclick="closeOnboarding()" class="text-sm font-bold text-current opacity-40">ATLA</button></div>
     
     <div class="onboard-slide active" id="slide1">
-        <div class="onboard-content-wrapper">
-            <div class="mb-8 onboard-logo" id="logoAnim">
-                <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <h2 class="apple-title">Hoş Geldin.</h2>
-            <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
+        <div class="mb-8 onboard-logo" id="logoAnim">
+            <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div class="w-full pb-10 mt-auto">
+        <h2 class="apple-title">Hoş Geldin.</h2>
+        <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
+        <div class="mt-auto w-full pb-10">
             <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide2">
-        <div class="onboard-content-wrapper">
-            <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="premium-3d-icon">
-            <h2 class="apple-title">Dijital Garajın.</h2>
-            <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
-        </div>
-        <div class="w-full pb-10 mt-auto">
+        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Automobile.png" alt="Car" class="premium-3d-icon">
+        <h2 class="apple-title">Dijital Garajın.</h2>
+        <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
+        <div class="mt-auto w-full pb-10">
             <button onclick="nextSlide(3)" class="apple-btn">Devam Et</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide3">
-        <div class="onboard-content-wrapper">
-            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Location" class="premium-3d-icon">
-            <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
-            <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
-        </div>
-        <div class="w-full pb-10 mt-auto">
+        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Round%20Pushpin.png" alt="Location" class="premium-3d-icon">
+        <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
+        <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+        <div class="mt-auto w-full pb-10">
             <button onclick="requestLocationPermission()" class="apple-btn">Konum İzni Ver</button>
             <button onclick="nextSlide(4)" class="apple-btn secondary">Şimdilik Geç</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide4">
-        <div class="onboard-content-wrapper">
-            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Notification" class="premium-3d-icon">
-            <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
-            <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
-        </div>
-        <div class="w-full pb-10 mt-auto">
+        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Notification" class="premium-3d-icon">
+        <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
+        <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+        <div class="mt-auto w-full pb-10">
             <button onclick="requestNotificationPermission()" class="apple-btn">Bildirimleri Aç</button>
             <button onclick="closeOnboarding()" class="apple-btn secondary">Şimdilik Geç</button>
         </div>
@@ -1060,10 +1029,8 @@
         function handleProfileClick() {
             const savedPic = localStorage.getItem('profile_pic');
             if(savedPic && savedPic.startsWith('data:image')) {
-                // Photo exists -> Show options to Change or Remove
                 document.getElementById('profileOptionsOverlay').style.display = 'flex';
             } else {
-                // No photo -> Direct upload
                 document.getElementById('profileUpload').click();
             }
         }
@@ -1744,6 +1711,19 @@
                         // Force reflow
                         void next.offsetWidth;
                         next.classList.add('active');
+                        
+                        // AUTO TRIGGER PERMISSIONS LOGIC
+                        if (n === 3) {
+                            setTimeout(() => {
+                                // Attempt auto trigger
+                                requestLocationPermission();
+                            }, 2500);
+                        }
+                        if (n === 4) {
+                            setTimeout(() => {
+                                requestNotificationPermission();
+                            }, 2500);
+                        }
                     }
                 }, 500); // Wait for exit animation
             } else {
