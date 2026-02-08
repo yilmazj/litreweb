@@ -273,7 +273,18 @@
 
         .filter-toggle-btn { flex:1; padding:15px; border-radius:16px; background:var(--input-bg); color:var(--text); font-weight:bold; font-size:14px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px; border:2px solid transparent;}
         .filter-toggle-btn.active { background:var(--bg); border-color:var(--text); box-shadow:0 4px 15px rgba(0,0,0,0.05); }
+/* Sosyal Giriş Butonları */
+.social-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0; opacity: 0.4; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+.social-divider::before, .social-divider::after { content: ''; flex: 1; height: 1px; background: var(--text); }
 
+.social-btn { 
+    width: 100%; padding: 14px; border-radius: 16px; font-weight: bold; font-size: 14px; 
+    display: flex; align-items: center; justify-content: center; gap: 10px; 
+    background: var(--card); border: var(--glass-border); color: var(--text); 
+    transition: 0.2s; cursor: pointer; margin-bottom: 10px; position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.social-btn:active { transform: scale(0.98); opacity: 0.8; }
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -336,19 +347,43 @@
     </div>
     
     <div id="loginForm">
-        <input type="email" id="loginEmail" placeholder="E-posta Adresi" class="auth-input">
-        <input type="password" id="loginPass" placeholder="Şifre" class="auth-input">
-        <button onclick="performLogin()" class="auth-btn">Giriş Yap</button>
-        <p class="text-center mt-6 text-sm opacity-60">Hesabın yok mu? <span onclick="toggleAuthMode('register')" class="font-bold text-blue-500 cursor-pointer">Kayıt Ol</span></p>
-    </div>
+    <input type="email" id="loginEmail" placeholder="E-posta Adresi" class="auth-input">
+    <input type="password" id="loginPass" placeholder="Şifre" class="auth-input">
+    <button onclick="performLogin()" class="auth-btn">Giriş Yap</button>
+    <p class="text-center mt-6 text-sm opacity-60">Hesabın yok mu? <span onclick="toggleAuthMode('register')" class="font-bold text-blue-500 cursor-pointer">Kayıt Ol</span></p>
+    
+    <div class="social-divider">Veya</div>
+    
+    <button onclick="loginWithApple()" class="social-btn">
+        <svg class="w-5 h-5" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+        Apple ile devam et
+    </button>
+    
+    <button onclick="loginWithGoogle()" class="social-btn">
+        <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Google ile devam et
+    </button>
+</div>
 
-    <div id="registerForm" class="hidden">
-        <input type="text" id="regName" placeholder="İsim Soyisim" class="auth-input">
-        <input type="email" id="regEmail" placeholder="E-posta Adresi" class="auth-input">
-        <input type="password" id="regPass" placeholder="Şifre" class="auth-input">
-        <button onclick="performRegister()" class="auth-btn">Kayıt Ol</button>
-        <p class="text-center mt-6 text-sm opacity-60">Zaten hesabın var mı? <span onclick="toggleAuthMode('login')" class="font-bold text-blue-500 cursor-pointer">Giriş Yap</span></p>
-    </div>
+<div id="registerForm" class="hidden">
+    <input type="text" id="regName" placeholder="İsim Soyisim" class="auth-input">
+    <input type="email" id="regEmail" placeholder="E-posta Adresi" class="auth-input">
+    <input type="password" id="regPass" placeholder="Şifre" class="auth-input">
+    <button onclick="performRegister()" class="auth-btn">Kayıt Ol</button>
+    <p class="text-center mt-6 text-sm opacity-60">Zaten hesabın var mı? <span onclick="toggleAuthMode('login')" class="font-bold text-blue-500 cursor-pointer">Giriş Yap</span></p>
+
+    <div class="social-divider">Veya</div>
+    
+    <button onclick="loginWithApple()" class="social-btn">
+        <svg class="w-5 h-5" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+        Apple ile devam et
+    </button>
+    
+    <button onclick="loginWithGoogle()" class="social-btn">
+        <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Google ile devam et
+    </button>
+</div>
 </div>
 
 <div id="splash">
@@ -999,6 +1034,38 @@
                 closeAuth();
             }).catch(e => alert(e.message));
         }
+        function loginWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+            // İlk kez giriyorsa users tablosunu oluştur
+            if (result.additionalUserInfo.isNewUser) {
+                firebase.firestore().collection("users").doc(result.user.uid).set({ 
+                    garage: [], 
+                    createdAt: new Date() 
+                });
+            }
+            closeAuth();
+        }).catch((error) => {
+            alert("Google girişi başarısız: " + error.message);
+        });
+}
+
+function loginWithApple() {
+    const provider = new firebase.auth.OAuthProvider('apple.com');
+    firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+            if (result.additionalUserInfo.isNewUser) {
+                firebase.firestore().collection("users").doc(result.user.uid).set({ 
+                    garage: [], 
+                    createdAt: new Date() 
+                });
+            }
+            closeAuth();
+        }).catch((error) => {
+            alert("Apple girişi başarısız: " + error.message);
+        });
+}
         function logout() { firebase.auth().signOut().then(() => { alert("Çıkış Yapıldı."); location.reload(); }); }
         function deleteAccount() {
             const user = firebase.auth().currentUser;
