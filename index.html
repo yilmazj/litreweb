@@ -61,17 +61,31 @@
         
         /* ONBOARDING STYLES */
         #onboardingOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 20px; }
-        .onboard-slide { display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; animation: fadeIn 0.5s ease; }
-        .onboard-slide.active { display: flex; }
+        
+        .onboard-slide { 
+            display: none; /* Varsayılan olarak gizli */
+            flex-direction: column; 
+            height: 100%; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .onboard-slide.active { 
+            display: flex; /* Sadece aktif olunca göster */
+            opacity: 1;
+        }
+
         .onboard-img-box { width: 120px; height: 120px; background: var(--input-bg); border-radius: 30px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .onboard-dots { display: flex; gap: 8px; margin-top: 30px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.3; transition: 0.3s; }
         .dot.active { opacity: 1; background: #3b82f6; width: 20px; border-radius: 4px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* NEW APPLE STYLE ONBOARDING CSS FROM CODE 2 */
+        /* APPLE STYLE ONBOARDING CSS */
         .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
-        .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } /* Damlama Efekti */
+        .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); }
 
         .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 15px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .apple-sub { font-size: 20px; line-height: 1.4; color: var(--subtext); font-weight: 500; margin-bottom: 40px; max-width: 320px; }
@@ -269,6 +283,7 @@
             <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
         </div>
     </div>
+
     <div class="onboard-slide" id="slide2">
         <div class="onboard-img-box"><i data-lucide="car-front" class="w-12 h-12 text-blue-500"></i></div>
         <h2 class="text-2xl font-black mb-4">Tüm Araçların Tek Yerde</h2>
@@ -1669,35 +1684,25 @@
         }
 
         function nextSlide(n) {
-            // Exit current slide
-            const current = document.querySelector('.onboard-slide.active');
-            if(current) {
-                // We're just hiding it for simplicity as Code 1 style was simple
-                current.classList.remove('active');
-                
-                // Enter new slide
-                const next = document.getElementById('slide' + n);
-                if(next) {
-                    next.style.display = 'flex'; // Ensure flex
-                    next.classList.add('active');
-                    
-                    // AUTO TRIGGER PERMISSIONS LOGIC
-                    if (n === 3) {
-                        setTimeout(() => {
-                            requestLocationPermission();
-                        }, 2500);
-                    }
-                    if (n === 4) {
-                        setTimeout(() => {
-                            requestNotificationPermission();
-                        }, 2500);
-                    }
-                }
+            // FIX: Kayma sorununu çözmek için tüm slaytları önce gizle
+            const slides = document.querySelectorAll('.onboard-slide');
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+                slide.style.display = 'none'; // Kesin gizleme
+            });
+
+            // Sonra hedef slaytı göster
+            const next = document.getElementById('slide' + n);
+            if(next) {
+                next.style.display = 'flex';
+                // DOM reflow için minik gecikme
+                setTimeout(() => next.classList.add('active'), 10);
             }
             
-            // Update dots
+            // Noktaları güncelle
             document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
-            document.getElementById('dot' + n).classList.add('active');
+            const dot = document.getElementById('dot' + n);
+            if(dot) dot.classList.add('active');
         }
 
         function requestLocationPermission() {
