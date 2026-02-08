@@ -63,7 +63,7 @@
         #onboardingOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 20px; }
         
         .onboard-slide { 
-            display: none; /* Varsayılan olarak gizli */
+            display: none; 
             flex-direction: column; 
             height: 100%; 
             justify-content: center; 
@@ -74,7 +74,7 @@
         }
         
         .onboard-slide.active { 
-            display: flex; /* Sadece aktif olunca göster */
+            display: flex; 
             opacity: 1;
         }
 
@@ -274,35 +274,37 @@
     <div class="flex justify-end p-2"><button onclick="closeOnboarding()" class="text-sm font-bold opacity-40">ATLA</button></div>
     
     <div class="onboard-slide active" id="slide1">
-        <div class="mb-8 onboard-logo" id="logoAnim">
-            <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="flex-1 flex flex-col justify-center w-full">
+            <div class="mb-8 onboard-logo" id="logoAnim">
+                <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2 class="apple-title">Hoş Geldin.</h2>
+            <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
         </div>
-        <h2 class="apple-title">Hoş Geldin.</h2>
-        <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
-        <div class="mt-auto w-full pb-10">
+        <div class="w-full pb-10">
             <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide2">
         <div class="onboard-img-box"><i data-lucide="car-front" class="w-12 h-12 text-blue-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Tüm Araçların Tek Yerde</h2>
-        <p class="opacity-60 mb-8 px-4">Garajına birden fazla araç ekle, yakıt masraflarını, aldığın litreyi ve tüm geçmişini kuruşu kuruşuna takip et.</p>
+        <h2 class="apple-title">Dijital Garajın.</h2>
+        <p class="apple-sub px-4">Garajına birden fazla araç ekle, yakıt masraflarını, aldığın litreyi ve tüm geçmişini kuruşu kuruşuna takip et.</p>
         <button onclick="nextSlide(3)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30">DEVAM ET</button>
     </div>
 
     <div class="onboard-slide" id="slide3">
         <div class="onboard-img-box"><i data-lucide="navigation" class="w-12 h-12 text-green-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Sana En Yakın Olanı Bulalım</h2>
-        <p class="opacity-60 mb-8 px-4">Sadece sana yakın istasyonları göstermek ve menziline göre sıralamak için konumuna ihtiyacımız var.</p>
+        <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
+        <p class="apple-sub px-4">Sadece sana yakın istasyonları göstermek ve menziline göre sıralamak için konumuna ihtiyacımız var.</p>
         <button onclick="requestLocationPermission()" class="w-full bg-green-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-green-500/30">KONUM İZNİ VER</button>
         <button onclick="nextSlide(4)" class="mt-4 text-xs font-bold opacity-40">Şimdilik Geç</button>
     </div>
 
     <div class="onboard-slide" id="slide4">
         <div class="onboard-img-box"><i data-lucide="bell" class="w-12 h-12 text-orange-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Zam Gelmeden Haber Verelim</h2>
-        <p class="opacity-60 mb-8 px-4">Akaryakıt zamlarını ve özel indirim fırsatlarını kaçırmaman için bildirim göndermemize izin ver.</p>
+        <h2 class="apple-title">Bildirim Al.</h2>
+        <p class="apple-sub px-4">Akaryakıt zamlarını ve özel indirim fırsatlarını kaçırmaman için bildirim göndermemize izin ver.</p>
         <button onclick="requestNotificationPermission()" class="w-full bg-orange-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-orange-500/30">BİLDİRİMLERİ AÇ</button>
         <button onclick="closeOnboarding()" class="mt-4 text-xs font-bold opacity-40">Şimdilik Geç</button>
     </div>
@@ -1680,7 +1682,7 @@
             // Wait for drop animation then transition
             setTimeout(() => {
                 nextSlide(2);
-            }, 600);
+            }, 1200); // 1.2s to let animation finish fully
         }
 
         function nextSlide(n) {
