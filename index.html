@@ -36,59 +36,47 @@
         input { user-select: text; -webkit-user-select: text; background: transparent; }
         
         :root { 
-            --bg: #f2f2f7; 
-            --text: #000; 
-            --card: rgba(255, 255, 255, 0.75); 
+            --bg: #f5f5f7; 
+            --text: #1d1d1f; 
+            --card: rgba(255, 255, 255, 0.8); 
             --border: rgba(0, 0, 0, 0.05); 
-            --subtext: #636366;
+            --subtext: #86868b;
             --input-bg: rgba(120, 120, 128, 0.12);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+            --apple-blue: #0071e3;
         }
         
         body.dark-mode { 
             --bg: #000000; 
-            --text: #ffffff; 
+            --text: #f5f5f7; 
             --card: rgba(28, 28, 30, 0.65); 
             --border: rgba(255, 255, 255, 0.1); 
-            --subtext: #8e8e93;
+            --subtext: #86868b;
             --input-bg: rgba(118, 118, 128, 0.24);
             --glass-border: 0.5px solid rgba(255, 255, 255, 0.1);
         }
 
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; transition: background-color 0.5s ease, color 0.5s ease; }
         
-        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
+        #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
         
-        /* --- ONBOARDING & ANIMATION STYLES (MERGED FROM CODE 1) --- */
+        /* --- PREMIUM ONBOARDING ANIMATIONS --- */
         #onboardingOverlay { 
             position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 30px; 
-            overflow: hidden;
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
         
         .onboard-slide { 
-            display: none; flex-direction: column; height: 100%; text-align: center; 
+            display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; 
             opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
         
-        /* Wrapper for perfectly centering content */
-        .onboard-content-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center;
-            width: 100%;
-        }
-
-        /* Logo Drop Animation Classes */
         .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
         .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } 
 
-        /* Typography from Code 1 */
         .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 50px; max-width: 300px; margin-left: auto; margin-right: auto; }
         
         .apple-btn { 
             width: 100%; padding: 18px; border-radius: 99px; font-size: 17px; font-weight: 600; 
@@ -98,32 +86,23 @@
         .apple-btn:active { transform: scale(0.97); }
         .apple-btn.secondary { background: rgba(120, 120, 128, 0.1); color: var(--text); box-shadow: none; margin-top: 15px; }
 
+        .onboard-dots { display: flex; gap: 10px; margin-top: 20px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.2; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .dot.active { opacity: 1; background: var(--text); width: 24px; border-radius: 4px; }
+
         .slide-exit-up { animation: slideExitUp 0.6s forwards cubic-bezier(0.65, 0, 0.35, 1); }
         @keyframes slideExitUp { to { opacity: 0; transform: translateY(-30px) scale(0.95); } }
 
-        /* 3D Image Style */
+        /* 3D IMAGE STYLES */
         .premium-3d-icon {
-            width: 180px;
-            height: 180px;
+            width: 160px;
+            height: 160px;
             object-fit: contain;
-            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
-            margin-bottom: 30px;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15));
+            margin-bottom: 20px;
             animation: float 6s ease-in-out infinite;
         }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
-
-        /* Original styles for Slide 3 & 4 (kept for compatibility) */
-        .onboard-image {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
-        }
-
-        .onboard-dots { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 30px;}
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.2; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .dot.active { opacity: 1; background: var(--text); width: 24px; border-radius: 4px; }
 
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -250,19 +229,19 @@
         .fuel-type-btn.active { background: #ef4444; color: white; border-color: #ef4444; }
 
         /* MARKER ICON STYLES */
-        .base-marker { 
-            background-color: #333; 
-            border: 2px solid white; 
-            border-radius: 12px; 
-            color: white; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 900; 
-            font-size: 8px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-            text-align: center; 
-            line-height: 1; 
+        .base-marker {
+            background-color: #333;
+            border: 2px solid white;
+            border-radius: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            text-align: center;
+            line-height: 1;
         }
         .opet-marker { background-color: #005BAB; }
         .shell-marker { background-color: #FFD500; color: #DE2128; border-color: #DE2128; }
@@ -301,46 +280,42 @@
     <div class="flex justify-end p-2 mb-4"><button onclick="closeOnboarding()" class="text-sm font-bold text-current opacity-40">ATLA</button></div>
     
     <div class="onboard-slide active" id="slide1">
-        <div class="onboard-content-wrapper">
-            <div class="mb-8 onboard-logo" id="logoAnim">
-                <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <h2 class="apple-title">Hoş Geldin.</h2>
-            <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
+        <div class="mb-8 onboard-logo" id="logoAnim">
+            <svg width="100" height="120" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div class="w-full pb-10 mt-auto">
+        <h2 class="apple-title">Hoş Geldin.</h2>
+        <p class="apple-sub">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
+        <div class="mt-auto w-full pb-10">
             <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide2">
-        <div class="onboard-content-wrapper">
-            <img src="https://www.pngplay.com/wp-content/uploads/9/Luxury-Car-Background-PNG.png" alt="Car" class="premium-3d-icon">
-            <h2 class="apple-title">Dijital Garajın.</h2>
-            <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
-        </div>
-        <div class="w-full pb-10 mt-auto">
+        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Automobile.png" alt="Car" class="premium-3d-icon">
+        <h2 class="apple-title">Dijital Garajın.</h2>
+        <p class="apple-sub">Tüm araçlarını ekle, yakıt tüketimini ve masraflarını kuruşu kuruşuna takip et.</p>
+        <div class="mt-auto w-full pb-10">
             <button onclick="nextSlide(3)" class="apple-btn">Devam Et</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide3">
-        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/World%20Map.png" alt="Location" class="onboard-image mt-auto">
-        <h2 class="text-2xl font-black mb-4">Sana En Yakın Olanı Bulalım</h2>
-        <p class="opacity-60 mb-8 px-4">Sadece sana yakın istasyonları göstermek ve menziline göre sıralamak için konumuna ihtiyacımız var.</p>
-        <div class="w-full mt-auto">
-            <button onclick="requestLocationPermission()" class="w-full bg-green-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-green-500/30">KONUM İZNİ VER</button>
-            <button onclick="nextSlide(4)" class="mt-4 text-xs font-bold opacity-40 mb-2 block">Şimdilik Geç</button>
+        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Round%20Pushpin.png" alt="Location" class="premium-3d-icon">
+        <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
+        <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+        <div class="mt-auto w-full pb-10">
+            <button onclick="requestLocationPermission()" class="apple-btn">Konum İzni Ver</button>
+            <button onclick="nextSlide(4)" class="apple-btn secondary">Şimdilik Geç</button>
         </div>
     </div>
 
     <div class="onboard-slide" id="slide4">
-        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Notification" class="onboard-image mt-auto">
-        <h2 class="text-2xl font-black mb-4">Zam Gelmeden Haber Verelim</h2>
-        <p class="opacity-60 mb-8 px-4">Akaryakıt zamlarını ve özel indirim fırsatlarını kaçırmaman için bildirim göndermemize izin ver.</p>
-        <div class="w-full mt-auto">
-            <button onclick="requestNotificationPermission()" class="w-full bg-orange-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-orange-500/30">BİLDİRİMLERİ AÇ</button>
-            <button onclick="closeOnboarding()" class="mt-4 text-xs font-bold opacity-40 mb-2 block">Şimdilik Geç</button>
+        <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Bell.png" alt="Notification" class="premium-3d-icon">
+        <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
+        <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+        <div class="mt-auto w-full pb-10">
+            <button onclick="requestNotificationPermission()" class="apple-btn">Bildirimleri Aç</button>
+            <button onclick="closeOnboarding()" class="apple-btn secondary">Şimdilik Geç</button>
         </div>
     </div>
 
@@ -961,7 +936,11 @@
                 document.getElementById('profileStatus').innerText = "Giriş Yapılmadı";
                 document.getElementById('guestActions').classList.remove('hidden');
                 document.getElementById('logoutBtn').classList.add('hidden');
+                document.getElementById('premiumCard').classList.add('hidden'); 
+                
+                // Show Premium below login for Guest
                 document.getElementById('premiumCard').classList.remove('hidden');
+                
                 isPremiumUser = false;
                 return; 
             }
@@ -984,10 +963,12 @@
                 } else {
                     isPremiumUser = false;
                     document.getElementById('profileStatus').innerText = "Free Hesap";
+                    // For Logged In users, we want it at top (HTML order is default below profile info, we move it)
                     const profileSection = document.getElementById('profile');
                     const premiumCard = document.getElementById('premiumCard');
-                    const garageCard = document.querySelector('#profile .glass-card.p-7'); 
+                    const garageCard = document.querySelector('#profile .glass-card.p-7'); // Garage card
                     
+                    // Insert Premium Card before Garage Card
                     if(garageCard && premiumCard) {
                         garageCard.parentNode.insertBefore(premiumCard, garageCard);
                     }
@@ -1375,7 +1356,7 @@
              // IF we are tracking user, render list sorted by user dist
             if (lastKnownUserPos) {
                  stationData.forEach(s => {
-                      s.dist = (L.latLng(s.lat, s.lng).distanceTo(L.latLng(lastKnownUserPos[0], lastKnownUserPos[1])) / 1000).toFixed(1);
+                     s.dist = (L.latLng(s.lat, s.lng).distanceTo(L.latLng(lastKnownUserPos[0], lastKnownUserPos[1])) / 1000).toFixed(1);
                  });
             }
             renderStationList(stationData.sort((a,b) => a.dist - b.dist), cityName);
@@ -1680,7 +1661,7 @@
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
         
-        // --- ONBOARDING LOGIC - UPDATED FROM CODE 1 ---
+        // --- ONBOARDING LOGIC ---
         function checkOnboarding() {
             const shown = localStorage.getItem('intro_shown');
             if(!shown) {
@@ -1730,6 +1711,19 @@
                         // Force reflow
                         void next.offsetWidth;
                         next.classList.add('active');
+                        
+                        // AUTO TRIGGER PERMISSIONS LOGIC
+                        if (n === 3) {
+                            setTimeout(() => {
+                                // Attempt auto trigger
+                                requestLocationPermission();
+                            }, 2500);
+                        }
+                        if (n === 4) {
+                            setTimeout(() => {
+                                requestNotificationPermission();
+                            }, 2500);
+                        }
                     }
                 }, 500); // Wait for exit animation
             } else {
@@ -1762,8 +1756,210 @@
             }
         }
         
-        // --- REMAINING LOGIC FROM CODE 2 (History, Map Search, etc.) UNCHANGED ---
-        // ... (This section is handled by the merged script above)
+        // --- HISTORY MANAGEMENT ---
+        function openManualFuelAdd() {
+            editingRecordIndex = -1; // New record mode
+            document.getElementById('manualFuelTitle').innerText = "Yakıt Ekle";
+            document.getElementById('manualStation').value = "";
+            document.getElementById('manualDate').value = new Date().toISOString().split('T')[0]; // Set today by default
+            document.getElementById('manualLiters').value = "";
+            document.getElementById('manualAmount').value = "";
+            document.getElementById('manualFuelOverlay').style.display = 'flex';
+        }
+
+        function closeManualFuelAdd() { document.getElementById('manualFuelOverlay').style.display = 'none'; }
+
+        function saveFuelRecord() {
+            const station = document.getElementById('manualStation').value;
+            const dateVal = document.getElementById('manualDate').value;
+            const liters = parseFloat(document.getElementById('manualLiters').value);
+            const amount = parseFloat(document.getElementById('manualAmount').value);
+
+            if (!station || !liters || !amount || !dateVal) { alert("Lütfen tüm alanları doldurun."); return; }
+
+            const [year, month, day] = dateVal.split('-');
+            const formattedDate = `${day}.${month}.${year}`;
+
+            const currentCar = selections[currentGarageIndex];
+            const plate = currentCar ? currentCar.Plaka : null;
+
+            const record = {
+                station: station,
+                date: formattedDate,
+                amount: amount,
+                liters: liters,
+                plate: plate,
+                details: `Yakıt Alımı · ${amount} TL`
+            };
+
+            if (editingRecordIndex > -1) { fuelRecords[editingRecordIndex] = record; } 
+            else { fuelRecords.unshift(record); }
+
+            localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+            // SYNC TO CLOUD
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ fuelRecords: fuelRecords });
+            }
+
+            closeManualFuelAdd();
+            updateGarageAnalysis();
+            renderGarageUI();
+            updateRadarAnalysis();
+            
+            if(document.getElementById('historyOverlay').style.display === 'flex') {
+                // already open
+            } else {
+                 openHistory();
+            }
+        }
+
+        function openEditRecord(index) {
+            editingRecordIndex = index; 
+            const record = fuelRecords[index];
+            document.getElementById('manualFuelTitle').innerText = "Fişi Düzenle";
+            document.getElementById('manualStation').value = record.station;
+            
+            const [day, month, year] = record.date.split('.');
+            document.getElementById('manualDate').value = `${year}-${month}-${day}`;
+            
+            document.getElementById('manualLiters').value = record.liters || 0;
+            document.getElementById('manualAmount').value = record.amount;
+            document.getElementById('manualFuelOverlay').style.display = 'flex';
+        }
+
+        function deleteFuelRecord(index) {
+            if(confirm("Bu fişi silmek istediğine emin misin?")) {
+                fuelRecords.splice(index, 1);
+                localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+                // SYNC TO CLOUD
+                if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                    firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ fuelRecords: fuelRecords });
+                }
+                
+                updateGarageAnalysis();
+                renderGarageUI();
+                updateRadarAnalysis();
+            }
+        }
+
+        function updateGarageAnalysis() { 
+            let displayRecords = [];
+            
+            if (selections.length > 0) {
+                const currentCar = selections[currentGarageIndex];
+                if (currentCar) {
+                      displayRecords = fuelRecords.map((r, i) => ({...r, originalIndex: i})).filter(r => r.plate === currentCar.Plaka);
+                }
+            } else { 
+                displayRecords = fuelRecords.map((r, i) => ({...r, originalIndex: i})); 
+            }
+
+            const totalAmount = displayRecords.reduce((sum, r) => sum + r.amount, 0); 
+            document.getElementById('monthlySaving').innerText = (totalAmount * 0.05).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL'; 
+            
+            const list = document.getElementById('historyList'); 
+            if(displayRecords.length === 0) { 
+                list.innerHTML = '<p class="text-center opacity-40 py-10 w-full text-current">Bu araç için veri yok.</p>'; 
+            } else {
+                list.innerHTML = displayRecords.map(r => {
+                    const literPrice = (r.amount / (r.liters || 1)).toFixed(2);
+                    return `
+                    <div class="p-5 bg-white/5 rounded-2xl mb-3 border border-white/5 text-current relative group">
+                        <div class="flex justify-between items-start mb-2"><div><p class="font-bold text-sm">${r.station}</p><p class="text-[10px] opacity-40">${r.date}</p></div><div class="text-right"><p class="font-black text-blue-500 text-sm">${r.amount.toLocaleString('tr-TR')} TL</p><p class="text-[9px] opacity-60 font-bold">${literPrice} TL/L</p></div></div>
+                        <div class="flex justify-between items-center mt-2 pt-2 border-t border-white/5"><span class="text-xs font-bold opacity-60">${r.liters || '-'} Litre</span><div class="flex gap-3"><button onclick="openEditRecord(${r.originalIndex})" class="p-1.5 bg-blue-500/10 text-blue-500 rounded-lg"><i data-lucide="edit-2" class="w-3 h-3"></i></button><button onclick="deleteFuelRecord(${r.originalIndex})" class="p-1.5 bg-red-500/10 text-red-500 rounded-lg"><i data-lucide="trash" class="w-3 h-3"></i></button></div></div>
+                    </div>`;
+                }).join(''); 
+                lucide.createIcons();
+            }
+        }
+        
+        function updateRadarAnalysis() {
+            const total = fuelRecords.reduce((sum, r) => sum + r.amount, 0);
+            const radarContent = document.getElementById('radarAnalysisContent');
+            if (total === 0) {
+                radarContent.innerHTML = '<p class="text-center opacity-40 py-10 w-full">Henüz veri yok.</p>';
+            } else {
+                radarContent.innerHTML = `
+                    <p class="text-sm font-bold opacity-60 mb-2">Toplam Harcama</p>
+                    <h2 class="text-3xl font-black mb-4">${total.toLocaleString('tr-TR')} TL</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><span>Akaryakıt</span><span>100%</span></div>
+                            <div class="bar-container"><div class="bar-fill bg-blue-500" style="width: 100%"></div></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function handleWheelScroll(el) { const items = el.getElementsByClassName('wheel-item'); const center = el.scrollTop + (el.clientHeight / 2); for (let item of items) { const itemCenter = item.offsetTop + (item.clientHeight / 2); if (Math.abs(center - itemCenter) < 22) { item.classList.add('selected'); tempValue = item.innerText; } else { item.classList.remove('selected'); } } }
+        function showTab(tabId, el, isMap = false) { document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if(el) { document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); el.classList.add('active'); } if(tabId === 'maps') { setTimeout(() => { initMap(); leafletMap.invalidateSize(); }, 300); } }
+        function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; }
+        
+        function openHistory() { document.getElementById('historyOverlay').style.display = 'flex'; updateGarageAnalysis(); switchHistoryTab('details'); }
+        function closeHistory() { document.getElementById('historyOverlay').style.display = 'none'; }
+        function switchHistoryTab(tab) {
+            document.querySelectorAll('.history-tab-btn').forEach(b => b.classList.remove('active'));
+            if(tab === 'details') { document.getElementById('tabDetails').classList.add('active'); document.getElementById('histContentDetails').classList.remove('hidden'); document.getElementById('histContentDocs').classList.add('hidden'); } 
+            else { 
+                document.getElementById('tabDocs').classList.add('active'); document.getElementById('histContentDetails').classList.add('hidden'); document.getElementById('histContentDocs').classList.remove('hidden'); 
+                const docsContainer = document.getElementById('histContentDocs');
+                if(isPremiumUser) { docsContainer.innerHTML = `<div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mb-4"><i data-lucide="file-check" class="w-10 h-10 text-blue-500"></i></div><h3 class="font-bold text-xl mb-2">Döküman Merkezi</h3><p class="text-sm opacity-60 mb-6">Fişleriniz ve aylık raporlarınız hazır.</p><div class="w-full space-y-3"><button onclick="alert('Excel indiriliyor...')" class="w-full bg-green-600 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-3 haptic-btn"><i data-lucide="sheet" class="w-5 h-5"></i>Excel Olarak İndir</button><button onclick="alert('PDF oluşturuluyor...')" class="w-full bg-red-600 text-white p-4 rounded-2xl font-bold flex items-center justify-center gap-3 haptic-btn"><i data-lucide="file-text" class="w-5 h-5"></i>PDF Olarak İndir</button><button onclick="alert('Paylaşım menüsü açılıyor...')" class="w-full bg-zinc-500/20 text-current p-4 rounded-2xl font-bold flex items-center justify-center gap-3 haptic-btn"><i data-lucide="share" class="w-5 h-5"></i>Paylaş</button></div>`; }
+                else { docsContainer.innerHTML = `<div class="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mb-4"><i data-lucide="lock" class="w-10 h-10 text-orange-500"></i></div><h3 class="font-bold text-xl mb-2">Premium Özellik</h3><p class="text-sm opacity-60 mb-6">Fişlerini saklamak, Excel/PDF dökümü almak ve muhasebe raporları için Premium'a geç.</p><button onclick="document.getElementById('upsellTitle').innerText='Raporlar Kilitli'; document.getElementById('upsellText').innerText='Excel ve PDF dökümü almak için Premium gerekir.'; document.getElementById('premiumUpsellOverlay').style.display='flex';" class="w-full bg-gradient-to-r from-orange-500 to-yellow-500 text-white p-4 rounded-2xl font-bold haptic-btn shadow-lg shadow-orange-500/30">Premium'a Yükselt</button>`; }
+                lucide.createIcons();
+            }
+        }
+
+        function openSettings() { document.getElementById('settingsOverlay').style.display = 'flex'; initNavSettings(); }
+        function closeSettings() { document.getElementById('settingsOverlay').style.display = 'none'; }
+        function openNotify() { document.getElementById('notifyOverlay').style.display = 'flex'; }
+        function closeNotify() { document.getElementById('notifyOverlay').style.display = 'none'; }
+        
+        // --- CITY PICKER FIXED ---
+        function openCityPicker() { 
+            const list = document.getElementById('cityList'); list.innerHTML = ''; 
+            cities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); 
+            document.getElementById('cityOverlay').style.display = 'flex'; 
+        }
+        function selectCurrentLocation() { if(!navigator.geolocation) { alert("Konum servisi desteklenmiyor."); return; } navigator.geolocation.getCurrentPosition((pos) => { const lat = pos.coords.latitude; const lng = pos.coords.longitude; let nearestCity = null; let minDist = Infinity; Object.keys(cityCoordinates).forEach(city => { const coords = cityCoordinates[city]; const dist = Math.sqrt(Math.pow(coords[0] - lat, 2) + Math.pow(coords[1] - lng, 2)); if(dist < minDist) { minDist = dist; nearestCity = city; } }); if(nearestCity) { selectCity(nearestCity); } else { alert("Yakınlarda bir şehir bulunamadı."); } }, (err) => { alert("Konum alınamadı."); }, { enableHighAccuracy: true }); }
+        function closeCityPicker() { document.getElementById('cityOverlay').style.display = 'none'; }
+        function filterCities() { const q = document.getElementById('citySearch').value.toLowerCase(); const list = document.getElementById('cityList'); list.innerHTML = ''; cities.filter(c => c.toLowerCase().includes(q)).forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); }
+        
+        function selectCity(name) { 
+            document.getElementById('selectedCity').innerText = name; 
+            closeCityPicker(); 
+            document.getElementById('stationList').style.opacity = '0.5'; 
+            
+            const coords = cityCoordinates[name];
+            if(coords) { 
+                if(leafletMap) leafletMap.setView(coords, 10); 
+                if(miniMap) miniMap.setView(coords, 10); 
+            } 
+            
+            setTimeout(() => { 
+                fetchRealStations();
+                document.getElementById('stationList').style.opacity = '1'; 
+            }, 300); 
+        }
+        
+        // --- MAP SEARCH & MIC FIXED ---
+        function handleMapSearch() { 
+            const input = document.getElementById('mapSearchInput'); 
+            const results = document.getElementById('mapSearchResults'); 
+            const val = input.value.toLowerCase(); 
+            if(val.length < 2) { results.style.display = 'none'; return; } 
+            const matches = cities.filter(c => c.toLowerCase().includes(val)); 
+            if(matches.length > 0) { results.innerHTML = ''; matches.forEach(c => { results.innerHTML += `<div class="map-search-item" onclick="flyToCity('${c}')"><div class="map-search-icon"><i data-lucide="map-pin" class="text-white w-4 h-4"></i></div><div><p class="font-bold text-md text-current">${c}</p><p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Şehir Merkezi</p></div></div>`; }); lucide.createIcons(); results.style.display = 'block'; } else { results.style.display = 'none'; } 
+        }
+        function flyToCity(name) { document.getElementById('mapSearchInput').value = name; document.getElementById('mapSearchResults').style.display = 'none'; const key = Object.keys(cityCoordinates).find(k => k.toLowerCase() === name.toLowerCase()); if(key && cityCoordinates[key]) { leafletMap.flyTo(cityCoordinates[key], 12, { duration: 1.5 }); selectCity(key); } }
+        function startVoiceSearch() { 
+            if (!('webkitSpeechSpeechRecognition' in window)) { alert("Sesli arama bu tarayıcıda desteklenmiyor."); return; } 
+            const micIcon = document.getElementById('micIcon'); micIcon.classList.add('mic-active'); 
+            const recognition = new webkitSpeechRecognition(); recognition.lang = 'tr-TR'; recognition.start(); 
+            recognition.onresult = (event) => { const text = event.results[0][0].transcript; document.getElementById('mapSearchInput').value = text; micIcon.classList.remove('mic-active'); handleMapSearch(); }; 
+            recognition.onerror = () => { micIcon.classList.remove('mic-active'); }; recognition.onend = () => { micIcon.classList.remove('mic-active'); };
+        }
+        function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
 
         window.addEventListener('load', () => { 
             initTheme(); initAppIcon(); initMiniMap(); updateGarageAnalysis(); updateRadarAnalysis(); 
