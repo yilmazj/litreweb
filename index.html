@@ -316,34 +316,26 @@
         </div>
     </div>
 
-    <div class="onboard-slide compact-layout" id="slide3">
-    <div>
-        <div class="mb-8">
-            <i data-lucide="map-pin" class="w-16 h-16 text-green-500"></i>
-        </div>
-        <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
-        <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
-        <div class="w-full mt-8">
-            <div class="compact-buttons">
-                <button onclick="nextSlide(4)" class="apple-btn secondary">Geç</button>
-                <button onclick="requestLocationPermission()" class="apple-btn">İzin Ver</button>
-            </div>
+    <div class="onboard-slide" id="slide3">
+    <div class="mb-6"><i data-lucide="map-pin" class="w-16 h-16 text-green-500"></i></div>
+    <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
+    <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+    <div class="mt-auto w-full pb-10">
+        <div class="flex gap-3">
+            <button onclick="nextSlide(4)" class="apple-btn secondary flex-1">Geç</button>
+            <button onclick="requestLocationPermission()" class="apple-btn flex-1">İzin Ver</button>
         </div>
     </div>
 </div>
 
-    <div class="onboard-slide compact-layout" id="slide4">
-    <div>
-        <div class="mb-8">
-            <i data-lucide="bell-ring" class="w-16 h-16 text-orange-500"></i>
-        </div>
-        <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
-        <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
-        <div class="w-full mt-8">
-            <div class="compact-buttons">
-                <button onclick="closeOnboarding()" class="apple-btn secondary">Geç</button>
-                <button onclick="requestNotificationPermission()" class="apple-btn">Aç</button>
-            </div>
+    <div class="onboard-slide" id="slide4">
+    <div class="mb-6"><i data-lucide="bell-ring" class="w-16 h-16 text-orange-500"></i></div>
+    <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
+    <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+    <div class="mt-auto w-full pb-10">
+        <div class="flex gap-3">
+            <button onclick="closeOnboarding()" class="apple-btn secondary flex-1">Geç</button>
+            <button onclick="requestNotificationPermission()" class="apple-btn flex-1">Aç</button>
         </div>
     </div>
 </div>
