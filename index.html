@@ -261,8 +261,8 @@
         .filter-toggle-btn { flex:1; padding:15px; border-radius:16px; background:var(--input-bg); color:var(--text); font-weight:bold; font-size:14px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px; border:2px solid transparent;}
         .filter-toggle-btn.active { background:var(--bg); border-color:var(--text); box-shadow:0 4px 15px rgba(0,0,0,0.05); }
 .onboard-slide.compact-layout {
-    justify-content: space-between;
-    padding: 40px 30px 30px;
+    justify-content: center; /* Merkeze al */
+    padding: 30px;
 }
 
 .compact-buttons {
@@ -309,12 +309,12 @@
     </div>
 
     <div class="onboard-slide compact-layout" id="slide3">
-    <div>
-        <div class="mb-6"><i data-lucide="map-pin" class="w-16 h-16 text-green-500"></i></div>
-        <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
-        <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+    <div class="mb-8">
+        <i data-lucide="map-pin" class="w-16 h-16 text-green-500"></i>
     </div>
-    <div class="w-full pb-10">
+    <h2 class="apple-title">Yakınındakileri<br>Keşfet.</h2>
+    <p class="apple-sub">En ucuz ve en yakın istasyonları bulabilmek için konum erişimine ihtiyacımız var.</p>
+    <div class="w-full mt-8">
         <div class="compact-buttons">
             <button onclick="nextSlide(4)" class="apple-btn secondary">Geç</button>
             <button onclick="requestLocationPermission()" class="apple-btn">İzin Ver</button>
@@ -323,12 +323,12 @@
 </div>
 
     <div class="onboard-slide compact-layout" id="slide4">
-    <div>
-        <div class="mb-6"><i data-lucide="bell-ring" class="w-16 h-16 text-orange-500"></i></div>
-        <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
-        <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+    <div class="mb-8">
+        <i data-lucide="bell-ring" class="w-16 h-16 text-orange-500"></i>
     </div>
-    <div class="w-full pb-10">
+    <h2 class="apple-title">Fırsatları<br>Kaçırma.</h2>
+    <p class="apple-sub">Zam haberleri ve özel indirimlerden anında haberdar ol.</p>
+    <div class="w-full mt-8">
         <div class="compact-buttons">
             <button onclick="closeOnboarding()" class="apple-btn secondary">Geç</button>
             <button onclick="requestNotificationPermission()" class="apple-btn">Aç</button>
