@@ -59,15 +59,87 @@
         
         #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
         
-        /* ONBOARDING STYLES */
-        #onboardingOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 20px; }
-        .onboard-slide { display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; animation: fadeIn 0.5s ease; }
-        .onboard-slide.active { display: flex; }
-        .onboard-img-box { width: 120px; height: 120px; background: var(--input-bg); border-radius: 30px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .onboard-dots { display: flex; gap: 8px; margin-top: 30px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.3; transition: 0.3s; }
-        .dot.active { opacity: 1; background: #3b82f6; width: 20px; border-radius: 4px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* PREMIUM ONBOARDING STYLES - APPLE VIBE */
+        #onboardingOverlay { 
+            position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; 
+            padding: 30px; 
+            transition: background 0.5s ease;
+        }
+
+        .onboard-slide { 
+            display: none; 
+            flex-direction: column; 
+            height: 100%; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* Apple-like easing */
+        }
+        
+        .onboard-slide.active { 
+            display: flex; 
+            opacity: 1; 
+            transform: scale(1);
+        }
+
+        /* Staggered Animation Classes */
+        .premium-anim-in > * { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .onboard-slide.active .premium-anim-in > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+        .onboard-slide.active .premium-anim-in > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+        .onboard-slide.active .premium-anim-in > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+        .onboard-slide.active .premium-anim-in > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+
+        .onboard-hero-img {
+            width: 140px; height: 140px; 
+            margin-bottom: 40px;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.15));
+            position: relative;
+        }
+
+        .onboard-title { font-size: 34px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 15px; background: linear-gradient(180deg, var(--text) 0%, var(--subtext) 150%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .onboard-desc { font-size: 17px; line-height: 1.5; color: var(--subtext); font-weight: 500; max-width: 280px; margin-bottom: 40px; }
+
+        .apple-btn {
+            background: var(--text); 
+            color: var(--bg); 
+            font-weight: 700; 
+            font-size: 17px;
+            padding: 18px; 
+            border-radius: 99px; 
+            width: 100%; 
+            max-width: 320px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative; overflow: hidden;
+        }
+        .apple-btn:active { transform: scale(0.95); }
+
+        /* THE DROP ANIMATION */
+        .drop-shape {
+            position: absolute;
+            width: 20px; height: 20px;
+            background: var(--text);
+            border-radius: 0 50% 50% 50%;
+            transform: rotate(45deg);
+            bottom: 22px; left: 50%;
+            margin-left: -10px;
+            opacity: 0;
+            z-index: 50;
+        }
+        
+        @keyframes dropFall {
+            0% { opacity: 1; transform: rotate(45deg) translateY(0); }
+            60% { transform: rotate(45deg) translateY(300px) scale(0.8, 1.2); opacity: 1; }
+            100% { transform: rotate(45deg) translateY(400px) scale(0.5); opacity: 0; }
+        }
+
+        .logo-container { position: relative; width: 100px; height: 120px; margin: 0 auto 30px auto; }
+        
+        .onboard-dots { display: flex; gap: 10px; margin-top: auto; padding-bottom: 40px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.2; transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .dot.active { opacity: 1; background: var(--text); transform: scale(1.2); }
 
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -245,38 +317,65 @@
     <div class="flex justify-end p-2"><button onclick="closeOnboarding()" class="text-sm font-bold opacity-40">ATLA</button></div>
     
     <div class="onboard-slide active" id="slide1">
-        <div class="mb-4">
-            <svg width="80" height="100" viewBox="0 0 100 120"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="flex-1 flex flex-col justify-center items-center premium-anim-in">
+            <div class="logo-container">
+                <svg width="100" height="120" viewBox="0 0 100 120" id="onboardLogoSvg">
+                    <defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs>
+                    <path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="drop-shape" id="magicDrop"></div>
+            </div>
+            
+            <h2 class="onboard-title">Yakıtın En Akıllı Hali</h2>
+            <p class="onboard-desc">Çevrendeki en avantajlı istasyonları ve şarj noktalarını anında keşfet.</p>
         </div>
-        <h2 class="text-3xl font-black mb-4">Hoş Geldin!</h2>
-        <p class="opacity-60 mb-8 px-6">Litre ile çevrendeki en ucuz akaryakıtı ve elektrikli şarj istasyonlarını saniyeler içinde bul.</p>
-        <button onclick="nextSlide(2)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30">BAŞLAYALIM</button>
+        <div class="pb-8 w-full flex justify-center premium-anim-in">
+            <button onclick="animateDropAndNext()" class="apple-btn haptic-btn">Başlayalım</button>
+        </div>
     </div>
 
     <div class="onboard-slide" id="slide2">
-        <div class="onboard-img-box"><i data-lucide="car-front" class="w-12 h-12 text-blue-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Tüm Araçların Tek Yerde</h2>
-        <p class="opacity-60 mb-8 px-4">Garajına birden fazla araç ekle, yakıt masraflarını, aldığın litreyi ve tüm geçmişini kuruşu kuruşuna takip et.</p>
-        <button onclick="nextSlide(3)" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-blue-500/30">DEVAM ET</button>
+        <div class="flex-1 flex flex-col justify-center items-center premium-anim-in">
+            <div class="onboard-hero-img flex items-center justify-center bg-blue-500/10 rounded-[40px]">
+                <i data-lucide="car-front" class="w-16 h-16 text-blue-600"></i>
+            </div>
+            <h2 class="onboard-title">Tüm Garajın<br>Cebinde</h2>
+            <p class="onboard-desc">Tüm araçlarını ekle, harcamalarını kuruşu kuruşuna takip et.</p>
+        </div>
+        <div class="pb-8 w-full flex justify-center premium-anim-in">
+            <button onclick="nextSlide(3)" class="apple-btn haptic-btn">Devam Et</button>
+        </div>
     </div>
 
     <div class="onboard-slide" id="slide3">
-        <div class="onboard-img-box"><i data-lucide="navigation" class="w-12 h-12 text-green-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Sana En Yakın Olanı Bulalım</h2>
-        <p class="opacity-60 mb-8 px-4">Sadece sana yakın istasyonları göstermek ve menziline göre sıralamak için konumuna ihtiyacımız var.</p>
-        <button onclick="requestLocationPermission()" class="w-full bg-green-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-green-500/30">KONUM İZNİ VER</button>
-        <button onclick="nextSlide(4)" class="mt-4 text-xs font-bold opacity-40">Şimdilik Geç</button>
+        <div class="flex-1 flex flex-col justify-center items-center premium-anim-in">
+            <div class="onboard-hero-img flex items-center justify-center bg-green-500/10 rounded-[40px]">
+                <i data-lucide="map-pin" class="w-16 h-16 text-green-600"></i>
+            </div>
+            <h2 class="onboard-title">Rota Oluştur</h2>
+            <p class="onboard-desc">Sana en yakın ve en ucuz istasyonları bulmak için konum izni gerekli.</p>
+        </div>
+        <div class="pb-8 w-full flex flex-col items-center gap-4 premium-anim-in">
+            <button onclick="requestLocationPermission()" class="apple-btn haptic-btn bg-green-600 text-white">Konum İzni Ver</button>
+            <button onclick="nextSlide(4)" class="text-sm font-bold opacity-40">Şimdilik Geç</button>
+        </div>
     </div>
 
     <div class="onboard-slide" id="slide4">
-        <div class="onboard-img-box"><i data-lucide="bell" class="w-12 h-12 text-orange-500"></i></div>
-        <h2 class="text-2xl font-black mb-4">Zam Gelmeden Haber Verelim</h2>
-        <p class="opacity-60 mb-8 px-4">Akaryakıt zamlarını ve özel indirim fırsatlarını kaçırmaman için bildirim göndermemize izin ver.</p>
-        <button onclick="requestNotificationPermission()" class="w-full bg-orange-500 text-white font-black py-4 rounded-2xl haptic-btn shadow-lg shadow-orange-500/30">BİLDİRİMLERİ AÇ</button>
-        <button onclick="closeOnboarding()" class="mt-4 text-xs font-bold opacity-40">Şimdilik Geç</button>
+        <div class="flex-1 flex flex-col justify-center items-center premium-anim-in">
+            <div class="onboard-hero-img flex items-center justify-center bg-orange-500/10 rounded-[40px]">
+                <i data-lucide="bell-ring" class="w-16 h-16 text-orange-600"></i>
+            </div>
+            <h2 class="onboard-title">Zam Gelmeden<br>Yakala</h2>
+            <p class="onboard-desc">Akaryakıt zamlarını önceden haber al, depoyu ucuza doldur.</p>
+        </div>
+        <div class="pb-8 w-full flex flex-col items-center gap-4 premium-anim-in">
+            <button onclick="requestNotificationPermission()" class="apple-btn haptic-btn bg-orange-600 text-white">Bildirimleri Aç</button>
+            <button onclick="closeOnboarding()" class="text-sm font-bold opacity-40">Şimdilik Geç</button>
+        </div>
     </div>
 
-    <div class="mt-auto flex justify-center pb-10">
+    <div class="flex justify-center">
         <div class="onboard-dots">
             <div class="dot active" id="dot1"></div>
             <div class="dot" id="dot2"></div>
@@ -1617,25 +1716,60 @@
         function initMiniMap() { if (miniMap) return; miniMap = L.map('miniMap', { zoomControl: false, attributionControl: false, dragging: false, touchZoom: false }).setView([41.0082, 28.9784], 10); updateMapLayer(miniMap, 'miniMap'); }
         function toggleSwitch(el) { el.classList.toggle('active'); }
         
-        // --- ONBOARDING LOGIC ---
+        // --- ONBOARDING LOGIC (PREMIUM) ---
         function checkOnboarding() {
             const shown = localStorage.getItem('intro_shown');
             if(!shown) {
                 document.getElementById('onboardingOverlay').style.display = 'flex';
+                // Trigger Slide 1 Animation
+                setTimeout(() => document.getElementById('slide1').classList.add('active'), 100);
             } else {
                 initMap(); // Start map immediately if intro already shown
             }
         }
 
         function closeOnboarding() {
-            document.getElementById('onboardingOverlay').style.display = 'none';
-            localStorage.setItem('intro_shown', 'true');
-            initMap(); // Start map after closing intro
+            const overlay = document.getElementById('onboardingOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                localStorage.setItem('intro_shown', 'true');
+                initMap(); 
+            }, 500);
+        }
+
+        function animateDropAndNext() {
+            const drop = document.getElementById('magicDrop');
+            const svgLogo = document.getElementById('onboardLogoSvg');
+            
+            // 1. Drop falls
+            drop.style.animation = "dropFall 0.8s forwards ease-in";
+            
+            // 2. Logo reacts slightly (optional shake or fade)
+            svgLogo.style.transform = "scale(0.95)";
+            svgLogo.style.transition = "0.2s";
+            
+            // 3. Wait for drop to "hit" bottom then transition
+            setTimeout(() => {
+                svgLogo.style.transform = "scale(1)";
+                nextSlide(2);
+            }, 600);
         }
 
         function nextSlide(n) {
-            document.querySelectorAll('.onboard-slide').forEach(s => s.classList.remove('active'));
-            document.getElementById('slide' + n).classList.add('active');
+            // Hide current active slide
+            document.querySelectorAll('.onboard-slide').forEach(s => {
+                s.classList.remove('active');
+            });
+
+            // Show new slide with delay for staggering
+            const next = document.getElementById('slide' + n);
+            if(next) {
+                next.style.display = 'flex';
+                // Force reflow
+                void next.offsetWidth;
+                next.classList.add('active');
+            }
             
             document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
             document.getElementById('dot' + n).classList.add('active');
