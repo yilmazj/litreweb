@@ -301,7 +301,7 @@
 <p id="descAnim" class="apple-sub text-fall">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
         </div>
         <div class="w-full pb-10">
-            <button onclick="startOnboarding()" class="apple-btn">Hadi Başlayalım</button>
+            <button id="btnAnim" onclick="startOnboarding()" class="apple-btn text-fall">Hadi Başlayalım</button>
         </div>
     </div>
 
@@ -1751,20 +1751,35 @@ function loginWithApple() {
             }, 500);
         }
 
-        function startOnboarding() {
+        // Custom Start Logic for Slide 1 (Logo Drop & Cascade Effect)
+function startOnboarding() {
     const logo = document.getElementById('logoAnim');
-    const title = document.getElementById('titleAnim'); // Başlığı seçtik
-    const desc = document.getElementById('descAnim');   // Açıklamayı seçtik
+    const title = document.getElementById('titleAnim'); 
+    const desc = document.getElementById('descAnim');   
+    const btn = document.getElementById('btnAnim'); 
     
-    // Hepsini aşağı düşür (drop-active ve active sınıfları ekleniyor)
-    logo.classList.add('drop-active');
-    title.classList.add('active');
-    desc.classList.add('active');
+    // 1. Logo hareketi başlasın (Zıpla ve düşmeye başla)
+    if (logo) logo.classList.add('drop-active');
     
-    // Animasyon bitince diğer sayfaya geç (1.2 saniye bekletiyoruz)
+    // 2. Logo tam "Hoş Geldin" hizasına geldiğinde onu düşür (300ms sonra)
+    setTimeout(() => {
+        if (title) title.classList.add('active');
+    }, 300);
+
+    // 3. Logo açıklamaya geldiğinde onu düşür (450ms sonra)
+    setTimeout(() => {
+        if (desc) desc.classList.add('active');
+    }, 450);
+
+    // 4. Logo butona geldiğinde onu düşür (600ms sonra)
+    setTimeout(() => {
+        if (btn) btn.classList.add('active');
+    }, 600);
+    
+    // 5. Her şey düştükten sonra diğer sayfaya geç (1.4 saniye sonra)
     setTimeout(() => {
         nextSlide(2);
-    }, 1200); 
+    }, 1400); 
 }
 
         function nextSlide(n) {
