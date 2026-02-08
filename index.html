@@ -1764,22 +1764,22 @@ function startOnboarding() {
     // 2. Logo tam "Hoş Geldin" hizasına geldiğinde onu düşür (300ms sonra)
     setTimeout(() => {
         if (title) title.classList.add('active');
-    }, 300);
+    }, 150);
 
     // 3. Logo açıklamaya geldiğinde onu düşür (450ms sonra)
     setTimeout(() => {
         if (desc) desc.classList.add('active');
-    }, 450);
+    }, 300);
 
-    // 4. Logo butona geldiğinde onu düşür (900ms sonra)
+    // 4. Logo butona geldiğinde onu düşür (600ms sonra)
     setTimeout(() => {
         if (btn) btn.classList.add('active');
-    }, 800);
+    }, 600);
     
-    // 5. Her şey düştükten sonra diğer sayfaya geç (1.7 saniye sonra)
+    // 5. Her şey düştükten sonra diğer sayfaya geç (1.4 saniye sonra)
     setTimeout(() => {
         nextSlide(2);
-    }, 1.7); 
+    }, 1.6); 
 }
 
         function nextSlide(n) {
