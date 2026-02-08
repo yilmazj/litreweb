@@ -1771,15 +1771,15 @@ function startOnboarding() {
         if (desc) desc.classList.add('active');
     }, 450);
 
-    // 4. Logo butona geldiğinde onu düşür (600ms sonra)
+    // 4. Logo butona geldiğinde onu düşür (900ms sonra)
     setTimeout(() => {
         if (btn) btn.classList.add('active');
-    }, 600);
+    }, 800);
     
-    // 5. Her şey düştükten sonra diğer sayfaya geç (1.4 saniye sonra)
+    // 5. Her şey düştükten sonra diğer sayfaya geç (1.7 saniye sonra)
     setTimeout(() => {
         nextSlide(2);
-    }, 1400); 
+    }, 1.7); 
 }
 
         function nextSlide(n) {
