@@ -66,11 +66,23 @@
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
         
-        .onboard-slide { 
-            display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; 
-            opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
+        .onboard-slide {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center; /* BURASI ZATEN VAR AMA EMİN OL */
+    align-items: center;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.onboard-slide.active {
+    display: flex; /* AKTİF OLUNCA FLEX AÇIK OLMALI */
+    opacity: 1;
+    transform: translateY(0);
+}
         
         .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
         .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } /* Damlama Efekti */
