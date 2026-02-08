@@ -96,9 +96,27 @@
             transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         .apple-btn:active { transform: scale(0.97); }
-        .apple-btn.secondary { background: rgba(120, 120, 128, 0.1); color: var(--text); box-shadow: none; margin-top: 15px; }
+        /* Mevcut olanı bununla değiştir (margin-top'ı sıfırladık) */
+.apple-btn.secondary { 
+    background: rgba(120, 120, 128, 0.1); 
+    color: var(--text); 
+    box-shadow: none; 
+    margin-top: 0; 
+}
 
-        .onboard-dots { display: flex; gap: 10px; margin-top: 30px; }
+/* Bu yeni sınıfı da hemen altına ekle (butonları yan yana dizen sihir bu) */
+.btn-row { 
+    display: flex; 
+    gap: 12px; 
+    width: 100%; 
+}
+
+.btn-row .apple-btn { 
+    flex: 1; 
+    padding: 16px 10px; 
+    font-size: 15px; 
+}
+.onboard-dots { display: flex; gap: 10px; margin-top: 30px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subtext); opacity: 0.2; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .dot.active { opacity: 1; background: var(--text); width: 24px; border-radius: 4px; }
 
