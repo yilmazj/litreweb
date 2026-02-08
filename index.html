@@ -1682,16 +1682,21 @@
             }, 500);
         }
 
-        // Custom Start Logic for Slide 1 (Logo Drop)
         function startOnboarding() {
-            const logo = document.getElementById('logoAnim');
-            logo.classList.add('drop-active'); // Trigger CSS drop animation
-            
-            // Wait for drop animation then transition
-            setTimeout(() => {
-                nextSlide(2);
-            }, 1200); // 1.2s to let animation finish fully
-        }
+    const logo = document.getElementById('logoAnim');
+    const title = document.getElementById('titleAnim'); // Başlığı seçtik
+    const desc = document.getElementById('descAnim');   // Açıklamayı seçtik
+    
+    // Hepsini aşağı düşür (drop-active ve active sınıfları ekleniyor)
+    logo.classList.add('drop-active');
+    title.classList.add('active');
+    desc.classList.add('active');
+    
+    // Animasyon bitince diğer sayfaya geç (1.2 saniye bekletiyoruz)
+    setTimeout(() => {
+        nextSlide(2);
+    }, 1200); 
+}
 
         function nextSlide(n) {
             // FIX: Kayma sorununu çözmek için tüm slaytları önce gizle
