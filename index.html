@@ -60,33 +60,31 @@
         #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
         
         /* ONBOARDING STYLES */
-        #onboardingOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; transition: opacity 0.5s; }
+        #onboardingOverlay { position: fixed; inset: 0; background: #ffffff; z-index: 8000; display: none; flex-direction: column; transition: opacity 0.5s; }
+        body.dark-mode #onboardingOverlay { background: #000000; }
+
         .slide { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; opacity: 0; pointer-events: none; transition: opacity 0.5s, transform 0.5s; text-align: center; }
         .slide.active { opacity: 1; pointer-events: auto; transform: scale(1); }
         .slide.exit-left { opacity: 0; transform: translateX(-50px); }
         
-        .drop-text { transition: transform 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.6s; cursor: pointer; }
-        .drop-text.dropped { transform: translateY(100vh) scale(0.5); opacity: 0; }
+        /* Gravity Drop Animation Class */
+        .drop-exit { 
+            transform: translateY(120vh) !important; 
+            opacity: 0 !important; 
+            transition: transform 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.5s; 
+        }
+
+        /* Slide 1 Specifics */
+        .onboarding-btn { background: #1c1c1e; color: white; width: 100%; padding: 16px; border-radius: 99px; font-weight: 700; font-size: 16px; margin-top: auto; margin-bottom: 50px; transition: transform 0.1s; }
+        .onboarding-btn:active { transform: scale(0.98); opacity: 0.9; }
+        body.dark-mode .onboarding-btn { background: #fff; color: #000; }
         
-        .skip-btn { position: absolute; top: 20px; right: 20px; font-weight: 700; color: var(--subtext); font-size: 14px; z-index: 8005; padding: 10px; }
+        .onboarding-skip { position: absolute; top: 20px; right: 20px; font-weight: 600; color: #8e8e93; font-size: 14px; z-index: 8005; padding: 10px; }
 
-        /* FAKE IOS ALERT */
-        .ios-alert-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 9000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.2s; }
-        .ios-alert { width: 270px; background: rgba(240,240,240,0.95); backdrop-filter: blur(20px); border-radius: 14px; text-align: center; overflow: hidden; transform: scale(1.1); animation: alertPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .dark-mode .ios-alert { background: rgba(30,30,30,0.85); color: white; }
-        .ios-alert-title { font-weight: 700; font-size: 17px; padding: 20px 16px 5px 16px; margin: 0; color: #000; }
-        .dark-mode .ios-alert-title { color: #fff; }
-        .ios-alert-desc { font-size: 13px; margin: 0; padding: 0 16px 20px 16px; color: #000; }
-        .dark-mode .ios-alert-desc { color: #fff; }
-        .ios-alert-btns { display: flex; border-top: 0.5px solid rgba(60,60,67,0.36); }
-        .dark-mode .ios-alert-btns { border-top-color: rgba(84,84,88,0.65); }
-        .ios-alert-btn { flex: 1; padding: 12px; font-size: 17px; background: transparent; border: none; color: #007AFF; cursor: pointer; border-right: 0.5px solid rgba(60,60,67,0.36); font-weight: 400; }
-        .dark-mode .ios-alert-btn { border-right-color: rgba(84,84,88,0.65); }
-        .ios-alert-btn:last-child { border-right: none; font-weight: 700; }
-        .ios-alert-btn:active { background: rgba(0,0,0,0.05); }
-
-        @keyframes alertPop { from { opacity: 0; transform: scale(1.2); } to { opacity: 1; transform: scale(1); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Capsule Buttons */
+        .capsule-btn { flex: 1; padding: 14px; border-radius: 99px; font-weight: 700; font-size: 14px; transition: 0.2s; }
+        .capsule-btn-secondary { background: rgba(120, 120, 128, 0.1); color: var(--subtext); }
+        .capsule-btn-primary { background: #3b82f6; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
 
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -261,52 +259,74 @@
 <body class="max-w-md mx-auto h-screen flex flex-col">
 
 <div id="onboardingOverlay">
-    <button onclick="skipOnboarding()" class="skip-btn">Atla</button>
+    <button onclick="skipOnboarding()" class="onboarding-skip">ATLA</button>
     
     <div class="slide active" id="slide1">
-        <svg width="100" height="120" viewBox="0 0 100 120" class="mb-6"><defs><linearGradient id="logoOnboard" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--text)" /><stop offset="100%" style="stop-color:var(--subtext)" /></linearGradient></defs><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="url(#logoOnboard)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <h1 onclick="triggerDrop()" id="welcomeText" class="text-4xl font-black silver-grad tracking-tight drop-text text-center">Hoş Geldin</h1>
-        <p class="mt-4 text-sm opacity-50 animate-pulse">Başlamak için yazıya dokun</p>
+        <div id="welcomeContent" class="flex flex-col items-center justify-center w-full h-full pt-20">
+            <svg width="120" height="150" viewBox="0 0 100 120" class="mb-10 drop-logo"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="#4a4a4a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            
+            <h1 onclick="triggerDrop()" class="text-5xl font-bold tracking-tight text-center text-[#1c1c1e] dark:text-white mb-6 cursor-pointer">Hoş Geldin.</h1>
+            <p class="text-center text-lg text-gray-500 font-medium px-6 leading-relaxed">Litre ile akaryakıt ve şarj istasyonlarını keşfet, tasarruf et.</p>
+            
+            <button onclick="triggerDrop()" class="onboarding-btn haptic-btn">Hadi Başlayalım</button>
+            
+            <div class="flex gap-2 mt-auto pb-10">
+                <div class="w-8 h-2 bg-[#1c1c1e] dark:bg-white rounded-full"></div>
+                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            </div>
+        </div>
     </div>
 
     <div class="slide" id="slide2">
-        <div class="w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center mb-6"><i data-lucide="car" class="w-10 h-10 text-blue-500"></i></div>
-        <h2 class="text-3xl font-black mb-3 text-current">Akıllı Garaj</h2>
-        <p class="text-current opacity-60 text-lg px-4">Tüm araçlarını tek bir yerden yönet. Yakıt geçmişini ve masraflarını otomatik takip et.</p>
-        <button onclick="nextSlide(2)" class="mt-12 bg-current text-white px-10 py-4 rounded-full font-bold haptic-btn" style="background:var(--text); color:var(--bg)">Devam Et</button>
+        <div class="w-32 h-32 bg-blue-500/10 rounded-full flex items-center justify-center mb-8"><i data-lucide="car" class="w-12 h-12 text-blue-500"></i></div>
+        <h2 class="text-4xl font-bold mb-4 text-[#1c1c1e] dark:text-white">Akıllı Garaj</h2>
+        <p class="text-gray-500 text-lg px-6 leading-relaxed text-center">Tüm araçlarını tek bir yerden yönet. Yakıt geçmişini ve masraflarını otomatik takip et.</p>
+        
+        <button onclick="nextSlide(2)" class="onboarding-btn haptic-btn">Devam Et</button>
+        
+        <div class="flex gap-2 mt-auto pb-10">
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            <div class="w-8 h-2 bg-[#1c1c1e] dark:bg-white rounded-full"></div>
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+        </div>
     </div>
 
     <div class="slide" id="slide3">
-        <div class="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mb-6"><i data-lucide="map-pin" class="w-10 h-10 text-green-500"></i></div>
-        <h2 class="text-3xl font-black mb-3 text-current">Konum Servisleri</h2>
-        <p class="text-current opacity-60 text-lg px-4 mb-8">Sana en yakın ve en ucuz istasyonları bulabilmemiz için konum iznine ihtiyacımız var.</p>
+        <div class="w-32 h-32 bg-green-500/10 rounded-full flex items-center justify-center mb-8"><i data-lucide="map-pin" class="w-12 h-12 text-green-500"></i></div>
+        <h2 class="text-3xl font-bold mb-4 text-[#1c1c1e] dark:text-white">Konum İzni</h2>
+        <p class="text-gray-500 text-lg px-6 leading-relaxed text-center mb-10">Sana en yakın ve en ucuz istasyonları bulabilmemiz için konumuna ihtiyacımız var.</p>
+        
+        <div class="flex gap-4 w-full px-4 mt-auto mb-10">
+            <button onclick="nextSlide(3)" class="capsule-btn capsule-btn-secondary haptic-btn">Şimdilik Geç</button>
+            <button onclick="handleLocPermission()" class="capsule-btn capsule-btn-primary haptic-btn">İzin Ver</button>
+        </div>
+
+         <div class="flex gap-2 pb-10">
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            <div class="w-8 h-2 bg-[#1c1c1e] dark:bg-white rounded-full"></div>
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+        </div>
     </div>
 
     <div class="slide" id="slide4">
-        <div class="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6"><i data-lucide="bell" class="w-10 h-10 text-red-500"></i></div>
-        <h2 class="text-3xl font-black mb-3 text-current">Bildirimler</h2>
-        <p class="text-current opacity-60 text-lg px-4 mb-8">Zam ve indirim haberlerini kaçırmamak için bildirimlere izin ver.</p>
-    </div>
-</div>
+        <div class="w-32 h-32 bg-red-500/10 rounded-full flex items-center justify-center mb-8"><i data-lucide="bell" class="w-12 h-12 text-red-500"></i></div>
+        <h2 class="text-3xl font-bold mb-4 text-[#1c1c1e] dark:text-white">Bildirimler</h2>
+        <p class="text-gray-500 text-lg px-6 leading-relaxed text-center mb-10">Zam ve indirim haberlerini kaçırmamak için bildirimlere izin ver.</p>
 
-<div id="fakeLocAlert" class="ios-alert-overlay">
-    <div class="ios-alert">
-        <h3 class="ios-alert-title">"Litre" Konumunuzu Kullanmak İstiyor</h3>
-        <p class="ios-alert-desc">Çevrenizdeki istasyonları göstermek için.</p>
-        <div class="ios-alert-btns">
-            <button class="ios-alert-btn" onclick="handleLocPermission(false)">İzin Verme</button>
-            <button class="ios-alert-btn" onclick="handleLocPermission(true)">Uygulamayı Kullanırken</button>
+        <div class="flex gap-4 w-full px-4 mt-auto mb-10">
+            <button onclick="skipOnboarding()" class="capsule-btn capsule-btn-secondary haptic-btn">Şimdilik Geç</button>
+            <button onclick="handleNotifPermission()" class="capsule-btn capsule-btn-primary haptic-btn">İzin Ver</button>
         </div>
-    </div>
-</div>
 
-<div id="fakeNotifAlert" class="ios-alert-overlay">
-    <div class="ios-alert">
-        <h3 class="ios-alert-title">"Litre" Size Bildirim Göndermek İstiyor</h3>
-        <p class="ios-alert-desc">Bildirimler ses, ikon ve işaretleri içerebilir.</p>
-        <div class="ios-alert-btns">
-            <button class="ios-alert-btn" onclick="handleNotifPermission(false)">İzin Verme</button>
-            <button class="ios-alert-btn" onclick="handleNotifPermission(true)">İzin Ver</button>
+         <div class="flex gap-2 pb-10">
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+            <div class="w-8 h-2 bg-[#1c1c1e] dark:bg-white rounded-full"></div>
         </div>
     </div>
 </div>
@@ -721,7 +741,7 @@
                     <h2 class="text-3xl font-black mb-4">0,00 TL</h2>
                     <div class="space-y-4">
                         <div>
-                            <div class="flex justify-between text-xs font-bold mb-1"><span>Yakıt</span><span id="radarFuelText">0%</span></div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><span>Akaryakıt</span><span id="radarFuelText">0%</span></div>
                             <div class="bar-container"><div id="radarFuelBar" class="bar-fill bg-blue-500" style="width: 0%"></div></div>
                         </div>
                     </div>
@@ -925,17 +945,23 @@
         let currentSlide = 1;
         
         function triggerDrop() {
-            const text = document.getElementById('welcomeText');
-            text.classList.add('dropped');
+            // Apply drop animation to content container
+            const content = document.getElementById('welcomeContent');
+            content.classList.add('drop-exit');
+            
             setTimeout(() => {
                 nextSlide(1);
-            }, 600); // Wait for drop animation
+            }, 800); // Wait for drop animation
         }
 
         function nextSlide(current) {
             const currEl = document.getElementById(`slide${current}`);
             currEl.classList.remove('active');
-            currEl.classList.add('exit-left');
+            
+            // Only apply exit-left if it's NOT the drop animation slide (1)
+            if(current !== 1) {
+                currEl.classList.add('exit-left');
+            }
             
             const next = current + 1;
             const nextEl = document.getElementById(`slide${next}`);
@@ -943,44 +969,41 @@
             if (nextEl) {
                 setTimeout(() => {
                     nextEl.classList.add('active');
-                    
-                    // Logic for permissions slides
-                    if (next === 3) {
-                        setTimeout(() => showFakeLocPrompt(), 2000);
-                    }
-                    if (next === 4) {
-                        setTimeout(() => showFakeNotifPrompt(), 2000);
-                    }
-                }, 300);
+                }, 100);
             } else {
                 // End of onboarding
                 skipOnboarding();
             }
         }
 
-        function showFakeLocPrompt() {
-            document.getElementById('fakeLocAlert').style.display = 'flex';
+        function handleLocPermission() {
+            // Trigger NATIVE browser permission
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    // Success - User allowed
+                    console.log("Konum izni verildi");
+                    nextSlide(3);
+                },
+                (err) => {
+                    // Error or Denied
+                    console.log("Konum izni reddedildi veya hata");
+                    nextSlide(3);
+                }
+            );
         }
 
-        function handleLocPermission(allow) {
-            document.getElementById('fakeLocAlert').style.display = 'none';
-            if (allow) {
-                // Trigger real browser permission
-                navigator.geolocation.getCurrentPosition(() => {}, () => {});
+        function handleNotifPermission() {
+            // Trigger NATIVE browser permission
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log("Bildirim izni verildi");
+                    }
+                    skipOnboarding();
+                });
+            } else {
+                skipOnboarding();
             }
-            setTimeout(() => nextSlide(3), 500);
-        }
-
-        function showFakeNotifPrompt() {
-            document.getElementById('fakeNotifAlert').style.display = 'flex';
-        }
-
-        function handleNotifPermission(allow) {
-            document.getElementById('fakeNotifAlert').style.display = 'none';
-            if (allow && 'Notification' in window) {
-                Notification.requestPermission();
-            }
-            setTimeout(() => skipOnboarding(), 500); // End flow
         }
 
         function checkLoginStatus() {
