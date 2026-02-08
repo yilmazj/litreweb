@@ -59,7 +59,7 @@
         
         #splash { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease-out; }
         
-        /* --- ONBOARDING & ANIMATION STYLES (MERGED FROM CODE 1) --- */
+        /* --- ONBOARDING & ANIMATION STYLES --- */
         #onboardingOverlay { 
             position: fixed; inset: 0; background: var(--bg); z-index: 8000; display: none; flex-direction: column; padding: 30px; 
             overflow: hidden;
@@ -72,7 +72,6 @@
         }
         .onboard-slide.active { display: flex; opacity: 1; transform: translateY(0); }
         
-        /* Wrapper for perfectly centering content */
         .onboard-content-wrapper {
             flex: 1;
             display: flex;
@@ -82,11 +81,9 @@
             width: 100%;
         }
 
-        /* Logo Drop Animation Classes */
         .onboard-logo { transition: transform 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
         .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); } 
 
-        /* Typography from Code 1 */
         .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .apple-sub { font-size: 19px; line-height: 1.5; color: var(--subtext); font-weight: 500; margin-bottom: 30px; max-width: 320px; margin-left: auto; margin-right: auto; }
         
@@ -112,7 +109,7 @@
         }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
 
-        /* Original styles for Slide 3 & 4 (kept for compatibility) */
+        /* Original styles for Slide 3 & 4 */
         .onboard-image {
             width: 150px;
             height: 150px;
@@ -1762,28 +1759,44 @@
             }
         }
         
-        // --- REMAINING LOGIC FROM CODE 2 (History, Map Search, etc.) UNCHANGED ---
-        // ... (This section is handled by the merged script above)
-
-        window.addEventListener('load', () => { 
-            initTheme(); initAppIcon(); initMiniMap(); updateGarageAnalysis(); updateRadarAnalysis(); 
+        // --- SAFE INITIALIZATION LOGIC FOR SPLASH SCREEN FIX ---
+        document.addEventListener('DOMContentLoaded', () => { 
+            try {
+                // Initialize core functions safely
+                initTheme(); 
+                initAppIcon(); 
+                initMiniMap(); 
+                updateGarageAnalysis(); 
+                updateRadarAnalysis(); 
+                checkLoginStatus(); 
+            } catch(e) { console.error("Init Error:", e); }
             
-            checkLoginStatus(); 
-            
-            // Check for onboarding or start map
+            // Force Splash Removal with Timeout
             setTimeout(() => { 
                 const splash = document.getElementById('splash'); 
                 const content = document.getElementById('app-content'); 
+                
                 if(splash) { 
                     splash.style.opacity = '0'; 
+                    splash.style.pointerEvents = 'none'; // Prevent clicks while fading
+                    
                     setTimeout(() => { 
                         splash.style.display = 'none'; 
                         if(content) content.style.opacity = '1'; 
-                        checkOnboarding(); // Trigger onboarding check here
+                        
+                        try {
+                            checkOnboarding(); 
+                        } catch(e) {
+                            console.error("Onboarding Error:", e);
+                            // Fallback if onboarding fails
+                            document.getElementById('onboardingOverlay').style.display = 'none';
+                            initMap();
+                        }
                     }, 500); 
                 } 
             }, 2500); 
         });
+
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
 </body>
