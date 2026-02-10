@@ -891,7 +891,10 @@
         </main>
         <nav class="floating-dock"><button onclick="showTab('home', this)" class="nav-item active haptic-btn"><i data-lucide="home"></i></button><button id="map-nav" onclick="showTab('maps', this, true)" class="nav-item haptic-btn"><i data-lucide="map-pin"></i></button><button class="nav-item" onclick="handleScanAction()"><div class="bg-blue-600 p-4 rounded-[1.8rem] shadow-xl haptic-btn shadow-blue-500/20"><i data-lucide="camera" class="text-white w-6 h-6"></i></div></button><button onclick="showTab('radar', this)" class="nav-item haptic-btn"><i data-lucide="zap"></i></button><button onclick="showTab('profile', this)" class="nav-item haptic-btn"><i data-lucide="user"></i></button></nav>
     </div>
-// --- ICON SİSTEMİ (RENKLİ GÜNCELLEME) ---
+ 
+    <script>
+        lucide.createIcons();
+        // --- ICON SİSTEMİ (RENKLİ GÜNCELLEME) ---
 
 function initAppIcon() { 
     const savedIcon = localStorage.getItem('litre_icon') || 'light'; 
@@ -946,9 +949,7 @@ function setAppIcon(type, manual = true) {
 }
 
 // checkLoginStatus fonksiyonunun içine şu satırı ekle (en alta, renderGarageUI'dan sonra):
-// updateLockIcons(); 
-    <script>
-        lucide.createIcons();
+// updateLockIcons();
         
         const firebaseConfig = {
             apiKey: "AIzaSyDDYSbFnOpeCKrtN2wWhCUa6G8jsx5IIY0",
