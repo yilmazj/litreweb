@@ -87,13 +87,13 @@
         .onboard-logo { transition: transform 1.2s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
         .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); }
         /* Bunu style etiketleri arasına ekle */
-.text-fall {
-    transition: transform 2s ease-in, opacity 2s ease-in;
-}
-.text-fall.active {
-    transform: translateY(100vh); /* Ekranın en altına düşürür */
-    opacity: 0; /* Düşerken kaybolur */
-}
+        .text-fall {
+            transition: transform 2s ease-in, opacity 2s ease-in;
+        }
+        .text-fall.active {
+            transform: translateY(100vh); /* Ekranın en altına düşürür */
+            opacity: 0; /* Düşerken kaybolur */
+        }
 
         .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 15px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .apple-sub { font-size: 20px; line-height: 1.4; color: var(--subtext); font-weight: 500; margin-bottom: 40px; max-width: 320px; }
@@ -273,18 +273,19 @@
 
         .filter-toggle-btn { flex:1; padding:15px; border-radius:16px; background:var(--input-bg); color:var(--text); font-weight:bold; font-size:14px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px; border:2px solid transparent;}
         .filter-toggle-btn.active { background:var(--bg); border-color:var(--text); box-shadow:0 4px 15px rgba(0,0,0,0.05); }
-/* Sosyal Giriş Butonları */
-.social-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0; opacity: 0.4; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-.social-divider::before, .social-divider::after { content: ''; flex: 1; height: 1px; background: var(--text); }
 
-.social-btn { 
-    width: 100%; padding: 14px; border-radius: 16px; font-weight: bold; font-size: 14px; 
-    display: flex; align-items: center; justify-content: center; gap: 10px; 
-    background: var(--card); border: var(--glass-border); color: var(--text); 
-    transition: 0.2s; cursor: pointer; margin-bottom: 10px; position: relative;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-.social-btn:active { transform: scale(0.98); opacity: 0.8; }
+        /* Sosyal Giriş Butonları */
+        .social-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0; opacity: 0.4; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .social-divider::before, .social-divider::after { content: ''; flex: 1; height: 1px; background: var(--text); }
+
+        .social-btn { 
+            width: 100%; padding: 14px; border-radius: 16px; font-weight: bold; font-size: 14px; 
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            background: var(--card); border: var(--glass-border); color: var(--text); 
+            transition: 0.2s; cursor: pointer; margin-bottom: 10px; position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .social-btn:active { transform: scale(0.98); opacity: 0.8; }
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -653,17 +654,78 @@
         </div>
 
         <div class="glass-card p-6 border-blue-500/30">
-            <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Uygulama Simgesi</p>
-            <div class="flex gap-2">
-                <button onclick="setAppIcon('light')" id="iconLight" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">
-                    <div class="w-4 h-4 bg-white border border-black/10 rounded-full"></div>Beyaz
-                </button>
-                <button onclick="setAppIcon('dark')" id="iconDark" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">
-                    <div class="w-4 h-4 bg-black border border-white/10 rounded-full"></div>Siyah
-                </button>
+    <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Uygulama Simgesi</p>
+    
+    <div class="grid grid-cols-4 gap-y-6 gap-x-2">
+        <button onclick="setAppIcon('light')" id="iconLight" class="flex flex-col items-center gap-2 group">
+            <div class="w-14 h-14 bg-white rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
-            <p class="text-[9px] opacity-40 mt-3 text-center">Not: Ana ekran simgesi değişikliği için uygulamayı tekrar eklemeniz gerekebilir.</p>
-        </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Klasik</span>
+        </button>
+
+        <button onclick="setAppIcon('dark')" id="iconDark" class="flex flex-col items-center gap-2 group">
+            <div class="w-14 h-14 bg-black rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Gece</span>
+        </button>
+
+        <button onclick="setAppIcon('blue')" id="iconBlue" class="flex flex-col items-center gap-2 group">
+            <div class="w-14 h-14 bg-blue-600 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Okyanus</span>
+        </button>
+
+        <button onclick="setAppIcon('green')" id="iconGreen" class="flex flex-col items-center gap-2 group">
+            <div class="w-14 h-14 bg-green-600 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Doğa</span>
+        </button>
+
+        <button onclick="checkIconPremium('gold')" id="iconGold" class="flex flex-col items-center gap-2 group relative">
+            <div class="w-14 h-14 bg-black rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="#FFD700" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div id="lockGold" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Gold</span>
+        </button>
+
+        <button onclick="setAppIcon('red')" id="iconRed" class="flex flex-col items-center gap-2 group">
+            <div class="w-14 h-14 bg-red-600 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Ateş</span>
+        </button>
+
+        <button onclick="setAppIcon('pink')" id="iconPink" class="flex flex-col items-center gap-2 group">
+            <div class="w-14 h-14 bg-pink-500 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Şeker</span>
+        </button>
+
+        <button onclick="checkIconPremium('fb')" id="iconFb" class="flex flex-col items-center gap-2 group relative">
+            <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(90deg, #FACC15 50%, #1e3a8a 50%);">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div id="lockFb" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Kanarya</span>
+        </button>
+
+        <button onclick="checkIconPremium('gs')" id="iconGs" class="flex flex-col items-center gap-2 group relative">
+            <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(90deg, #FACC15 50%, #DC2626 50%);">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div id="lockGs" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Aslan</span>
+        </button>
+    </div>
+    
+    <p class="text-[9px] opacity-40 mt-4 text-center">Not: İkon değişikliği için uygulamayı ana ekrana eklemeniz gerekebilir.</p>
+</div>
     </div></div></div>
 
     <div id="notifyOverlay" class="picker-overlay" onclick="closeNotify()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeNotify()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Bildirim Ayarları</h3><div class="w-10"></div></div><div class="space-y-4 pb-12 text-current">
@@ -848,10 +910,62 @@
         </main>
         <nav class="floating-dock"><button onclick="showTab('home', this)" class="nav-item active haptic-btn"><i data-lucide="home"></i></button><button id="map-nav" onclick="showTab('maps', this, true)" class="nav-item haptic-btn"><i data-lucide="map-pin"></i></button><button class="nav-item" onclick="handleScanAction()"><div class="bg-blue-600 p-4 rounded-[1.8rem] shadow-xl haptic-btn shadow-blue-500/20"><i data-lucide="camera" class="text-white w-6 h-6"></i></div></button><button onclick="showTab('radar', this)" class="nav-item haptic-btn"><i data-lucide="zap"></i></button><button onclick="showTab('profile', this)" class="nav-item haptic-btn"><i data-lucide="user"></i></button></nav>
     </div>
-
     <script>
         lucide.createIcons();
         
+        // --- ICON SİSTEMİ (RENKLİ GÜNCELLEME) ---
+        function initAppIcon() { 
+            const savedIcon = localStorage.getItem('litre_icon') || 'light'; 
+            
+            // Eğer premium değilse ama premium ikon (gold, fb, gs) seçiliyse sıfırla
+            if (!isPremiumUser && (savedIcon === 'gold' || savedIcon === 'fb' || savedIcon === 'gs')) {
+                setAppIcon('light', false);
+            } else {
+                setAppIcon(savedIcon, false);
+            }
+            
+            updateLockIcons();
+        }
+
+        function updateLockIcons() {
+            const locks = ['lockGold', 'lockFb', 'lockGs'];
+            locks.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.style.display = isPremiumUser ? 'none' : 'flex';
+            });
+        }
+
+        function checkIconPremium(type) {
+            if (!isPremiumUser) {
+                document.getElementById('upsellTitle').innerText = "Özel İkonlar";
+                document.getElementById('upsellText').innerText = "Gold ve Takım renklerini kullanmak için Premium'a geç.";
+                document.getElementById('premiumUpsellOverlay').style.display = 'flex';
+            } else {
+                setAppIcon(type);
+            }
+        }
+
+        function setAppIcon(type, manual = true) { 
+            localStorage.setItem('litre_icon', type); 
+            
+            // Tüm butonlardan active sınıfını sil
+            document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active')); 
+            
+            // Seçilen butona active ekle (ID'yi dinamik oluşturuyoruz: iconLight, iconBlue vs.)
+            const btnId = 'icon' + type.charAt(0).toUpperCase() + type.slice(1);
+            const targetBtn = document.getElementById(btnId);
+            if(targetBtn) targetBtn.classList.add('active'); 
+
+            // Favicon Değiştirme Mantığı (Şu an varsayılan dosyaları kullanıyor)
+            let iconFile = 'logobeyaz.png'; // Default
+            if (type === 'dark') iconFile = 'logosiyah.png';
+            // Diğer renkler için PNG dosyaların varsa buraya ekleyebilirsin:
+            // if (type === 'blue') iconFile = 'logoblue.png'; 
+            
+            document.getElementById('faviconLink').href = iconFile; 
+            document.getElementById('appleTouchIcon').href = iconFile; 
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyDDYSbFnOpeCKrtN2wWhCUa6G8jsx5IIY0",
             authDomain: "litreweb.firebaseapp.com",
@@ -1018,6 +1132,7 @@
                 saveGarageData();
             }
             renderGarageUI();
+            updateLockIcons(); // <-- UPDATE: Added this call to ensure locks update on login check
         }
 
         // --- AUTH & ACCOUNT FUNCTIONS ---
@@ -1035,37 +1150,37 @@
             }).catch(e => alert(e.message));
         }
         function loginWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(provider)
-        .then((result) => {
-            // İlk kez giriyorsa users tablosunu oluştur
-            if (result.additionalUserInfo.isNewUser) {
-                firebase.firestore().collection("users").doc(result.user.uid).set({ 
-                    garage: [], 
-                    createdAt: new Date() 
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    // İlk kez giriyorsa users tablosunu oluştur
+                    if (result.additionalUserInfo.isNewUser) {
+                        firebase.firestore().collection("users").doc(result.user.uid).set({ 
+                            garage: [], 
+                            createdAt: new Date() 
+                        });
+                    }
+                    closeAuth();
+                }).catch((error) => {
+                    alert("Google girişi başarısız: " + error.message);
                 });
-            }
-            closeAuth();
-        }).catch((error) => {
-            alert("Google girişi başarısız: " + error.message);
-        });
-}
+        }
 
-function loginWithApple() {
-    const provider = new firebase.auth.OAuthProvider('apple.com');
-    firebase.auth().signInWithPopup(provider)
-        .then((result) => {
-            if (result.additionalUserInfo.isNewUser) {
-                firebase.firestore().collection("users").doc(result.user.uid).set({ 
-                    garage: [], 
-                    createdAt: new Date() 
+        function loginWithApple() {
+            const provider = new firebase.auth.OAuthProvider('apple.com');
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    if (result.additionalUserInfo.isNewUser) {
+                        firebase.firestore().collection("users").doc(result.user.uid).set({ 
+                            garage: [], 
+                            createdAt: new Date() 
+                        });
+                    }
+                    closeAuth();
+                }).catch((error) => {
+                    alert("Apple girişi başarısız: " + error.message);
                 });
-            }
-            closeAuth();
-        }).catch((error) => {
-            alert("Apple girişi başarısız: " + error.message);
-        });
-}
+        }
         function logout() { firebase.auth().signOut().then(() => { alert("Çıkış Yapıldı."); location.reload(); }); }
         function deleteAccount() {
             const user = firebase.auth().currentUser;
@@ -1167,8 +1282,8 @@ function loginWithApple() {
         function closeGuestOverlay() { document.getElementById('guestOverlay').style.display = 'none'; }
         function initTheme() { const saved = localStorage.getItem('litre_theme') || 'light'; setTheme(saved); }
         function setTheme(mode) { currentTheme = mode; localStorage.setItem('litre_theme', mode); document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add('active'); let isDark = mode === 'system' ? window.matchMedia('(prefers-color-scheme: dark)').matches : mode === 'dark'; document.body.classList.toggle('dark-mode', isDark); updateMapLayer(leafletMap, 'map'); updateMapLayer(miniMap, 'miniMap'); }
-        function initAppIcon() { const savedIcon = localStorage.getItem('litre_icon') || 'light'; setAppIcon(savedIcon, false); }
-        function setAppIcon(type, manual = true) { localStorage.setItem('litre_icon', type); document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active')); document.getElementById(type === 'light' ? 'iconLight' : 'iconDark').classList.add('active'); const iconFile = type === 'dark' ? 'logosiyah.png' : 'logobeyaz.png'; document.getElementById('faviconLink').href = iconFile; document.getElementById('appleTouchIcon').href = iconFile; }
+        // function initAppIcon() { const savedIcon = localStorage.getItem('litre_icon') || 'light'; setAppIcon(savedIcon, false); }
+        // function setAppIcon(type, manual = true) { localStorage.setItem('litre_icon', type); document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active')); document.getElementById(type === 'light' ? 'iconLight' : 'iconDark').classList.add('active'); const iconFile = type === 'dark' ? 'logosiyah.png' : 'logobeyaz.png'; document.getElementById('faviconLink').href = iconFile; document.getElementById('appleTouchIcon').href = iconFile; }
 
         // --- LEGAL TEXTS & ABOUT ---
         function openAbout() { document.getElementById('aboutOverlay').style.display = 'flex'; }
