@@ -946,25 +946,41 @@
         }
 
         function setAppIcon(type, manual = true) { 
-            localStorage.setItem('litre_icon', type); 
-            
-            // Tüm butonlardan active sınıfını sil
-            document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active')); 
-            
-            // Seçilen butona active ekle (ID'yi dinamik oluşturuyoruz: iconLight, iconBlue vs.)
-            const btnId = 'icon' + type.charAt(0).toUpperCase() + type.slice(1);
-            const targetBtn = document.getElementById(btnId);
-            if(targetBtn) targetBtn.classList.add('active'); 
+    localStorage.setItem('litre_icon', type); 
+    
+    // 1. UI Güncellemesi (Çerçeveleri boya)
+    document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active')); 
+    
+    // ID isimlendirmesine uygun hale getir (iconBlue, iconGold vs.)
+    const btnId = 'icon' + type.charAt(0).toUpperCase() + type.slice(1);
+    const targetBtn = document.getElementById(btnId);
+    if(targetBtn) targetBtn.classList.add('active'); 
 
-            // Favicon Değiştirme Mantığı (Şu an varsayılan dosyaları kullanıyor)
-            let iconFile = 'logobeyaz.png'; // Default
-            if (type === 'dark') iconFile = 'logosiyah.png';
-            // Diğer renkler için PNG dosyaların varsa buraya ekleyebilirsin:
-            // if (type === 'blue') iconFile = 'logoblue.png'; 
-            
-            document.getElementById('faviconLink').href = iconFile; 
-            document.getElementById('appleTouchIcon').href = iconFile; 
-        }
+    // 2. Dosya Eşleştirme (Burası EKSİKTİ)
+    // DİKKAT: Bu isimlerdeki resim dosyalarını klasörüne yüklemiş olmalısın!
+    const iconFiles = {
+        'light': 'logobeyaz.png',
+        'dark':  'logosiyah.png',
+        'blue':  'logomavi.png',   // Mavi logonu bu isimle kaydet
+        'green': 'logoyesil.png',  // Yeşil logonu bu isimle kaydet
+        'gold':  'logogold.png',   // Gold logonu bu isimle kaydet
+        'red':   'logokirmizi.png',// Kırmızı logonu bu isimle kaydet
+        'pink':  'logopembe.png',  // Pembe logonu bu isimle kaydet
+        'fb':    'logofb.png',     // FB logonu bu isimle kaydet
+        'gs':    'logogs.png',     // GS logonu bu isimle kaydet
+        'neon':  'logoneon.png'    // Neon logonu bu isimle kaydet
+    };
+
+    // Seçilen rengin dosyası var mı bak, yoksa beyazı al
+    const iconFile = iconFiles[type] || 'logobeyaz.png';
+    
+    // 3. Linkleri Güncelle
+    const favicon = document.getElementById('faviconLink');
+    const appleIcon = document.getElementById('appleTouchIcon');
+    
+    if(favicon) favicon.href = iconFile; 
+    if(appleIcon) appleIcon.href = iconFile; 
+}
 
         const firebaseConfig = {
             apiKey: "AIzaSyDDYSbFnOpeCKrtN2wWhCUa6G8jsx5IIY0",
