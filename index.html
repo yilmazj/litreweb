@@ -635,78 +635,35 @@
     <div class="space-y-4 pb-12 text-current overflow-y-auto max-h-[70vh]">
         
         <div class="glass-card p-6 border-blue-500/30">
-    <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Uygulama Simgesi</p>
-    
-    <div class="grid grid-cols-4 gap-y-6 gap-x-2">
-        <button onclick="setAppIcon('light')" id="iconLight" class="flex flex-col items-center gap-2 group">
-            <div class="w-14 h-14 bg-white rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Varsayılan Harita</p>
+            <div class="flex gap-2 mb-3">
+                <button onclick="setNavPreference('apple')" id="navApple" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">Apple Maps</button>
+                <button onclick="setNavPreference('google')" id="navGoogle" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">Google Maps</button>
             </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Klasik</span>
-        </button>
+            <button onclick="setNavPreference(null)" id="navAsk" class="w-full theme-btn p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">Her Seferinde Sor</button>
+        </div>
 
-        <button onclick="setAppIcon('dark')" id="iconDark" class="flex flex-col items-center gap-2 group">
-            <div class="w-14 h-14 bg-black rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="glass-card p-6 border-blue-500/30">
+            <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Tema Tercihi</p>
+            <div class="flex gap-2">
+                <button onclick="setTheme('light')" id="btnLight" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn"><i data-lucide="sun" class="w-4 h-4"></i>Aydınlık</button>
+                <button onclick="setTheme('dark')" id="btnDark" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn"><i data-lucide="moon" class="w-4 h-4"></i>Karanlık</button>
+                <button onclick="setTheme('system')" id="btnSystem" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn"><i data-lucide="smartphone" class="w-4 h-4"></i>Sistem</button>
             </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Gece</span>
-        </button>
+        </div>
 
-        <button onclick="setAppIcon('blue')" id="iconBlue" class="flex flex-col items-center gap-2 group">
-            <div class="w-14 h-14 bg-blue-600 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="glass-card p-6 border-blue-500/30">
+            <p class="text-[10px] opacity-40 uppercase mb-4 tracking-widest">Uygulama Simgesi</p>
+            <div class="flex gap-2">
+                <button onclick="setAppIcon('light')" id="iconLight" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">
+                    <div class="w-4 h-4 bg-white border border-black/10 rounded-full"></div>Beyaz
+                </button>
+                <button onclick="setAppIcon('dark')" id="iconDark" class="theme-btn flex-1 p-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 haptic-btn">
+                    <div class="w-4 h-4 bg-black border border-white/10 rounded-full"></div>Siyah
+                </button>
             </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Okyanus</span>
-        </button>
-
-        <button onclick="setAppIcon('green')" id="iconGreen" class="flex flex-col items-center gap-2 group">
-            <div class="w-14 h-14 bg-green-600 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Doğa</span>
-        </button>
-
-        <button onclick="checkIconPremium('gold')" id="iconGold" class="flex flex-col items-center gap-2 group relative">
-            <div class="w-14 h-14 bg-black rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="#FFD700" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <div id="lockGold" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
-            </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Gold</span>
-        </button>
-
-        <button onclick="setAppIcon('red')" id="iconRed" class="flex flex-col items-center gap-2 group">
-            <div class="w-14 h-14 bg-red-600 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Ateş</span>
-        </button>
-
-        <button onclick="setAppIcon('pink')" id="iconPink" class="flex flex-col items-center gap-2 group">
-            <div class="w-14 h-14 bg-pink-500 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Şeker</span>
-        </button>
-
-        <button onclick="checkIconPremium('fb')" id="iconFb" class="flex flex-col items-center gap-2 group relative">
-            <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(90deg, #FACC15 50%, #1e3a8a 50%);">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <div id="lockFb" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
-            </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Kanarya</span>
-        </button>
-
-        <button onclick="checkIconPremium('gs')" id="iconGs" class="flex flex-col items-center gap-2 group relative">
-            <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(90deg, #FACC15 50%, #DC2626 50%);">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <div id="lockGs" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
-            </div>
-            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Aslan</span>
-        </button>
-    </div>
-    
-    <p class="text-[9px] opacity-40 mt-4 text-center">Not: İkon değişikliği için uygulamayı ana ekrana eklemeniz gerekebilir.</p>
-</div>
+            <p class="text-[9px] opacity-40 mt-3 text-center">Not: Ana ekran simgesi değişikliği için uygulamayı tekrar eklemeniz gerekebilir.</p>
+        </div>
     </div></div></div>
 
     <div id="notifyOverlay" class="picker-overlay" onclick="closeNotify()"><div class="picker-container" onclick="event.stopPropagation()"><div class="flex justify-between mb-8 px-4"><button onclick="closeNotify()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Bildirim Ayarları</h3><div class="w-10"></div></div><div class="space-y-4 pb-12 text-current">
@@ -891,65 +848,9 @@
         </main>
         <nav class="floating-dock"><button onclick="showTab('home', this)" class="nav-item active haptic-btn"><i data-lucide="home"></i></button><button id="map-nav" onclick="showTab('maps', this, true)" class="nav-item haptic-btn"><i data-lucide="map-pin"></i></button><button class="nav-item" onclick="handleScanAction()"><div class="bg-blue-600 p-4 rounded-[1.8rem] shadow-xl haptic-btn shadow-blue-500/20"><i data-lucide="camera" class="text-white w-6 h-6"></i></div></button><button onclick="showTab('radar', this)" class="nav-item haptic-btn"><i data-lucide="zap"></i></button><button onclick="showTab('profile', this)" class="nav-item haptic-btn"><i data-lucide="user"></i></button></nav>
     </div>
- 
+
     <script>
         lucide.createIcons();
-        // --- ICON SİSTEMİ (RENKLİ GÜNCELLEME) ---
-
-function initAppIcon() { 
-    const savedIcon = localStorage.getItem('litre_icon') || 'light'; 
-    
-    // Eğer premium değilse ama premium ikon (gold, fb, gs) seçiliyse sıfırla
-    if (!isPremiumUser && (savedIcon === 'gold' || savedIcon === 'fb' || savedIcon === 'gs')) {
-        setAppIcon('light', false);
-    } else {
-        setAppIcon(savedIcon, false);
-    }
-    
-    updateLockIcons();
-}
-
-function updateLockIcons() {
-    const locks = ['lockGold', 'lockFb', 'lockGs'];
-    locks.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = isPremiumUser ? 'none' : 'flex';
-    });
-}
-
-function checkIconPremium(type) {
-    if (!isPremiumUser) {
-        document.getElementById('upsellTitle').innerText = "Özel İkonlar";
-        document.getElementById('upsellText').innerText = "Gold ve Takım renklerini kullanmak için Premium'a geç.";
-        document.getElementById('premiumUpsellOverlay').style.display = 'flex';
-    } else {
-        setAppIcon(type);
-    }
-}
-
-function setAppIcon(type, manual = true) { 
-    localStorage.setItem('litre_icon', type); 
-    
-    // Tüm butonlardan active sınıfını sil
-    document.querySelectorAll('[id^="icon"]').forEach(b => b.classList.remove('active')); 
-    
-    // Seçilen butona active ekle (ID'yi dinamik oluşturuyoruz: iconLight, iconBlue vs.)
-    const btnId = 'icon' + type.charAt(0).toUpperCase() + type.slice(1);
-    const targetBtn = document.getElementById(btnId);
-    if(targetBtn) targetBtn.classList.add('active'); 
-
-    // Favicon Değiştirme Mantığı (Şu an varsayılan dosyaları kullanıyor)
-    let iconFile = 'logobeyaz.png'; // Default
-    if (type === 'dark') iconFile = 'logosiyah.png';
-    // Diğer renkler için PNG dosyaların varsa buraya ekleyebilirsin:
-    // if (type === 'blue') iconFile = 'logoblue.png'; 
-    
-    document.getElementById('faviconLink').href = iconFile; 
-    document.getElementById('appleTouchIcon').href = iconFile; 
-}
-
-// checkLoginStatus fonksiyonunun içine şu satırı ekle (en alta, renderGarageUI'dan sonra):
-// updateLockIcons();
         
         const firebaseConfig = {
             apiKey: "AIzaSyDDYSbFnOpeCKrtN2wWhCUa6G8jsx5IIY0",
