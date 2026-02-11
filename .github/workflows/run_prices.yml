@@ -1,0 +1,27 @@
+name: Litre Fiyat Motoru
+
+on:
+  schedule:
+    # Türkiye saatiyle 00:05 için (GitHub UTC kullanır, o yüzden 21:05 yazıyoruz)
+    - cron: '5 21 * * *'
+  workflow_dispatch: # İstediğin zaman elle butonla da çalıştırabilmek için
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Depoyu Çek (Checkout)
+        uses: actions/checkout@v3
+
+      - name: Python Kur
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Kütüphaneleri Yükle
+        run: |
+          pip install -r requirements.txt
+
+      - name: Fiyatları Çek ve Ekrana Bas
+        run: python main.py
