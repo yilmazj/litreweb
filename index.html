@@ -285,6 +285,16 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .social-btn:active { transform: scale(0.98); opacity: 0.8; }
+        /* Package Selection Logic */
+.package-card.selected {
+    transform: scale(1.02);
+    border-color: #3b82f6; /* Blue border default */
+}
+/* Specific overrides for when cards are NOT selected to look duller */
+.package-card:not(.selected) {
+    opacity: 0.7;
+    transform: scale(0.95);
+}
     </style>
 </head>
 <body class="max-w-md mx-auto h-screen flex flex-col">
@@ -866,19 +876,22 @@
                     </div>
                 </div>
 
-                <div id="premiumCard" class="glass-card p-6 bg-gradient-to-tr from-yellow-400/20 to-orange-500/20 border-orange-500/20 shadow-lg mb-6 hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-gradient-to-tr from-yellow-400 to-orange-500 p-2 rounded-lg text-white"><i data-lucide="crown" class="w-5 h-5"></i></div>
-                            <h3 class="font-bold text-lg text-current">Litre Premium</h3>
-                        </div>
-                    </div>
-                    <p class="text-xs opacity-60 mb-4 text-current">Sınırsız araç ekle, detaylı raporlar al ve reklamsız deneyim yaşa.</p>
-                    <div class="flex gap-3">
-                        <button class="flex-1 bg-current text-white/90 p-3 rounded-xl font-black text-xs haptic-btn opacity-80" style="background: var(--text); color: var(--bg);">AYLIK 49₺</button>
-                        <button class="flex-1 bg-orange-500 text-white p-3 rounded-xl font-black text-xs haptic-btn shadow-lg shadow-orange-500/30">YILLIK 499₺</button>
-                    </div>
-                </div>
+                <div id="premiumCard" onclick="openPremium()" class="glass-card p-6 bg-gradient-to-tr from-yellow-400 to-orange-600 shadow-xl shadow-orange-500/20 mb-6 hidden haptic-btn relative overflow-hidden group">
+    <div class="absolute -right-6 -top-6 bg-white/10 w-32 h-32 rounded-full blur-2xl group-active:scale-150 transition-transform"></div>
+    
+    <div class="flex justify-between items-center relative z-10">
+        <div class="text-white">
+            <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="crown" class="w-5 h-5 fill-white text-white"></i>
+                <h3 class="font-black text-lg tracking-tight">Litre Premium</h3>
+            </div>
+            <p class="text-xs font-bold opacity-90 max-w-[200px]">Aracının limitlerini kaldır. Raporlar, ikonlar ve daha fazlası.</p>
+        </div>
+        <div class="bg-white text-orange-600 w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        </div>
+    </div>
+</div>
 
                 <div class="space-y-6 text-current">
                     <div class="glass-card p-7 space-y-6 shadow-xl relative">
@@ -914,6 +927,89 @@
         <nav class="floating-dock"><button onclick="showTab('home', this)" class="nav-item active haptic-btn"><i data-lucide="home"></i></button><button id="map-nav" onclick="showTab('maps', this, true)" class="nav-item haptic-btn"><i data-lucide="map-pin"></i></button><button class="nav-item" onclick="handleScanAction()"><div class="bg-blue-600 p-4 rounded-[1.8rem] shadow-xl haptic-btn shadow-blue-500/20"><i data-lucide="camera" class="text-white w-6 h-6"></i></div></button><button onclick="showTab('radar', this)" class="nav-item haptic-btn"><i data-lucide="zap"></i></button><button onclick="showTab('profile', this)" class="nav-item haptic-btn"><i data-lucide="user"></i></button></nav>
     </div>
     <script>
+    // --- PREMIUM SUBSCRIPTION LOGIC ---
+let selectedPkg = 'pro'; // Default selection
+
+function openPremium() {
+    document.getElementById('premiumOverlay').style.display = 'flex';
+    // Reset to default visually
+    selectPackage('pro', document.querySelectorAll('.package-card')[1]);
+}
+
+function closePremium() {
+    document.getElementById('premiumOverlay').style.display = 'none';
+}
+
+function selectPackage(pkgId, element) {
+    selectedPkg = pkgId;
+    
+    // Remove selected class from all
+    document.querySelectorAll('.package-card').forEach(card => {
+        card.classList.remove('selected');
+        card.classList.remove('border-blue-400');
+        card.classList.remove('bg-gradient-to-b');
+        card.classList.remove('from-blue-600');
+        card.classList.remove('to-blue-800');
+        card.classList.remove('text-white');
+        
+        // Reset button text
+        const btn = card.querySelector('div:last-child');
+        btn.classList.remove('bg-white', 'text-blue-600');
+        btn.classList.add('border', 'border-current', 'opacity-10');
+        btn.innerHTML = '<span class="font-bold text-xs">Seç</span>';
+        
+        // Restore default BG based on ID (Simplified reset for non-selected)
+        if(card.getAttribute('onclick').includes('pro')) {
+             // Pro specific reset styles handled by CSS mostly, but logic here ensures clean switch
+             card.style.background = ''; 
+        }
+    });
+
+    // Add selected styles to clicked element
+    element.classList.add('selected');
+    
+    // Update Button Text inside the card
+    const btn = element.querySelector('div:last-child');
+    btn.classList.remove('border', 'border-current', 'opacity-10');
+    btn.innerHTML = '<span class="font-bold text-xs">Seçildi</span>';
+
+    // Special styling for Pro when selected to keep it blue
+    if(pkgId === 'pro') {
+        // Class updates are handled by the initial HTML classes mostly, 
+        // but we ensure the "active" look is maintained.
+    } else {
+        // Visual feedback for others could be added here if needed
+    }
+
+    // Update Bottom Price Button
+    const price = element.getAttribute('data-price');
+    const period = pkgId === 'king' ? 'Yıl' : 'Ay';
+    document.getElementById('subPriceDisplay').innerText = `${price} TL / ${period}`;
+}
+
+function startSubscription() {
+    // Simulate API Call
+    const btn = document.querySelector('#premiumOverlay button');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<div class="spinner w-5 h-5 border-2"></div>';
+    
+    setTimeout(() => {
+        isPremiumUser = true;
+        
+        // Save to LocalStorage & Firebase
+        localStorage.setItem('isPremium', 'true');
+        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ isPremium: true });
+        }
+        
+        alert("Hoş geldin Kral! Premium özelliklerin aktif.");
+        closePremium();
+        checkLoginStatus(); // Update UI
+        
+        btn.innerHTML = originalText;
+    }, 1500);
+}
         lucide.createIcons();
         
         // --- ICON SİSTEMİ (RENKLİ GÜNCELLEME) ---
@@ -2338,5 +2434,100 @@ function startOnboarding() {
 });
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
+    <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000;" onclick="closePremium()">
+    <div class="picker-container h-[90%] flex flex-col" onclick="event.stopPropagation()">
+        
+        <div class="flex justify-between items-center mb-6 px-2">
+            <button onclick="closePremium()" class="bg-zinc-500/20 p-2 rounded-full haptic-btn"><i data-lucide="x" class="w-5 h-5 text-current"></i></button>
+            <h3 class="font-black text-xl text-current tracking-tight">Litre Premium</h3>
+            <div class="w-9"></div> </div>
+
+        <div class="overflow-y-auto no-scrollbar pb-10 flex-1">
+            
+            <div class="text-center mb-8 px-4">
+                <div class="w-24 h-24 mx-auto bg-gradient-to-tr from-yellow-400 via-orange-500 to-red-500 rounded-full flex items-center justify-center mb-4 shadow-xl shadow-orange-500/40 animate-pulse">
+                    <i data-lucide="crown" class="text-white w-12 h-12"></i>
+                </div>
+                <h2 class="text-3xl font-black mb-2 text-current">Sınırları Kaldır.</h2>
+                <p class="text-sm opacity-60 font-bold px-6 text-current">Aracının gerçek potansiyelini ortaya çıkar ve tasarruf etmeye başla.</p>
+            </div>
+
+            <div class="space-y-4 px-4 mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="bg-green-500/10 p-2 rounded-lg text-green-500"><i data-lucide="check" class="w-5 h-5"></i></div>
+                    <div class="text-current"><p class="font-bold text-sm">Sınırsız Garaj</p><p class="text-[10px] opacity-50">Dilediğin kadar araç ekle.</p></div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="bg-blue-500/10 p-2 rounded-lg text-blue-500"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                    <div class="text-current"><p class="font-bold text-sm">Detaylı Raporlar</p><p class="text-[10px] opacity-50">Excel ve PDF dökümleri al.</p></div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="bg-purple-500/10 p-2 rounded-lg text-purple-500"><i data-lucide="zap" class="w-5 h-5"></i></div>
+                    <div class="text-current"><p class="font-bold text-sm">Reklamsız Deneyim</p><p class="text-[10px] opacity-50">Sadece sen ve yakıtın.</p></div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="bg-orange-500/10 p-2 rounded-lg text-orange-500"><i data-lucide="star" class="w-5 h-5"></i></div>
+                    <div class="text-current"><p class="font-bold text-sm">Özel İkonlar</p><p class="text-[10px] opacity-50">Gold ve Takım logolarını kullan.</p></div>
+                </div>
+            </div>
+
+            <h3 class="font-black text-lg px-4 mb-4 text-current">Paketini Seç</h3>
+            <div class="flex overflow-x-auto gap-4 px-4 pb-4 snap-x no-scrollbar" id="packageList">
+                
+                <div onclick="selectPackage('driver', this)" class="min-w-[85%] bg-zinc-100 dark:bg-white/5 border-2 border-transparent rounded-3xl p-6 relative snap-center haptic-btn transition-all package-card group" data-price="29.99">
+                    <div class="absolute top-4 right-4 bg-zinc-500/20 px-3 py-1 rounded-full text-[10px] font-black uppercase text-current">Başlangıç</div>
+                    <h4 class="text-xl font-black mb-1 text-current">Driver</h4>
+                    <div class="flex items-end gap-1 mb-4"><span class="text-3xl font-black text-current">29.99</span><span class="text-xs font-bold opacity-50 mb-1 text-current">TL / Ay</span></div>
+                    <ul class="space-y-2 mb-4 opacity-70 text-xs font-bold text-current">
+                        <li>• 3 Araç Ekleme</li>
+                        <li>• Reklamsız Arayüz</li>
+                    </ul>
+                    <div class="w-full h-10 rounded-xl border border-current opacity-10 flex items-center justify-center group-[.selected]:bg-blue-600 group-[.selected]:opacity-100 group-[.selected]:border-transparent group-[.selected]:text-white transition-all">
+                        <span class="font-bold text-xs">Seç</span>
+                    </div>
+                </div>
+
+                <div onclick="selectPackage('pro', this)" class="min-w-[85%] bg-gradient-to-b from-blue-600 to-blue-800 text-white border-2 border-blue-400 rounded-3xl p-6 relative snap-center haptic-btn transition-all package-card selected shadow-xl shadow-blue-500/20" data-price="49.99">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase shadow-lg">En Popüler</div>
+                    <h4 class="text-xl font-black mb-1">Pro</h4>
+                    <div class="flex items-end gap-1 mb-4"><span class="text-3xl font-black">49.99</span><span class="text-xs font-bold opacity-70 mb-1">TL / Ay</span></div>
+                    <ul class="space-y-2 mb-4 text-xs font-bold opacity-90">
+                        <li>• 5 Araç Ekleme</li>
+                        <li>• Excel / PDF Dökümü</li>
+                        <li>• Özel Uygulama İkonları</li>
+                        <li>• Reklamsız Arayüz</li>
+                    </ul>
+                    <div class="w-full h-10 rounded-xl bg-white text-blue-600 flex items-center justify-center shadow-lg">
+                        <span class="font-bold text-xs">Seçildi</span>
+                    </div>
+                </div>
+
+                <div onclick="selectPackage('king', this)" class="min-w-[85%] bg-gradient-to-br from-yellow-400 to-orange-600 text-white border-2 border-yellow-300 rounded-3xl p-6 relative snap-center haptic-btn transition-all package-card shadow-xl shadow-orange-500/20" data-price="499.99">
+                    <div class="absolute top-4 right-4 bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase">%20 İndirim</div>
+                    <h4 class="text-xl font-black mb-1">King</h4>
+                    <div class="flex items-end gap-1 mb-4"><span class="text-3xl font-black">499.99</span><span class="text-xs font-bold opacity-70 mb-1">TL / Yıl</span></div>
+                    <ul class="space-y-2 mb-4 text-xs font-bold opacity-90">
+                        <li>• Sınırsız Araç</li>
+                        <li>• Tüm Pro Özellikleri</li>
+                        <li>• Erken Erişim Özellikler</li>
+                        <li>• VIP Destek</li>
+                    </ul>
+                    <div class="w-full h-10 rounded-xl border border-white/40 flex items-center justify-center">
+                        <span class="font-bold text-xs">Seç</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="pt-4 border-t border-current/5 bg-transparent pb-4">
+            <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
+            <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2" style="background: var(--text); color: var(--bg);">
+                <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
+            </button>
+        </div>
+
+    </div>
+</div>
 </body>
 </html>
