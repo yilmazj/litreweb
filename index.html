@@ -86,13 +86,13 @@
         /* APPLE STYLE ONBOARDING CSS */
         .onboard-logo { transition: transform 1.2s cubic-bezier(0.6, -0.28, 0.735, 0.045); }
         .onboard-logo.drop-active { transform: translateY(150vh) scale(0.8); }
-        /* Bunu style etiketleri arasına ekle */
+        
         .text-fall {
             transition: transform 2s ease-in, opacity 2s ease-in;
         }
         .text-fall.active {
-            transform: translateY(100vh); /* Ekranın en altına düşürür */
-            opacity: 0; /* Düşerken kaybolur */
+            transform: translateY(100vh); 
+            opacity: 0; 
         }
 
         .apple-title { font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 15px; background: linear-gradient(135deg, var(--text) 0%, var(--subtext) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -104,7 +104,6 @@
             transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         .apple-btn:active { transform: scale(0.97); }
-        /* END NEW CSS */
 
         /* Auth Styles */
         .auth-container { position: fixed; inset: 0; background: var(--bg); z-index: 4600; display: none; flex-direction: column; padding: 30px; justify-content: center; }
@@ -557,7 +556,11 @@
         </div>
     </div>
 
-    <div id="navPickerOverlay" class="picker-overlay" onclick="closeNavPicker()"><div class="picker-container pb-10" onclick="event.stopPropagation()"><div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Harita Seçin</h3><button onclick="closeNavPicker()" class="text-zinc-500 font-bold">Vazgeç</button></div>
+    <div id="navPickerOverlay" class="picker-overlay" onclick="closeNavPicker()"><div class="picker-container pb-10" onclick="event.stopPropagation()">
+        
+        <div id="navStationDetails" class="w-full mb-6"></div>
+
+        <div class="flex justify-between mb-6 px-4"><h3 class="font-bold text-lg text-current">Harita Seçin</h3><button onclick="closeNavPicker()" class="text-zinc-500 font-bold">Vazgeç</button></div>
     
     <div class="px-4 mb-4 flex items-center justify-between" onclick="toggleSwitch(this.querySelector('.toggle-switch'))">
         <p class="text-sm font-bold opacity-60">Seçimimi Hatırla</p>
@@ -792,7 +795,7 @@
                         <button onclick="openCityPicker()" class="flex-[1.5] glass-card p-4 flex items-center justify-between haptic-btn text-current shadow-md">
                             <div class="flex items-center gap-3 overflow-hidden">
                                 <div class="bg-blue-500/20 p-1.5 rounded-lg"><i data-lucide="map-pin" class="w-4 h-4 text-blue-500 fill-blue-500"></i></div>
-                                <div class="flex flex-col items-start truncate"><span class="text-[9px] opacity-50 uppercase font-black tracking-wider">Konum</span><span id="selectedCity" class="text-sm font-bold truncate">İstanbul</span></div>
+                                <div class="flex flex-col items-start truncate"><span class="text-[9px] opacity-50 uppercase font-black tracking-wider">Konum</span><span id="selectedCity" class="text-sm font-bold truncate">Konumum</span></div>
                             </div>
                             <i data-lucide="chevron-down" class="opacity-30 w-4 h-4 shrink-0"></i>
                         </button>
@@ -1042,6 +1045,7 @@
         let editTargetField = null; 
         let editingRecordIndex = -1;
         let stationData = [];
+        let isCityMode = false; // Şehir seçildi mi yoksa radar (konum) modunda mıyız?
         
         // Filter States
         let showFuel = true;
@@ -1108,7 +1112,6 @@
                 
                 // GUEST: Show Premium Card below login actions
                 // Move guestActions above premiumCard in DOM for Guest
-                const parent = document.getElementById('profile').querySelector('.flex.flex-col').parentNode; 
                 // Logic handled by CSS order or static HTML structure, 
                 // since we swapped static HTML order, we just toggle visibility.
                 document.getElementById('premiumCard').classList.remove('hidden');
@@ -1549,6 +1552,14 @@
         }
 
         function updateStationListUI() {
+            if (isCityMode) {
+                 // ŞEHİR MODU: Generic Markalar
+                 const cityName = document.getElementById('selectedCity').innerText;
+                 renderGenericCityList(cityName);
+                 return;
+            }
+
+            // RADAR MODU: Gerçek istasyonlar ve sıralama
             const cityName = document.getElementById('selectedCity').innerText;
              // IF we are tracking user, render list sorted by user dist
             if (lastKnownUserPos) {
@@ -1557,6 +1568,68 @@
                  });
             }
             renderStationList(stationData.sort((a,b) => a.dist - b.dist), cityName);
+        }
+
+        // --- NEW FUNCTION: GENERIC CITY BRAND LIST ---
+        function renderGenericCityList(cityName) {
+             const list = document.getElementById('stationList');
+             list.innerHTML = '';
+             
+             // Base Brands
+             const brands = [
+                 { name: 'Opet', color: '#005BAB', text: '#FFF', html:'OPET' },
+                 { name: 'Shell', color: '#FFD500', text: '#DE2128', html:'SHELL' },
+                 { name: 'Petrol Ofisi', color: '#DE2128', text: '#FFF', html:'PO' },
+                 { name: 'TotalEnergies', color: '#FFFFFF', text: '#ED1C24', html:'TOTAL' },
+                 { name: 'Türkiye Petrolleri', color: '#E30613', text: '#FFF', html:'TP' },
+                 { name: 'Aytemiz', color: '#FFFFFF', text: '#E30613', html:'AYTEMİZ' }
+             ];
+
+             const basePrices = { 'Opet': 42.50, 'Shell': 42.45, 'Petrol Ofisi': 42.35, 'TotalEnergies': 42.40, 'Türkiye Petrolleri': 41.90, 'Aytemiz': 42.10 };
+
+             // Eğer İstanbul ise Avrupa/Anadolu diye ayırıyoruz
+             let displayBrands = [];
+             
+             if (cityName === 'İstanbul') {
+                 brands.forEach(b => {
+                     displayBrands.push({ ...b, suffix: 'İstanbul Avrupa' });
+                     displayBrands.push({ ...b, suffix: 'İstanbul Anadolu' });
+                 });
+             } else {
+                 brands.forEach(b => {
+                     displayBrands.push({ ...b, suffix: `${cityName} Geneli` });
+                 });
+             }
+
+             displayBrands.forEach(brand => {
+                 // Simulate generic price
+                 let priceBase = basePrices[brand.name] || 42.00;
+                 let benzin = (priceBase).toFixed(2);
+                 let motorin = (priceBase + 1.2).toFixed(2);
+                 let lpg = (25.50).toFixed(2);
+
+                 const infoBlock = `<div class="grid grid-cols-3 gap-2 text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3"><div class="text-center"><div class="opacity-40 mb-1">BENZİN</div><div class="text-current text-xs">${benzin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">MOTORİN</div><div class="text-current text-xs">${motorin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${lpg}</div></div></div>`;
+
+                 list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" style="background: var(--card); opacity: 1;"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${brand.color}"><span class="font-black text-[8px]" style="color:${brand.text}">${brand.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${brand.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3 uppercase tracking-wider">${brand.suffix}</p>${infoBlock}<div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button><button class="flex-1 action-btn-small text-current bg-zinc-500/10 cursor-not-allowed opacity-50"><i data-lucide="map-pin" class="w-4 h-4 mr-2"></i><span class="text-xs font-bold">Haritada Göster</span></button><button onclick="sharePrice('${brand.name}', '${benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`;
+             });
+
+             // Elektrikli istasyonlar (Genel Liste - Şehir Bazlı)
+             // Elektriklilerde marka ayrımına gerek yok dediğin için "İstanbul Elektrikli Şarj" gibi genel bir başlık veya yakındaki gerçek istasyonları ekleyebiliriz.
+             // Ama kullanıcı "listeden İstanbul seçtim" dediği için burada da generic bir EV kartı mantıklı olabilir.
+             // Ancak isteğinde "Elektrikli şarj istasyonları aynı olduğu için onların fiyatlarını İstanbul olarak yazabilirsin" dendi.
+             // Buraya sembolik EV kartları ekliyorum.
+             const evProviders = [
+                 { name: 'ZES', suffix: `${cityName} Fiyatları` },
+                 { name: 'Eşarj', suffix: `${cityName} Fiyatları` },
+                 { name: 'Trugo', suffix: `${cityName} Fiyatları` }
+             ];
+
+             evProviders.forEach(ev => {
+                  const evBlock = `<div class="bg-white/5 rounded-xl p-3 mb-3 text-center"><span class="font-bold text-xs text-green-500">AC: 7.5 TL / DC: 11.0 TL</span></div>`;
+                  list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" style="background: var(--card); opacity: 1;"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1 bg-white text-black"><span class="font-black text-[8px]">EV</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${ev.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3 uppercase tracking-wider">${ev.suffix}</p>${evBlock}<div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button></div></div></div></div>`;
+             });
+
+             lucide.createIcons();
         }
 
         function detectBrand(name) {
@@ -1603,9 +1676,20 @@
                     infoBlock = `<div class="grid grid-cols-3 gap-2 text-[10px] font-bold bg-white/5 rounded-xl p-2.5 mb-3"><div class="text-center"><div class="opacity-40 mb-1">BENZİN</div><div class="text-current text-xs">${item.benzin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">MOTORİN</div><div class="text-current text-xs">${item.motorin}</div></div><div class="text-center border-l border-white/10"><div class="opacity-40 mb-1">LPG</div><div class="text-current text-xs">${item.lpg}</div></div></div>`;
                 }
 
-                list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" style="background: var(--card); opacity: 1;"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${style.bg}"><span class="font-black text-[8px]" style="color:${style.text}">${style.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${item.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3">${item.dist} km uzaklıkta</p>${infoBlock}<div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button><button onclick="openNavPicker('${item.name}')" class="flex-1 action-btn-small text-current bg-blue-500 text-white shadow-lg shadow-blue-500/30"><i data-lucide="navigation-2" class="w-4 h-4 mr-2"></i><span class="text-xs font-bold">Yol Tarifi</span></button><button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`; 
+                // Pass item object to openNavPicker (stringify for inline JS)
+                // We need to store stations globally or pass data. Since stationData is global, let's use name as key or pass basic data.
+                // Best way: pass 'item' but JSON.stringify in HTML attribute is messy. 
+                // Let's use name to find in stationData array for now.
+                
+                list.innerHTML += `<div class="glass-card p-5 haptic-btn station-card" style="background: var(--card); opacity: 1;"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/5 mt-1" style="background:${style.bg}"><span class="font-black text-[8px]" style="color:${style.text}">${style.html}</span></div><div class="flex-1 min-w-0"><h3 class="font-bold text-sm text-current truncate">${item.name}</h3><p class="text-[10px] font-bold opacity-50 mb-3">${item.dist} km uzaklıkta</p>${infoBlock}<div class="flex gap-2"><button onclick="reportPrice()" class="action-btn-small w-10 text-current flex items-center justify-center"><i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i></button><button onclick="openNavPickerByName('${item.name}')" class="flex-1 action-btn-small text-current bg-blue-500 text-white shadow-lg shadow-blue-500/30"><i data-lucide="navigation-2" class="w-4 h-4 mr-2"></i><span class="text-xs font-bold">Yol Tarifi</span></button><button onclick="sharePrice('${item.name}', '${item.benzin}')" class="action-btn-small w-10 text-current"><i data-lucide="share" class="w-4 h-4 opacity-60"></i></button></div></div></div></div>`; 
             }); 
             lucide.createIcons(); 
+        }
+
+        // Helper to find station by name and open nav picker with data
+        function openNavPickerByName(name) {
+            const station = stationData.find(s => s.name === name);
+            if (station) openNavPicker(station);
         }
         
         function reportPrice() { document.getElementById('reportInputOverlay').style.display = 'flex'; }
@@ -1682,11 +1766,31 @@
             else document.getElementById('navAsk').classList.add('active');
         }
 
-        function openNavPicker(target) { 
-            currentNavTarget = target; 
+        function openNavPicker(station) { 
+            currentNavTarget = station.name; 
+            
+            // --- POPUP PRICE INJECTION ---
+            const detailsDiv = document.getElementById('navStationDetails');
+            let priceHtml = '';
+            
+            if (station.type === 'ev') {
+                 priceHtml = `<div class="grid grid-cols-2 gap-3 text-center"><div class="bg-green-500/10 p-3 rounded-2xl"><p class="text-xs font-bold text-green-500">AC Şarj</p><p class="text-xl font-black text-current">7.50 ₺</p></div><div class="bg-blue-500/10 p-3 rounded-2xl"><p class="text-xs font-bold text-blue-500">DC Şarj</p><p class="text-xl font-black text-current">11.00 ₺</p></div></div>`;
+            } else {
+                 priceHtml = `<div class="grid grid-cols-3 gap-2 text-center"><div class="bg-input-bg p-3 rounded-2xl"><p class="text-[9px] font-bold opacity-50 mb-1">BENZİN</p><p class="text-lg font-black text-current">${station.benzin}</p></div><div class="bg-input-bg p-3 rounded-2xl"><p class="text-[9px] font-bold opacity-50 mb-1">MOTORİN</p><p class="text-lg font-black text-current">${station.motorin}</p></div><div class="bg-input-bg p-3 rounded-2xl"><p class="text-[9px] font-bold opacity-50 mb-1">LPG</p><p class="text-lg font-black text-current">${station.lpg}</p></div></div>`;
+            }
+            
+            detailsDiv.innerHTML = `
+                <div class="mb-4">
+                    <h3 class="font-bold text-xl text-center mb-1 text-current">${station.name}</h3>
+                    <p class="text-center text-xs font-bold opacity-50 mb-4">${station.brand}</p>
+                    ${priceHtml}
+                </div>
+            `;
+            // ------------------------------
+
             const pref = localStorage.getItem('litre_nav_pref');
             if (pref) {
-                launchMap(pref, target);
+                launchMap(pref, station.name);
                 return;
             }
             // If no pref, reset the "Remember" toggle
@@ -1792,7 +1896,8 @@
                 
                 // Konum ilk kez alındıysa veya güncellendiyse
                 if (!lastKnownUserPos) {
-                    document.getElementById('selectedCity').innerText = "Konumum";
+                    // İlk açılışta konum odaklı başla
+                    // document.getElementById('selectedCity').innerText = "Konumum"; (Burada UI'ı bozmayalım, misafir girişi vs. olabilir)
                     
                     // KRİTİK DÜZELTME: Harita açık olsun olmasın, konum verisiyle istasyonları çek
                     fetchRealStations(latlng); 
@@ -1806,7 +1911,7 @@
                     const beam = document.getElementById('userBeam');
                     if(beam && heading) { beam.style.transform = `translateX(-50%) rotate(${heading}deg)`; }
                 } else if (leafletMap && !userMarker) {
-                     // Harita henüz initialize olduysa markeri ekle
+                      // Harita henüz initialize olduysa markeri ekle
                     const icon = L.divIcon({ className: 'user-location-marker', html: `<div class="location-container"><div class="user-pulse"></div><div class="user-beam" id="userBeam" style="transform: translateX(-50%) rotate(${heading || 0}deg)"></div><div class="user-dot"></div></div>`, iconSize: [60, 60], iconAnchor: [30, 30] });
                     userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 1000 }).addTo(leafletMap);
                     leafletMap.setView(latlng, 15);
@@ -1856,7 +1961,10 @@
                 const customIcon = L.divIcon({ className: iconClass, html: iconHtml, iconSize: [36, 36], iconAnchor: [18, 18] }); 
                 
                 const marker = L.marker([station.lat, station.lng], { icon: customIcon }); 
-                marker.on('click', () => { openNavPicker(station.name); }); 
+                
+                // PASS FULL OBJECT to OpenNavPicker
+                marker.on('click', () => { openNavPicker(station); }); 
+                
                 markers.addLayer(marker); 
             }); 
         }
@@ -2126,7 +2234,40 @@ function startOnboarding() {
             cities.forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); 
             document.getElementById('cityOverlay').style.display = 'flex'; 
         }
-        function selectCurrentLocation() { if(!navigator.geolocation) { alert("Konum servisi desteklenmiyor."); return; } navigator.geolocation.getCurrentPosition((pos) => { const lat = pos.coords.latitude; const lng = pos.coords.longitude; let nearestCity = null; let minDist = Infinity; Object.keys(cityCoordinates).forEach(city => { const coords = cityCoordinates[city]; const dist = Math.sqrt(Math.pow(coords[0] - lat, 2) + Math.pow(coords[1] - lng, 2)); if(dist < minDist) { minDist = dist; nearestCity = city; } }); if(nearestCity) { selectCity(nearestCity); } else { alert("Yakınlarda bir şehir bulunamadı."); } }, (err) => { alert("Konum alınamadı."); }, { enableHighAccuracy: true }); }
+
+        // --- FIXED: Select Current Location Logic ---
+        function selectCurrentLocation() { 
+            if(!navigator.geolocation) { alert("Konum servisi desteklenmiyor."); return; } 
+            
+            // UI Update
+            document.getElementById('selectedCity').innerText = "Konumum";
+            document.getElementById('cityOverlay').style.display = 'none';
+            document.getElementById('stationList').style.opacity = '0.5';
+
+            navigator.geolocation.getCurrentPosition((pos) => { 
+                const lat = pos.coords.latitude; 
+                const lng = pos.coords.longitude; 
+                const latlng = [lat, lng];
+                
+                // Switch back to "Radar Mode"
+                isCityMode = false;
+                lastKnownUserPos = latlng; // Ensure this is updated
+
+                if (leafletMap) {
+                    leafletMap.flyTo(latlng, 15);
+                    if (userMarker) userMarker.setLatLng(latlng);
+                }
+
+                // Force fetch real stations for this location
+                fetchRealStations(latlng);
+                document.getElementById('stationList').style.opacity = '1';
+
+            }, (err) => { 
+                alert("Konum alınamadı. Lütfen GPS iznini kontrol et."); 
+                document.getElementById('stationList').style.opacity = '1';
+            }, { enableHighAccuracy: true }); 
+        }
+
         function closeCityPicker() { document.getElementById('cityOverlay').style.display = 'none'; }
         function filterCities() { const q = document.getElementById('citySearch').value.toLowerCase(); const list = document.getElementById('cityList'); list.innerHTML = ''; cities.filter(c => c.toLowerCase().includes(q)).forEach(c => list.innerHTML += `<div onclick="selectCity('${c}')" class="city-item">${c.toUpperCase()}</div>`); }
         
@@ -2135,6 +2276,9 @@ function startOnboarding() {
             closeCityPicker(); 
             document.getElementById('stationList').style.opacity = '0.5'; 
             
+            // Switch to "City Mode" (Generic Cards)
+            isCityMode = true;
+
             const coords = cityCoordinates[name];
             if(coords) { 
                 if(leafletMap) leafletMap.setView(coords, 10); 
@@ -2142,7 +2286,7 @@ function startOnboarding() {
             } 
             
             setTimeout(() => { 
-                fetchRealStations();
+                updateStationListUI(); // Will use renderGenericCityList because isCityMode is true
                 document.getElementById('stationList').style.opacity = '1'; 
             }, 300); 
         }
