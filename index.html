@@ -1783,43 +1783,49 @@
         }
         
         function startLocationTracking() {
-            if (navigator.geolocation) {
-                if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-                watchId = navigator.geolocation.watchPosition(
-                    (pos) => {
-                        const { latitude, longitude, heading } = pos.coords;
-                        const latlng = [latitude, longitude];
-                        const isFirstFix = !lastKnownUserPos;
-                        lastKnownUserPos = latlng;
+    if (navigator.geolocation) {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        watchId = navigator.geolocation.watchPosition(
+            (pos) => {
+                const { latitude, longitude, heading } = pos.coords;
+                const latlng = [latitude, longitude];
+                
+                // Konum ilk kez alındıysa veya güncellendiyse
+                if (!lastKnownUserPos) {
+                    document.getElementById('selectedCity').innerText = "Konumum";
+                    
+                    // KRİTİK DÜZELTME: Harita açık olsun olmasın, konum verisiyle istasyonları çek
+                    fetchRealStations(latlng); 
+                }
+                
+                lastKnownUserPos = latlng;
 
-                        if (!userMarker) {
-                            const icon = L.divIcon({ className: 'user-location-marker', html: `<div class="location-container"><div class="user-pulse"></div><div class="user-beam" id="userBeam" style="transform: translateX(-50%) rotate(${heading || 0}deg)"></div><div class="user-dot"></div></div>`, iconSize: [60, 60], iconAnchor: [30, 30] });
-                            userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 1000 }).addTo(leafletMap);
-                            leafletMap.setView(latlng, 15); 
-                        } else {
-                            userMarker.setLatLng(latlng);
-                            const beam = document.getElementById('userBeam');
-                            if(beam && heading) { beam.style.transform = `translateX(-50%) rotate(${heading}deg)`; }
-                        }
+                // Ana Harita Varsa Güncelle
+                if (leafletMap && userMarker) {
+                    userMarker.setLatLng(latlng);
+                    const beam = document.getElementById('userBeam');
+                    if(beam && heading) { beam.style.transform = `translateX(-50%) rotate(${heading}deg)`; }
+                } else if (leafletMap && !userMarker) {
+                     // Harita henüz initialize olduysa markeri ekle
+                    const icon = L.divIcon({ className: 'user-location-marker', html: `<div class="location-container"><div class="user-pulse"></div><div class="user-beam" id="userBeam" style="transform: translateX(-50%) rotate(${heading || 0}deg)"></div><div class="user-dot"></div></div>`, iconSize: [60, 60], iconAnchor: [30, 30] });
+                    userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 1000 }).addTo(leafletMap);
+                    leafletMap.setView(latlng, 15);
+                }
 
-                        if (miniMap) {
-                            if (!miniUserMarker) {
-                                const miniIcon = L.divIcon({ className: 'user-location-marker', html: '<div class="mini-user-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] });
-                                miniUserMarker = L.marker(latlng, { icon: miniIcon }).addTo(miniMap);
-                            } else { miniUserMarker.setLatLng(latlng); }
-                            miniMap.setView(latlng, 14); 
-                        }
-
-                        if (isFirstFix) {
-                            document.getElementById('selectedCity').innerText = "Konumum";
-                            fetchRealStations(latlng); // Load stations for home screen immediately
-                        }
-                    },
-                    (err) => { console.warn("Konum alınamadı:", err); },
-                    { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
-                );
-            }
-        }
+                // Mini Harita Varsa Güncelle (Ana sayfadaki küçük harita)
+                if (miniMap) {
+                    if (!miniUserMarker) {
+                        const miniIcon = L.divIcon({ className: 'user-location-marker', html: '<div class="mini-user-dot"></div>', iconSize: [16, 16], iconAnchor: [8, 8] });
+                        miniUserMarker = L.marker(latlng, { icon: miniIcon }).addTo(miniMap);
+                    } else { miniUserMarker.setLatLng(latlng); }
+                    miniMap.setView(latlng, 14); 
+                }
+            },
+            (err) => { console.warn("Konum alınamadı:", err); },
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+        );
+    }
+}
 
         function refreshMapMarkers() {
             if (!markers || !stationData) return;
@@ -2161,24 +2167,31 @@ function startOnboarding() {
         function recenterUser() { if(lastKnownUserPos && leafletMap) { leafletMap.flyTo(lastKnownUserPos, 16); } else { leafletMap.locate({setView: true, maxZoom: 16}); } }
 
         window.addEventListener('load', () => { 
-            initTheme(); initAppIcon(); initMiniMap(); updateGarageAnalysis(); updateRadarAnalysis(); 
-            
-            checkLoginStatus(); 
-            
-            // Check for onboarding or start map
+    initTheme(); 
+    initAppIcon(); 
+    
+    // SIRALAMA ÖNEMLİ
+    initMap(); // Haritayı başlat (div gizli olsa bile obje oluşur)
+    initMiniMap(); // Mini haritayı başlat
+    
+    updateGarageAnalysis(); 
+    updateRadarAnalysis(); 
+    checkLoginStatus(); 
+    
+    // Check for onboarding or start map
+    setTimeout(() => { 
+        const splash = document.getElementById('splash'); 
+        const content = document.getElementById('app-content'); 
+        if(splash) { 
+            splash.style.opacity = '0'; 
             setTimeout(() => { 
-                const splash = document.getElementById('splash'); 
-                const content = document.getElementById('app-content'); 
-                if(splash) { 
-                    splash.style.opacity = '0'; 
-                    setTimeout(() => { 
-                        splash.style.display = 'none'; 
-                        if(content) content.style.opacity = '1'; 
-                        checkOnboarding(); // Trigger onboarding check here
-                    }, 500); 
-                } 
-            }, 2500); 
-        });
+                splash.style.display = 'none'; 
+                if(content) content.style.opacity = '1'; 
+                checkOnboarding(); 
+            }, 500); 
+        } 
+    }, 2500); 
+});
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
 </body>
