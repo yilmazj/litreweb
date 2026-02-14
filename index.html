@@ -928,7 +928,9 @@
     </div>
     <script>
     // --- PREMIUM SUBSCRIPTION LOGIC ---
-// --- DİNAMİK PAKET VERİLERİ ---
+// --- PREMIUM SİSTEMİ (DÜZELTİLMİŞ TAM KOD) ---
+
+// 1. Paket Verileri (İçerik buradan çekiliyor)
 const packageFeatures = {
     driver: {
         title: "Driver Paket",
@@ -959,114 +961,101 @@ const packageFeatures = {
     }
 };
 
-let selectedPkg = 'pro'; // Default
+let selectedPkg = 'pro'; // Varsayılan
 
-// --- PREMIUM YÖNETİM SİSTEMİ (GÜNCELLENMİŞ) ---
-
-// 1. Ana Giriş Kapısı (Yönlendirici)
+// 2. Menüyü Açma (Açılışta Pro'yu seçtiriyoruz ki kutu boş kalmasın)
 function openPremium() {
     if (isPremiumUser) {
-        // Zaten üyeyse -> Yönetim Ekranını Aç
-        openPremiumManage();
+        openPremiumManage(); // Üyeyse yönetim ekranını aç
     } else {
-        // Üye değilse -> Satış Ekranını Aç
         document.getElementById('premiumOverlay').style.display = 'flex';
-        // Varsayılan Pro seç
-        const cards = document.querySelectorAll('.package-card');
-        if(cards.length > 1) selectPackage('pro', cards[1]);
+        // HTML yüklendikten sonra Pro paketini otomatik seçtir
+        setTimeout(() => {
+            // Ortadaki kartı (index 1) bul ve tetikle
+            const cards = document.querySelectorAll('.package-card');
+            if(cards.length > 1) {
+                selectPackage('pro', cards[1]); 
+            }
+        }, 50);
     }
 }
 
-// 2. Satış Ekranını Kapat
+// 3. Menüyü Kapatma
 function closePremium() {
     document.getElementById('premiumOverlay').style.display = 'none';
 }
 
-// 3. Yönetim Ekranını Aç (Bilgileri Doldur)
-function openPremiumManage() {
-    // Tarih Hesapla (Bugün + 1 Ay)
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const dateStr = nextMonth.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-    // Bilgileri Bas (Gerçek app'te Firebase'den gelir)
-    // Şimdilik seçili pakete göre gösterelim
-    let planName = "Litre Pro";
-    let planPrice = "49.99 TL / Ay";
+// 4. Paket Seçim ve Özellik Güncelleme (Geçişlerin Çalıştığı Yer)
+function selectPackage(pkgId, element) {
+    selectedPkg = pkgId;
     
-    // Basit bir kontrol (Gerçekte veritabanından okunmalı)
-    if(selectedPkg === 'driver') { planName = "Litre Driver"; planPrice = "29.99 TL / Ay"; }
-    if(selectedPkg === 'king') { planName = "Litre King"; planPrice = "499.99 TL / Yıl"; }
-
-    document.getElementById('managePlanName').innerText = planName;
-    document.getElementById('manageDate').innerText = dateStr;
-    document.getElementById('managePrice').innerText = planPrice;
-
-    document.getElementById('premiumManageOverlay').style.display = 'flex';
-    lucide.createIcons();
-}
-
-// 4. Yönetim Ekranını Kapat
-function closePremiumManage() {
-    document.getElementById('premiumManageOverlay').style.display = 'none';
-}
-
-// 5. Paket Değiştir (Yönetimi kapat, Satışı aç)
-function changePlan() {
-    closePremiumManage();
-    setTimeout(() => {
-        document.getElementById('premiumOverlay').style.display = 'flex';
-        // Buton yazısını değiştir ki kullanıcı "Güncelle" yaptığını anlasın
-        const btn = document.querySelector('#subPriceDisplay').parentElement;
-        // Mevcut içeriği sakla, sadece metni değiştir
-        // Basitçe:
-        // btn.innerHTML = '<span id="subPriceDisplay">49.99 TL</span> • PLAN GÜNCELLE'; 
-        // Ama paket seçim fonksiyonu zaten metni yeniliyor, o yüzden gerek kalmayabilir.
-        // Kullanıcıya hissettirmek için:
-        alert("Lütfen yeni paketinizi seçin.");
-    }, 200);
-}
-
-// 6. Üyelik İptal
-function cancelSubscription() {
-    if(confirm("Premium ayrıcalıklarından vazgeçmek istediğine emin misin?")) {
-        // Backend işlemi simülasyonu
-        alert("Üyeliğin iptal edildi. Dönem sonuna kadar kullanmaya devam edebilirsin.");
+    // A. Görsel Sıfırlama: Tüm kartları eski haline getir
+    document.querySelectorAll('.package-card').forEach(card => {
+        card.classList.remove('selected', 'border-blue-400', 'bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'transform', 'scale-105', 'z-10', 'shadow-xl');
         
-        // Test için (Gerçekte hemen silinmez, dönem sonu beklenir)
-        // isPremiumUser = false;
-        // localStorage.setItem('isPremium', 'false');
-        // checkLoginStatus();
-        // closePremiumManage();
-    }
-}
-
-// 7. Satın Alma (Güncellendi: Tarih/Plan kaydı eklenebilir)
-function startSubscription() {
-    const btn = document.querySelector('#premiumOverlay button');
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<div class="spinner w-5 h-5 border-2"></div>';
-    
-    setTimeout(() => {
-        isPremiumUser = true;
-        localStorage.setItem('isPremium', 'true');
-        // Seçilen paketi de kaydet (Basitçe)
-        localStorage.setItem('myPlan', selectedPkg);
-        
-        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-            firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ 
-                isPremium: true,
-                plan: selectedPkg 
-            });
+        // Butonu sıfırla
+        const btn = card.querySelector('.pkg-btn');
+        if(btn) {
+            btn.className = 'pkg-btn w-full py-1.5 rounded-lg border border-current opacity-10 flex items-center justify-center transition-all';
+            btn.innerHTML = '<span class="font-bold text-[9px]">Seç</span>';
         }
-        
-        alert("İşlem Başarılı! Premium özelliklerin aktif.");
-        closePremium(); // Satış ekranını kapat
-        checkLoginStatus(); // UI'ı güncelle
-        
-        btn.innerHTML = originalText;
-    }, 1500);
+    });
+
+    // B. Seçilen Kartı Süsle
+    element.classList.add('selected');
+    
+    // Sadece Pro ise mavi yap
+    if (pkgId === 'pro') {
+        element.classList.add('bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'border-blue-400', 'transform', 'scale-105', 'z-10', 'shadow-xl');
+    }
+
+    // C. Butonu "Seçildi" Yap
+    const activeBtn = element.querySelector('.pkg-btn');
+    if (activeBtn) {
+        if(pkgId === 'pro') {
+            activeBtn.className = 'pkg-btn w-full py-1.5 rounded-lg bg-white text-blue-600 flex items-center justify-center shadow-md';
+        } else if (pkgId === 'king') {
+            activeBtn.className = 'pkg-btn w-full py-1.5 rounded-lg border border-white/40 flex items-center justify-center transition-all bg-white/10';
+        } else {
+            activeBtn.className = 'pkg-btn w-full py-1.5 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-md';
+        }
+        activeBtn.innerHTML = '<span class="font-bold text-[9px]">Seçildi</span>';
+    }
+
+    // D. Fiyatı Güncelle (Footer'daki buton)
+    const price = element.getAttribute('data-price');
+    const period = pkgId === 'king' ? 'Yıl' : 'Ay';
+    const priceDisplay = document.getElementById('subPriceDisplay');
+    if(priceDisplay) priceDisplay.innerText = `${price} TL / ${period}`;
+
+    // E. Üstteki Özellik Listesini Doldur (Senin silinmiş dediğin yer)
+    updateFeaturesUI(pkgId);
+}
+
+// 5. Özellik Listesini Çizen Fonksiyon
+function updateFeaturesUI(pkgId) {
+    const data = packageFeatures[pkgId];
+    if (!data) return;
+
+    // Başlığı değiştir
+    const titleEl = document.getElementById('featureTitle');
+    if(titleEl) titleEl.innerText = data.title;
+
+    // Listeyi temizle ve yeniden doldur
+    const grid = document.getElementById('featureGrid');
+    if(grid) {
+        grid.innerHTML = '';
+        data.features.forEach(feat => {
+            grid.innerHTML += `
+                <div class="flex items-center gap-2 animate-fadeIn">
+                    <div class="${feat.bg} p-1.5 rounded-lg ${feat.color}"><i data-lucide="${feat.icon}" class="w-3 h-3"></i></div>
+                    <span class="text-xs font-bold text-current opacity-70">${feat.text}</span>
+                </div>
+            `;
+        });
+        // İkonları tekrar oluştur
+        if(window.lucide) lucide.createIcons();
+    }
 }
         // --- ICON SİSTEMİ (RENKLİ GÜNCELLEME) ---
         function initAppIcon() { 
