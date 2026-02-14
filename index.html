@@ -510,7 +510,7 @@
                 <p class="text-xs opacity-60 font-bold px-6 text-current">Tek üyelik, tüm özellikler.</p>
             </div>
 
-            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300 h-44 flex flex-col justify-center">
+            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300">
                 <h4 id="featureTitle" class="font-bold text-sm mb-3 opacity-80 text-current text-center transition-all">Pro Paket</h4>
                 <div id="featureGrid" class="grid grid-cols-2 gap-y-3 gap-x-2 transition-all">
                     </div>
@@ -577,36 +577,6 @@
     </div>
 </div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px] z-50">
-            <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
-            <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2" style="background: var(--text); color: var(--bg);">
-                <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
-            </button>
-        </div>
-
-    </div>
-</div>
-
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px]">
-            <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
-            <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2" style="background: var(--text); color: var(--bg);">
-                <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
-            </button>
-        </div>
-
-    </div>
-</div>
-
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px]">
-            <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
-            <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2" style="background: var(--text); color: var(--bg);">
-                <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
-            </button>
-        </div>
-
-    </div>
-</div>
-    
     <div id="accountOverlay" class="picker-overlay" onclick="closeAccountSettings()"><div class="picker-container" onclick="event.stopPropagation()">
         <div class="flex justify-between mb-8 px-4"><button onclick="closeAccountSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Hesap Bilgilerim</h3><button onclick="updateAccountInfo()" class="text-blue-500 font-bold">Kaydet</button></div>
         
@@ -1072,6 +1042,86 @@ const packageFeatures = {
         ]
     }
 };
+
+let selectedPkg = 'pro'; // Default
+
+// Overlay açılınca çalışacak
+function openPremium() {
+    document.getElementById('premiumOverlay').style.display = 'flex';
+    // Varsayılan olarak Pro'yu seçtir
+    // Dom'daki 2. kartı (index 1) bulup tetikliyoruz
+    const cards = document.querySelectorAll('.package-card');
+    if(cards.length > 1) selectPackage('pro', cards[1]);
+}
+
+function selectPackage(pkgId, element) {
+    selectedPkg = pkgId;
+    
+    // 1. TÜM KARTLARI SIFIRLA (Görsel ve Buton Yazısı)
+    document.querySelectorAll('.package-card').forEach(card => {
+        // Seçili stilini kaldır
+        card.classList.remove('selected', 'border-blue-400', 'bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'transform', 'scale-105', 'z-10', 'shadow-xl');
+        
+        // Butonu "Seç" haline getir
+        const btn = card.querySelector('.pkg-btn');
+        if(btn) {
+            btn.classList.remove('bg-white', 'text-blue-600'); // Pro seçili butonu stili
+            btn.classList.add('border', 'border-current', 'opacity-10'); // Standart buton stili
+            btn.innerHTML = '<span class="font-bold text-[10px]">Seç</span>';
+        }
+    });
+
+    // 2. TIKLANAN KARTI AKTİF ET
+    element.classList.add('selected');
+    
+    // Eğer Pro ise özel mavi stilini ekle (HTML'deki sınıfları JS ile yönetmek daha temiz)
+    if (pkgId === 'pro') {
+        element.classList.add('bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'border-blue-400', 'transform', 'scale-105', 'z-10', 'shadow-xl');
+    }
+
+    // Butonu "Seçildi" yap
+    const activeBtn = element.querySelector('.pkg-btn');
+    if (activeBtn) {
+        activeBtn.classList.remove('border', 'border-current', 'opacity-10');
+        // Eğer Pro ise buton beyaz, diğerlerinde o paketin rengine uyumlu (Driver ise Mavi, King ise Beyaz borderlı)
+        if(pkgId === 'pro') {
+            activeBtn.classList.add('bg-white', 'text-blue-600');
+        } 
+        activeBtn.innerHTML = '<span class="font-bold text-[10px]">Seçildi</span>';
+    }
+
+    // 3. FİYAT BUTONUNU GÜNCELLE
+    const price = element.getAttribute('data-price');
+    const period = pkgId === 'king' ? 'Yıl' : 'Ay';
+    document.getElementById('subPriceDisplay').innerText = `${price} TL / ${period}`;
+
+    // 4. ÖZELLİK LİSTESİNİ GÜNCELLE (DİNAMİK KISIM)
+    updateFeaturesUI(pkgId);
+}
+
+function updateFeaturesUI(pkgId) {
+    const data = packageFeatures[pkgId];
+    if (!data) return;
+
+    // Başlığı güncelle
+    document.getElementById('featureTitle').innerText = data.title;
+
+    // Grid içeriğini temizle ve yeniden oluştur
+    const grid = document.getElementById('featureGrid');
+    grid.innerHTML = '';
+
+    data.features.forEach(feat => {
+        grid.innerHTML += `
+            <div class="flex items-center gap-2 animate-fadeIn">
+                <div class="${feat.bg} p-1.5 rounded-lg ${feat.color}"><i data-lucide="${feat.icon}" class="w-3 h-3"></i></div>
+                <span class="text-xs font-bold text-current opacity-70">${feat.text}</span>
+            </div>
+        `;
+    });
+    
+    // İkonları render et
+    lucide.createIcons();
+}
 
 let selectedPkg = 'pro'; // Default
 
