@@ -491,91 +491,6 @@
              <button onclick="closeUpsell()" class="w-full bg-transparent p-3 text-zinc-500 font-bold mt-2">Belki Daha Sonra</button>
         </div>
     </div></div>
-    <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000;" onclick="closePremium()">
-    <div class="picker-container h-[85%] flex flex-col" onclick="event.stopPropagation()">
-        
-        <div class="flex justify-between items-center mb-4 px-2">
-            <button onclick="closePremium()" class="bg-zinc-500/20 p-2 rounded-full haptic-btn"><i data-lucide="x" class="w-5 h-5 text-current"></i></button>
-            <h3 class="font-black text-xl text-current tracking-tight">Litre Premium</h3>
-            <div class="w-9"></div>
-        </div>
-
-        <div class="overflow-y-auto no-scrollbar pb-24 flex-1">
-            
-            <div class="text-center mb-6 px-4">
-                <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-yellow-400 via-orange-500 to-red-500 rounded-full flex items-center justify-center mb-3 shadow-xl shadow-orange-500/40 animate-pulse">
-                    <i data-lucide="crown" class="text-white w-10 h-10"></i>
-                </div>
-                <h2 class="text-2xl font-black mb-1 text-current">Sınırları Kaldır.</h2>
-                <p class="text-xs opacity-60 font-bold px-6 text-current">Tek üyelik, tüm özellikler.</p>
-            </div>
-
-            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300">
-                <h4 id="featureTitle" class="font-bold text-sm mb-3 opacity-80 text-current text-center transition-all">Pro Paket</h4>
-                <div id="featureGrid" class="grid grid-cols-2 gap-y-3 gap-x-2 transition-all">
-                    </div>
-            </div>
-
-            <h3 class="font-black text-lg px-4 mb-3 text-current">Paketini Seç</h3>
-            
-            <div class="flex gap-3 px-4 overflow-x-auto pb-4 pt-5 snap-x no-scrollbar" id="packageList">
-                
-                <div onclick="selectPackage('driver', this)" class="min-w-[30%] flex-1 bg-zinc-100 dark:bg-white/5 border-2 border-transparent rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card group snap-center text-center" data-price="29.99">
-                    <div class="mb-2 w-full">
-                        <h4 class="text-sm font-black text-current mb-1">Driver</h4>
-                        <div class="w-8 h-1 bg-zinc-500/20 rounded-full mx-auto"></div>
-                    </div>
-                    <div class="mb-3">
-                        <span class="text-lg font-black text-current">29.99</span>
-                        <p class="text-[9px] font-bold opacity-50 text-current">TL/Ay</p>
-                    </div>
-                    <div class="pkg-btn w-full py-2 rounded-xl border border-current opacity-10 flex items-center justify-center transition-all group-[.selected]:bg-blue-600 group-[.selected]:opacity-100 group-[.selected]:border-transparent group-[.selected]:text-white">
-                        <span class="font-bold text-[10px]">Seç</span>
-                    </div>
-                </div>
-
-                <div onclick="selectPackage('pro', this)" class="min-w-[35%] flex-1 bg-gradient-to-b from-blue-600 to-blue-800 text-white border-2 border-blue-400 rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card selected shadow-lg shadow-blue-500/20 snap-center text-center transform scale-105 z-10" data-price="49.99">
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase shadow-sm whitespace-nowrap z-20">Popüler</div>
-                    <div class="mb-2 mt-1 w-full">
-                        <h4 class="text-base font-black">Pro</h4>
-                        <div class="w-8 h-1 bg-white/30 rounded-full mx-auto"></div>
-                    </div>
-                    <div class="mb-3">
-                        <span class="text-2xl font-black">49.99</span>
-                        <p class="text-[9px] font-bold opacity-70">TL/Ay</p>
-                    </div>
-                    <div class="pkg-btn w-full py-2 rounded-xl bg-white text-blue-600 flex items-center justify-center shadow-md">
-                        <span class="font-bold text-[10px]">Seçildi</span>
-                    </div>
-                </div>
-
-                <div onclick="selectPackage('king', this)" class="min-w-[30%] flex-1 bg-gradient-to-br from-yellow-400 to-orange-600 text-white border-2 border-yellow-300 rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card shadow-md snap-center text-center" data-price="499.99">
-                    <div class="absolute -top-3 right-2 bg-white/20 px-2 py-0.5 rounded-full text-[8px] font-black uppercase whitespace-nowrap">-%20</div>
-                    <div class="mb-2 w-full">
-                        <h4 class="text-sm font-black">King</h4>
-                        <div class="w-8 h-1 bg-white/30 rounded-full mx-auto"></div>
-                    </div>
-                    <div class="mb-3">
-                        <span class="text-lg font-black">499</span>
-                        <p class="text-[9px] font-bold opacity-70">TL/Yıl</p>
-                    </div>
-                    <div class="pkg-btn w-full py-2 rounded-xl border border-white/40 flex items-center justify-center transition-all">
-                        <span class="font-bold text-[10px]">Seç</span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px]">
-            <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
-            <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2" style="background: var(--text); color: var(--bg);">
-                <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
-            </button>
-        </div>
-
-    </div>
-</div>
 
     <div id="accountOverlay" class="picker-overlay" onclick="closeAccountSettings()"><div class="picker-container" onclick="event.stopPropagation()">
         <div class="flex justify-between mb-8 px-4"><button onclick="closeAccountSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Hesap Bilgilerim</h3><button onclick="updateAccountInfo()" class="text-blue-500 font-bold">Kaydet</button></div>
@@ -2634,24 +2549,138 @@ function startOnboarding() {
     updateRadarAnalysis(); 
     checkLoginStatus(); 
     
-        // ... (önceki kodlar) ...
+        <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000; display: none;" onclick="closePremium()">
+    <div class="picker-container h-[85%] flex flex-col relative" onclick="event.stopPropagation()">
+        
+        <div class="flex justify-between items-center mb-4 px-2">
+            <button onclick="closePremium()" class="bg-zinc-500/20 p-2 rounded-full haptic-btn"><i data-lucide="x" class="w-5 h-5 text-current"></i></button>
+            <h3 class="font-black text-xl text-current tracking-tight">Litre Premium</h3>
+            <div class="w-9"></div>
+        </div>
 
-    // Check for onboarding or start map
-    setTimeout(() => { 
-        const splash = document.getElementById('splash'); 
-        const content = document.getElementById('app-content'); 
-        if(splash) { 
-            splash.style.opacity = '0'; 
-            setTimeout(() => { 
-                splash.style.display = 'none'; 
-                if(content) content.style.opacity = '1'; 
-                checkOnboarding(); 
-            }, 500); 
-        } 
-    }, 2500); 
-}); // <--- BURASI EKSİKTİ, BU PARANTEZLERİ EKLE
+        <div class="overflow-y-auto no-scrollbar pb-28 flex-1">
+            
+            <div class="text-center mb-6 px-4">
+                <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-yellow-400 via-orange-500 to-red-500 rounded-full flex items-center justify-center mb-3 shadow-xl shadow-orange-500/40 animate-pulse">
+                    <i data-lucide="crown" class="text-white w-10 h-10"></i>
+                </div>
+                <h2 class="text-2xl font-black mb-1 text-current">Sınırları Kaldır.</h2>
+                <p class="text-xs opacity-60 font-bold px-6 text-current">Tek üyelik, tüm özellikler.</p>
+            </div>
 
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
+            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300 h-48 flex flex-col justify-center">
+                <h4 id="featureTitle" class="font-bold text-sm mb-3 opacity-80 text-current text-center transition-all">Pro Paket</h4>
+                <div id="featureGrid" class="grid grid-cols-2 gap-y-3 gap-x-2 transition-all">
+                    </div>
+            </div>
+
+            <h3 class="font-black text-lg px-4 mb-3 text-current">Paketini Seç</h3>
+            
+            <div class="flex gap-3 px-4 overflow-x-auto pb-4 pt-6 snap-x no-scrollbar" id="packageList">
+                
+                <div onclick="selectPackage('driver', this)" class="min-w-[30%] flex-1 bg-zinc-100 dark:bg-white/5 border-2 border-transparent rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card group snap-center text-center" data-price="29.99">
+                    <div class="mb-2 w-full">
+                        <h4 class="text-sm font-black text-current mb-1">Driver</h4>
+                        <div class="w-8 h-1 bg-zinc-500/20 rounded-full mx-auto"></div>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-lg font-black text-current">29.99</span>
+                        <p class="text-[9px] font-bold opacity-50 text-current">TL/Ay</p>
+                    </div>
+                    <div class="pkg-btn w-full py-2 rounded-xl border border-current opacity-10 flex items-center justify-center transition-all">
+                        <span class="font-bold text-[10px]">Seç</span>
+                    </div>
+                </div>
+
+                <div onclick="selectPackage('pro', this)" class="min-w-[35%] flex-1 bg-gradient-to-b from-blue-600 to-blue-800 text-white border-2 border-blue-400 rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card selected shadow-lg shadow-blue-500/20 snap-center text-center transform scale-105 z-10" data-price="49.99">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase shadow-sm whitespace-nowrap z-20">Popüler</div>
+                    <div class="mb-2 mt-1 w-full">
+                        <h4 class="text-base font-black">Pro</h4>
+                        <div class="w-8 h-1 bg-white/30 rounded-full mx-auto"></div>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-2xl font-black">49.99</span>
+                        <p class="text-[9px] font-bold opacity-70">TL/Ay</p>
+                    </div>
+                    <div class="pkg-btn w-full py-2 rounded-xl bg-white text-blue-600 flex items-center justify-center shadow-md">
+                        <span class="font-bold text-[10px]">Seçildi</span>
+                    </div>
+                </div>
+
+                <div onclick="selectPackage('king', this)" class="min-w-[30%] flex-1 bg-gradient-to-br from-yellow-400 to-orange-600 text-white border-2 border-yellow-300 rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card shadow-md snap-center text-center" data-price="499.99">
+                    <div class="absolute -top-3 right-0 bg-white/20 px-2 py-0.5 rounded-full text-[8px] font-black uppercase whitespace-nowrap">-%20</div>
+                    <div class="mb-2 w-full">
+                        <h4 class="text-sm font-black">King</h4>
+                        <div class="w-8 h-1 bg-white/30 rounded-full mx-auto"></div>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-lg font-black">499</span>
+                        <p class="text-[9px] font-bold opacity-70">TL/Yıl</p>
+                    </div>
+                    <div class="pkg-btn w-full py-2 rounded-xl border border-white/40 flex items-center justify-center transition-all">
+                        <span class="font-bold text-[10px]">Seç</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px] z-50">
+            <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
+            <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2" style="background: var(--text); color: var(--bg);">
+                <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Buradaki checkOnboarding(); script'in içinde olmalı ama senaryo gereği
+    // dosyanın sonundaki script bloğunun düzgün kapanması lazım.
+    // Eğer yukarıda bir script etiketi açtıysan ve kapatmadıysan hata verir.
+    // Senin kodunda script yukarıda açıktı, şimdi onu burada kapatıyoruz.
+    
+    // NOT: Bu kısmı kopyalarken yukarıdaki <script> etiketini KOPYALAMA,
+    // sadece içeriği ve kapanışı al. Ya da dosyanın en altındaki
+    // window.addEventListener kısmını şununla değiştir:
+
+    /* DİKKAT: Senin kodunda <script> etiketi zaten yukarıda açık.
+       Aşağıdaki kod sadece o script bloğunun SONUNU onarır.
+    */
+</script> 
+
+<script>
+    // ... (Diğer fonksiyonların yukarıda kalmalı) ...
+
+    window.addEventListener('load', () => { 
+        initTheme(); 
+        initAppIcon(); 
+        
+        // SIRALAMA ÖNEMLİ
+        initMap(); 
+        initMiniMap(); 
+        
+        updateGarageAnalysis(); 
+        updateRadarAnalysis(); 
+        checkLoginStatus(); 
+        
+        // Check for onboarding or start map
+        setTimeout(() => { 
+            const splash = document.getElementById('splash'); 
+            const content = document.getElementById('app-content'); 
+            if(splash) { 
+                splash.style.opacity = '0'; 
+                setTimeout(() => { 
+                    splash.style.display = 'none'; 
+                    if(content) content.style.opacity = '1'; 
+                    checkOnboarding(); 
+                }, 500); 
+            } 
+        }, 2500); 
+    });
+
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
 </script>
 </body>
 </html>
