@@ -876,9 +876,7 @@
                     </div>
                 </div>
 
-                <div id="premiumCard" onclick="openPremium()" class="glass-card p-6 bg-gradient-to-tr from-yellow-400 to-orange-600 shadow-xl shadow-orange-500/20 mb-6 hidden haptic-btn relative overflow-hidden group transition-all duration-500">
-    <div class="absolute -right-6 -top-6 bg-white/10 w-32 h-32 rounded-full blur-2xl group-active:scale-150 transition-transform"></div>
-    
+                <div id="premiumCard" onclick="openPremium()" class="glass-card p-6 bg-gradient-to-tr from-yellow-400 to-orange-600 shadow-xl shadow-orange-500/20 mb-6 hidden haptic-btn relative overflow-hidden group">
     <div class="flex justify-between items-center relative z-10">
         <div class="text-white">
             <div class="flex items-center gap-2 mb-1">
@@ -887,8 +885,8 @@
             </div>
             <p id="premCardDesc" class="text-xs font-bold opacity-90 max-w-[200px]">Aracının limitlerini kaldır. Raporlar, ikonlar ve daha fazlası.</p>
         </div>
-        <div class="bg-white text-current w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
-            <i data-lucide="arrow-right" class="w-5 h-5" style="color: black;"></i>
+        <div class="bg-white text-orange-600 w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
         </div>
     </div>
 </div>
@@ -1236,10 +1234,9 @@ function updateFeaturesUI(pkgId) {
         
         // Premium Kartı Standart Göster
         premCard.classList.remove('hidden');
-        premCard.classList.remove('from-zinc-800', 'to-black'); // Eğer siyahsa temizle
-        premCard.classList.add('from-yellow-400', 'to-orange-600'); // Turuncu yap
         premTitle.innerText = "Litre Premium";
         premDesc.innerText = "Aracının limitlerini kaldır. Raporlar ve daha fazlası.";
+        premIcon.setAttribute('data-lucide', 'crown');
         
         isPremiumUser = false;
         return; 
@@ -1254,22 +1251,18 @@ function updateFeaturesUI(pkgId) {
         document.getElementById('logoutBtn').classList.remove('hidden');
         document.getElementById('logoutBtn').style.display = 'flex';
         
-        // PREMIUM KULLANICI MI? (Email kontrolü veya LocalStorage)
+        // PREMIUM KONTROL
         const localPrem = localStorage.getItem('isPremium') === 'true';
-        // Gerçek app'te burayı firebase'den gelen veriyle besle
         
         if (user.email === 'volkan@litre.com' || localPrem) {
             isPremiumUser = true;
             document.getElementById('profileStatus').innerText = "Premium Üye";
             document.getElementById('profileStatus').className = "mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase text-orange-500 bg-orange-500/10";
             
-            // --- PREMIUM KART DEĞİŞİMİ (SİYAH ELİT KART) ---
+            // --- PREMIUM ÜYE İÇİN KART (TASARIM AYNI, YAZI FARKLI) ---
             premCard.classList.remove('hidden');
-            premCard.classList.remove('from-yellow-400', 'to-orange-600'); // Turuncuyu sil
-            premCard.classList.add('from-zinc-800', 'to-black'); // Siyah yap
-            
-            premTitle.innerText = "Üyeliğini Yönet";
-            premDesc.innerText = "Premium ayrıcalıkların aktif. Paketi değiştirmek için tıkla.";
+            premTitle.innerText = "Premium Aktif";
+            premDesc.innerText = "Tüm özellikler açık. Üyeliğini yönetmek için tıkla.";
             premIcon.setAttribute('data-lucide', 'check-circle'); // Tacı Tik yap
             
         } else {
@@ -1277,11 +1270,8 @@ function updateFeaturesUI(pkgId) {
             document.getElementById('profileStatus').innerText = "Free Hesap";
             document.getElementById('profileStatus').className = "mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase opacity-60 text-current";
             
-            // --- FREE KART (STANDART) ---
+            // --- FREE KART ---
             premCard.classList.remove('hidden');
-            premCard.classList.remove('from-zinc-800', 'to-black'); // Siyahı sil
-            premCard.classList.add('from-yellow-400', 'to-orange-600'); // Turuncu yap
-            
             premTitle.innerText = "Litre Premium";
             premDesc.innerText = "Aracının limitlerini kaldır. Raporlar ve daha fazlası.";
             premIcon.setAttribute('data-lucide', 'crown');
@@ -1293,10 +1283,7 @@ function updateFeaturesUI(pkgId) {
         document.getElementById('profileStatus').innerText = "Giriş Yapılmadı";
         document.getElementById('guestActions').classList.remove('hidden');
         document.getElementById('logoutBtn').classList.add('hidden');
-        
-        // Kartı Standart Yap
         premCard.classList.remove('hidden');
-        premCard.classList.add('from-yellow-400', 'to-orange-600');
         
         selections = [];
         isPremiumUser = false;
@@ -2496,7 +2483,7 @@ function startOnboarding() {
     <div class="picker-container h-[85%] flex flex-col relative rounded-t-[30px] overflow-hidden" onclick="event.stopPropagation()">
         
         <div class="flex justify-between items-center mb-2 px-2 pt-2">
-            <button onclick="closePremium()" class="bg-zinc-500/20 p-2 rounded-full haptic-btn"><i data-lucide="x" class="w-5 h-5 text-current"></i></button>
+            <button onclick="closePremium()" class="bg-zinc-500/20 p-2 rounded-full haptic-btn z-50"><i data-lucide="x" class="w-5 h-5 text-current"></i></button>
             <h3 class="font-black text-xl text-current tracking-tight">Litre Premium</h3>
             <div class="w-9"></div>
         </div>
@@ -2508,7 +2495,7 @@ function startOnboarding() {
                     <i data-lucide="crown" class="text-white w-8 h-8"></i>
                 </div>
                 <h2 class="text-xl font-black mb-1 text-current">Sınırları Kaldır.</h2>
-                <p class="text-xs opacity-60 font-bold px-6 text-current">Aracının gerçek potansiyelini ortaya çıkar.</p>
+                <p class="text-xs opacity-60 font-bold px-6 text-current">Tek üyelik, tüm özellikler.</p>
             </div>
 
             <div class="bg-zinc-500/5 rounded-3xl p-4 mx-4 mb-4 border border-current/5 transition-all duration-300 h-40 flex flex-col justify-center">
@@ -2568,7 +2555,7 @@ function startOnboarding() {
             </div>
         </div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-5 border-t border-current/5 z-50 backdrop-blur-xl" style="background: var(--card);">
+        <div class="absolute bottom-0 left-0 right-0 p-5 pb-8 z-50 bg-gradient-to-t from-[var(--card)] to-transparent">
             <p class="text-center text-[9px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
             <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95" style="background: var(--text); color: var(--bg);">
                 <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
