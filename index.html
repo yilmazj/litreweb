@@ -927,64 +927,115 @@
         <nav class="floating-dock"><button onclick="showTab('home', this)" class="nav-item active haptic-btn"><i data-lucide="home"></i></button><button id="map-nav" onclick="showTab('maps', this, true)" class="nav-item haptic-btn"><i data-lucide="map-pin"></i></button><button class="nav-item" onclick="handleScanAction()"><div class="bg-blue-600 p-4 rounded-[1.8rem] shadow-xl haptic-btn shadow-blue-500/20"><i data-lucide="camera" class="text-white w-6 h-6"></i></div></button><button onclick="showTab('radar', this)" class="nav-item haptic-btn"><i data-lucide="zap"></i></button><button onclick="showTab('profile', this)" class="nav-item haptic-btn"><i data-lucide="user"></i></button></nav>
     </div>
     <script>
-    // --- PREMIUM SUBSCRIPTION LOGIC ---
-let selectedPkg = 'pro'; // Default selection
+    // --- DİNAMİK PAKET VERİLERİ ---
+const packageFeatures = {
+    driver: {
+        title: "Driver Paket",
+        features: [
+            { icon: "check", text: "3 Araç Ekleme", color: "text-green-500", bg: "bg-green-500/10" },
+            { icon: "zap", text: "Reklamsız", color: "text-purple-500", bg: "bg-purple-500/10" }
+        ]
+    },
+    pro: {
+        title: "Pro Paket",
+        features: [
+            { icon: "check", text: "5 Araç Ekleme", color: "text-green-500", bg: "bg-green-500/10" },
+            { icon: "file-text", text: "Excel/PDF Rapor", color: "text-blue-500", bg: "bg-blue-500/10" },
+            { icon: "star", text: "Özel İkonlar", color: "text-orange-500", bg: "bg-orange-500/10" },
+            { icon: "zap", text: "Reklamsız", color: "text-purple-500", bg: "bg-purple-500/10" }
+        ]
+    },
+    king: {
+        title: "King Paket",
+        features: [
+            { icon: "infinity", text: "Sınırsız Garaj", color: "text-yellow-500", bg: "bg-yellow-500/10" },
+            { icon: "file-text", text: "Excel/PDF Rapor", color: "text-blue-500", bg: "bg-blue-500/10" },
+            { icon: "star", text: "Özel İkonlar", color: "text-orange-500", bg: "bg-orange-500/10" },
+            { icon: "crown", text: "VIP Destek", color: "text-red-500", bg: "bg-red-500/10" },
+            { icon: "zap", text: "Reklamsız", color: "text-purple-500", bg: "bg-purple-500/10" },
+            { icon: "rocket", text: "Erken Erişim", color: "text-indigo-500", bg: "bg-indigo-500/10" }
+        ]
+    }
+};
 
+let selectedPkg = 'pro'; // Default
+
+// Overlay açılınca çalışacak
 function openPremium() {
     document.getElementById('premiumOverlay').style.display = 'flex';
-    // Reset to default visually
-    selectPackage('pro', document.querySelectorAll('.package-card')[1]);
-}
-
-function closePremium() {
-    document.getElementById('premiumOverlay').style.display = 'none';
+    // Varsayılan olarak Pro'yu seçtir
+    // Dom'daki 2. kartı (index 1) bulup tetikliyoruz
+    const cards = document.querySelectorAll('.package-card');
+    if(cards.length > 1) selectPackage('pro', cards[1]);
 }
 
 function selectPackage(pkgId, element) {
     selectedPkg = pkgId;
     
-    // Remove selected class from all
+    // 1. TÜM KARTLARI SIFIRLA (Görsel ve Buton Yazısı)
     document.querySelectorAll('.package-card').forEach(card => {
-        card.classList.remove('selected');
-        card.classList.remove('border-blue-400');
-        card.classList.remove('bg-gradient-to-b');
-        card.classList.remove('from-blue-600');
-        card.classList.remove('to-blue-800');
-        card.classList.remove('text-white');
+        // Seçili stilini kaldır
+        card.classList.remove('selected', 'border-blue-400', 'bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'transform', 'scale-105', 'z-10', 'shadow-xl');
         
-        // Reset button text
-        const btn = card.querySelector('div:last-child');
-        btn.classList.remove('bg-white', 'text-blue-600');
-        btn.classList.add('border', 'border-current', 'opacity-10');
-        btn.innerHTML = '<span class="font-bold text-xs">Seç</span>';
-        
-        // Restore default BG based on ID (Simplified reset for non-selected)
-        if(card.getAttribute('onclick').includes('pro')) {
-             // Pro specific reset styles handled by CSS mostly, but logic here ensures clean switch
-             card.style.background = ''; 
+        // Butonu "Seç" haline getir
+        const btn = card.querySelector('.pkg-btn');
+        if(btn) {
+            btn.classList.remove('bg-white', 'text-blue-600'); // Pro seçili butonu stili
+            btn.classList.add('border', 'border-current', 'opacity-10'); // Standart buton stili
+            btn.innerHTML = '<span class="font-bold text-[10px]">Seç</span>';
         }
     });
 
-    // Add selected styles to clicked element
+    // 2. TIKLANAN KARTI AKTİF ET
     element.classList.add('selected');
     
-    // Update Button Text inside the card
-    const btn = element.querySelector('div:last-child');
-    btn.classList.remove('border', 'border-current', 'opacity-10');
-    btn.innerHTML = '<span class="font-bold text-xs">Seçildi</span>';
-
-    // Special styling for Pro when selected to keep it blue
-    if(pkgId === 'pro') {
-        // Class updates are handled by the initial HTML classes mostly, 
-        // but we ensure the "active" look is maintained.
-    } else {
-        // Visual feedback for others could be added here if needed
+    // Eğer Pro ise özel mavi stilini ekle (HTML'deki sınıfları JS ile yönetmek daha temiz)
+    if (pkgId === 'pro') {
+        element.classList.add('bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'border-blue-400', 'transform', 'scale-105', 'z-10', 'shadow-xl');
     }
 
-    // Update Bottom Price Button
+    // Butonu "Seçildi" yap
+    const activeBtn = element.querySelector('.pkg-btn');
+    if (activeBtn) {
+        activeBtn.classList.remove('border', 'border-current', 'opacity-10');
+        // Eğer Pro ise buton beyaz, diğerlerinde o paketin rengine uyumlu (Driver ise Mavi, King ise Beyaz borderlı)
+        if(pkgId === 'pro') {
+            activeBtn.classList.add('bg-white', 'text-blue-600');
+        } 
+        activeBtn.innerHTML = '<span class="font-bold text-[10px]">Seçildi</span>';
+    }
+
+    // 3. FİYAT BUTONUNU GÜNCELLE
     const price = element.getAttribute('data-price');
     const period = pkgId === 'king' ? 'Yıl' : 'Ay';
     document.getElementById('subPriceDisplay').innerText = `${price} TL / ${period}`;
+
+    // 4. ÖZELLİK LİSTESİNİ GÜNCELLE (DİNAMİK KISIM)
+    updateFeaturesUI(pkgId);
+}
+
+function updateFeaturesUI(pkgId) {
+    const data = packageFeatures[pkgId];
+    if (!data) return;
+
+    // Başlığı güncelle
+    document.getElementById('featureTitle').innerText = data.title;
+
+    // Grid içeriğini temizle ve yeniden oluştur
+    const grid = document.getElementById('featureGrid');
+    grid.innerHTML = '';
+
+    data.features.forEach(feat => {
+        grid.innerHTML += `
+            <div class="flex items-center gap-2 animate-fadeIn">
+                <div class="${feat.bg} p-1.5 rounded-lg ${feat.color}"><i data-lucide="${feat.icon}" class="w-3 h-3"></i></div>
+                <span class="text-xs font-bold text-current opacity-70">${feat.text}</span>
+            </div>
+        `;
+    });
+    
+    // İkonları render et
+    lucide.createIcons();
 }
 
 function startSubscription() {
@@ -2428,12 +2479,6 @@ function startOnboarding() {
                 splash.style.display = 'none'; 
                 if(content) content.style.opacity = '1'; 
                 checkOnboarding(); 
-            }, 500); 
-        } 
-    }, 2500); 
-});
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
-    </script>
     <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000;" onclick="closePremium()">
     <div class="picker-container h-[85%] flex flex-col" onclick="event.stopPropagation()">
         
@@ -2453,34 +2498,18 @@ function startOnboarding() {
                 <p class="text-xs opacity-60 font-bold px-6 text-current">Tek üyelik, tüm özellikler.</p>
             </div>
 
-            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5">
-                <h4 class="font-bold text-sm mb-3 opacity-80 text-current text-center">Neler Kazanacaksın?</h4>
-                <div class="grid grid-cols-2 gap-y-3 gap-x-2">
-                    <div class="flex items-center gap-2">
-                        <div class="bg-green-500/10 p-1.5 rounded-lg text-green-500"><i data-lucide="check" class="w-3 h-3"></i></div>
-                        <span class="text-xs font-bold text-current opacity-70">Sınırsız Garaj</span>
+            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300">
+                <h4 id="featureTitle" class="font-bold text-sm mb-3 opacity-80 text-current text-center transition-all">Pro Paket</h4>
+                <div id="featureGrid" class="grid grid-cols-2 gap-y-3 gap-x-2 transition-all">
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div class="bg-blue-500/10 p-1.5 rounded-lg text-blue-500"><i data-lucide="file-text" class="w-3 h-3"></i></div>
-                        <span class="text-xs font-bold text-current opacity-70">Excel Raporlama</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="bg-purple-500/10 p-1.5 rounded-lg text-purple-500"><i data-lucide="zap" class="w-3 h-3"></i></div>
-                        <span class="text-xs font-bold text-current opacity-70">Reklamsız</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="bg-orange-500/10 p-1.5 rounded-lg text-orange-500"><i data-lucide="star" class="w-3 h-3"></i></div>
-                        <span class="text-xs font-bold text-current opacity-70">Özel İkonlar</span>
-                    </div>
-                </div>
             </div>
 
             <h3 class="font-black text-lg px-4 mb-3 text-current">Paketini Seç</h3>
             
-            <div class="flex gap-3 px-4 overflow-x-auto pb-4 snap-x no-scrollbar" id="packageList">
+            <div class="flex gap-3 px-4 overflow-x-auto pb-4 pt-5 snap-x no-scrollbar" id="packageList">
                 
                 <div onclick="selectPackage('driver', this)" class="min-w-[30%] flex-1 bg-zinc-100 dark:bg-white/5 border-2 border-transparent rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card group snap-center text-center" data-price="29.99">
-                    <div class="mb-2">
+                    <div class="mb-2 w-full">
                         <h4 class="text-sm font-black text-current mb-1">Driver</h4>
                         <div class="w-8 h-1 bg-zinc-500/20 rounded-full mx-auto"></div>
                     </div>
@@ -2488,14 +2517,14 @@ function startOnboarding() {
                         <span class="text-lg font-black text-current">29.99</span>
                         <p class="text-[9px] font-bold opacity-50 text-current">TL/Ay</p>
                     </div>
-                    <div class="w-full py-2 rounded-xl border border-current opacity-10 flex items-center justify-center group-[.selected]:bg-blue-600 group-[.selected]:opacity-100 group-[.selected]:border-transparent group-[.selected]:text-white transition-all">
+                    <div class="pkg-btn w-full py-2 rounded-xl border border-current opacity-10 flex items-center justify-center transition-all group-[.selected]:bg-blue-600 group-[.selected]:opacity-100 group-[.selected]:border-transparent group-[.selected]:text-white">
                         <span class="font-bold text-[10px]">Seç</span>
                     </div>
                 </div>
 
                 <div onclick="selectPackage('pro', this)" class="min-w-[35%] flex-1 bg-gradient-to-b from-blue-600 to-blue-800 text-white border-2 border-blue-400 rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card selected shadow-lg shadow-blue-500/20 snap-center text-center transform scale-105 z-10" data-price="49.99">
-                    <div class="absolute -top-3 bg-orange-500 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase shadow-sm">Popüler</div>
-                    <div class="mb-2 mt-1">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase shadow-sm whitespace-nowrap z-20">Popüler</div>
+                    <div class="mb-2 mt-1 w-full">
                         <h4 class="text-base font-black">Pro</h4>
                         <div class="w-8 h-1 bg-white/30 rounded-full mx-auto"></div>
                     </div>
@@ -2503,14 +2532,14 @@ function startOnboarding() {
                         <span class="text-2xl font-black">49.99</span>
                         <p class="text-[9px] font-bold opacity-70">TL/Ay</p>
                     </div>
-                    <div class="w-full py-2 rounded-xl bg-white text-blue-600 flex items-center justify-center shadow-md">
+                    <div class="pkg-btn w-full py-2 rounded-xl bg-white text-blue-600 flex items-center justify-center shadow-md">
                         <span class="font-bold text-[10px]">Seçildi</span>
                     </div>
                 </div>
 
                 <div onclick="selectPackage('king', this)" class="min-w-[30%] flex-1 bg-gradient-to-br from-yellow-400 to-orange-600 text-white border-2 border-yellow-300 rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card shadow-md snap-center text-center" data-price="499.99">
-                    <div class="absolute -top-2 right-1 bg-white/20 px-1.5 py-0.5 rounded-full text-[7px] font-black uppercase">-%20</div>
-                    <div class="mb-2">
+                    <div class="absolute -top-3 right-2 bg-white/20 px-2 py-0.5 rounded-full text-[8px] font-black uppercase whitespace-nowrap">-%20</div>
+                    <div class="mb-2 w-full">
                         <h4 class="text-sm font-black">King</h4>
                         <div class="w-8 h-1 bg-white/30 rounded-full mx-auto"></div>
                     </div>
@@ -2518,7 +2547,7 @@ function startOnboarding() {
                         <span class="text-lg font-black">499</span>
                         <p class="text-[9px] font-bold opacity-70">TL/Yıl</p>
                     </div>
-                    <div class="w-full py-2 rounded-xl border border-white/40 flex items-center justify-center">
+                    <div class="pkg-btn w-full py-2 rounded-xl border border-white/40 flex items-center justify-center transition-all">
                         <span class="font-bold text-[10px]">Seç</span>
                     </div>
                 </div>
