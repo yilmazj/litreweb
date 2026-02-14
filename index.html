@@ -961,7 +961,7 @@ const packageFeatures = {
 
 let selectedPkg = 'pro'; // Default
 
-// --- PREMIUM YÖNETİM SİSTEMİ ---
+// --- PREMIUM YÖNETİM SİSTEMİ (GÜNCELLENMİŞ) ---
 
 // 1. Ana Giriş Kapısı (Yönlendirici)
 function openPremium() {
@@ -990,9 +990,17 @@ function openPremiumManage() {
     const dateStr = nextMonth.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
     // Bilgileri Bas (Gerçek app'te Firebase'den gelir)
-    document.getElementById('managePlanName').innerText = "Litre Pro"; // Burayı dinamik yapabiliriz
+    // Şimdilik seçili pakete göre gösterelim
+    let planName = "Litre Pro";
+    let planPrice = "49.99 TL / Ay";
+    
+    // Basit bir kontrol (Gerçekte veritabanından okunmalı)
+    if(selectedPkg === 'driver') { planName = "Litre Driver"; planPrice = "29.99 TL / Ay"; }
+    if(selectedPkg === 'king') { planName = "Litre King"; planPrice = "499.99 TL / Yıl"; }
+
+    document.getElementById('managePlanName').innerText = planName;
     document.getElementById('manageDate').innerText = dateStr;
-    document.getElementById('managePrice').innerText = "49.99 TL / Ay";
+    document.getElementById('managePrice').innerText = planPrice;
 
     document.getElementById('premiumManageOverlay').style.display = 'flex';
     lucide.createIcons();
@@ -1009,7 +1017,13 @@ function changePlan() {
     setTimeout(() => {
         document.getElementById('premiumOverlay').style.display = 'flex';
         // Buton yazısını değiştir ki kullanıcı "Güncelle" yaptığını anlasın
-        document.querySelector('#subPriceDisplay').parentElement.innerHTML = '<span id="subPriceDisplay">49.99 TL</span> • PLAN GÜNCELLE';
+        const btn = document.querySelector('#subPriceDisplay').parentElement;
+        // Mevcut içeriği sakla, sadece metni değiştir
+        // Basitçe:
+        // btn.innerHTML = '<span id="subPriceDisplay">49.99 TL</span> • PLAN GÜNCELLE'; 
+        // Ama paket seçim fonksiyonu zaten metni yeniliyor, o yüzden gerek kalmayabilir.
+        // Kullanıcıya hissettirmek için:
+        alert("Lütfen yeni paketinizi seçin.");
     }, 200);
 }
 
@@ -1019,7 +1033,7 @@ function cancelSubscription() {
         // Backend işlemi simülasyonu
         alert("Üyeliğin iptal edildi. Dönem sonuna kadar kullanmaya devam edebilirsin.");
         
-        // Hızlıca free'ye çekmek istersen (Test için):
+        // Test için (Gerçekte hemen silinmez, dönem sonu beklenir)
         // isPremiumUser = false;
         // localStorage.setItem('isPremium', 'false');
         // checkLoginStatus();
@@ -1037,11 +1051,13 @@ function startSubscription() {
     setTimeout(() => {
         isPremiumUser = true;
         localStorage.setItem('isPremium', 'true');
+        // Seçilen paketi de kaydet (Basitçe)
+        localStorage.setItem('myPlan', selectedPkg);
         
         if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
             firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ 
                 isPremium: true,
-                plan: selectedPkg // Seçilen paketi kaydet
+                plan: selectedPkg 
             });
         }
         
@@ -1051,10 +1067,6 @@ function startSubscription() {
         
         btn.innerHTML = originalText;
     }, 1500);
-}
-    
-    // İkonları render et
-    lucide.createIcons();
 }
         // --- ICON SİSTEMİ (RENKLİ GÜNCELLEME) ---
         function initAppIcon() { 
@@ -2587,20 +2599,20 @@ function startOnboarding() {
 <div id="premiumManageOverlay" class="picker-overlay" style="z-index: 6000; display: none;" onclick="closePremiumManage()">
     <div class="picker-container h-auto flex flex-col relative rounded-t-[30px] overflow-hidden" onclick="event.stopPropagation()">
         
-        <div class="flex justify-between items-center mb-6 px-2 pt-2">
-            <button onclick="closePremiumManage()" class="bg-zinc-500/20 p-2 rounded-full haptic-btn"><i data-lucide="x" class="w-5 h-5 text-current"></i></button>
+        <div class="flex justify-between items-center mb-6 px-2 pt-2 relative z-50">
+            <button onclick="closePremiumManage()" class="bg-zinc-500/20 p-2 rounded-full haptic-btn pointer-events-auto cursor-pointer"><i data-lucide="x" class="w-5 h-5 text-current"></i></button>
             <h3 class="font-black text-xl text-current tracking-tight">Üyeliğim</h3>
             <div class="w-9"></div>
         </div>
 
-        <div class="pb-10 px-4">
+        <div class="pb-10 px-4 overflow-y-auto no-scrollbar">
             
             <div class="bg-gradient-to-br from-zinc-800 to-black p-6 rounded-3xl text-white mb-6 relative overflow-hidden shadow-xl">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
                 
                 <div class="flex justify-between items-start mb-8 relative z-10">
                     <div>
-                        <p class="text-xs font-bold opacity-60 uppercase tracking-widest mb-1">Mevcut Plan</p>
+                        <p class="text-[10px] font-bold opacity-60 uppercase tracking-widest mb-1">Mevcut Plan</p>
                         <h2 class="text-3xl font-black" id="managePlanName">Litre Pro</h2>
                     </div>
                     <div class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
@@ -2611,11 +2623,11 @@ function startOnboarding() {
                 <div class="flex justify-between items-end relative z-10">
                     <div>
                         <p class="text-[10px] opacity-50 font-bold uppercase mb-1">Yenilenme Tarihi</p>
-                        <p class="text-lg font-bold" id="manageDate">14 Şubat 2027</p>
+                        <p class="text-lg font-bold" id="manageDate">...</p>
                     </div>
                     <div class="text-right">
                          <p class="text-[10px] opacity-50 font-bold uppercase mb-1">Tutar</p>
-                         <p class="text-lg font-bold" id="managePrice">49.99 TL</p>
+                         <p class="text-lg font-bold" id="managePrice">...</p>
                     </div>
                 </div>
             </div>
