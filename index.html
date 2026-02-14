@@ -491,7 +491,7 @@
              <button onclick="closeUpsell()" class="w-full bg-transparent p-3 text-zinc-500 font-bold mt-2">Belki Daha Sonra</button>
         </div>
     </div></div>
-
+    
     <div id="accountOverlay" class="picker-overlay" onclick="closeAccountSettings()"><div class="picker-container" onclick="event.stopPropagation()">
         <div class="flex justify-between mb-8 px-4"><button onclick="closeAccountSettings()" class="text-zinc-500 font-bold">Kapat</button><h3 class="font-bold text-lg text-current">Hesap Bilgilerim</h3><button onclick="updateAccountInfo()" class="text-blue-500 font-bold">Kaydet</button></div>
         
@@ -927,7 +927,20 @@
         <nav class="floating-dock"><button onclick="showTab('home', this)" class="nav-item active haptic-btn"><i data-lucide="home"></i></button><button id="map-nav" onclick="showTab('maps', this, true)" class="nav-item haptic-btn"><i data-lucide="map-pin"></i></button><button class="nav-item" onclick="handleScanAction()"><div class="bg-blue-600 p-4 rounded-[1.8rem] shadow-xl haptic-btn shadow-blue-500/20"><i data-lucide="camera" class="text-white w-6 h-6"></i></div></button><button onclick="showTab('radar', this)" class="nav-item haptic-btn"><i data-lucide="zap"></i></button><button onclick="showTab('profile', this)" class="nav-item haptic-btn"><i data-lucide="user"></i></button></nav>
     </div>
     <script>
-    // --- DİNAMİK PAKET VERİLERİ ---
+    // --- PREMIUM SUBSCRIPTION LOGIC ---
+let selectedPkg = 'pro'; // Default selection
+
+function openPremium() {
+    document.getElementById('premiumOverlay').style.display = 'flex';
+    // Reset to default visually
+    selectPackage('pro', document.querySelectorAll('.package-card')[1]);
+}
+
+function closePremium() {
+    document.getElementById('premiumOverlay').style.display = 'none';
+}
+
+// --- DİNAMİK PAKET VERİLERİ ---
 const packageFeatures = {
     driver: {
         title: "Driver Paket",
@@ -1038,84 +1051,26 @@ function updateFeaturesUI(pkgId) {
     lucide.createIcons();
 }
 
-let selectedPkg = 'pro'; // Default
-
-// Overlay açılınca çalışacak
-function openPremium() {
-    document.getElementById('premiumOverlay').style.display = 'flex';
-    // Varsayılan olarak Pro'yu seçtir
-    // Dom'daki 2. kartı (index 1) bulup tetikliyoruz
-    const cards = document.querySelectorAll('.package-card');
-    if(cards.length > 1) selectPackage('pro', cards[1]);
-}
-
-function selectPackage(pkgId, element) {
-    selectedPkg = pkgId;
-    
-    // 1. TÜM KARTLARI SIFIRLA (Görsel ve Buton Yazısı)
-    document.querySelectorAll('.package-card').forEach(card => {
-        // Seçili stilini kaldır
-        card.classList.remove('selected', 'border-blue-400', 'bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'transform', 'scale-105', 'z-10', 'shadow-xl');
-        
-        // Butonu "Seç" haline getir
-        const btn = card.querySelector('.pkg-btn');
-        if(btn) {
-            btn.classList.remove('bg-white', 'text-blue-600'); // Pro seçili butonu stili
-            btn.classList.add('border', 'border-current', 'opacity-10'); // Standart buton stili
-            btn.innerHTML = '<span class="font-bold text-[10px]">Seç</span>';
-        }
-    });
-
-    // 2. TIKLANAN KARTI AKTİF ET
+    // Add selected styles to clicked element
     element.classList.add('selected');
     
-    // Eğer Pro ise özel mavi stilini ekle (HTML'deki sınıfları JS ile yönetmek daha temiz)
-    if (pkgId === 'pro') {
-        element.classList.add('bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'border-blue-400', 'transform', 'scale-105', 'z-10', 'shadow-xl');
+    // Update Button Text inside the card
+    const btn = element.querySelector('div:last-child');
+    btn.classList.remove('border', 'border-current', 'opacity-10');
+    btn.innerHTML = '<span class="font-bold text-xs">Seçildi</span>';
+
+    // Special styling for Pro when selected to keep it blue
+    if(pkgId === 'pro') {
+        // Class updates are handled by the initial HTML classes mostly, 
+        // but we ensure the "active" look is maintained.
+    } else {
+        // Visual feedback for others could be added here if needed
     }
 
-    // Butonu "Seçildi" yap
-    const activeBtn = element.querySelector('.pkg-btn');
-    if (activeBtn) {
-        activeBtn.classList.remove('border', 'border-current', 'opacity-10');
-        // Eğer Pro ise buton beyaz, diğerlerinde o paketin rengine uyumlu (Driver ise Mavi, King ise Beyaz borderlı)
-        if(pkgId === 'pro') {
-            activeBtn.classList.add('bg-white', 'text-blue-600');
-        } 
-        activeBtn.innerHTML = '<span class="font-bold text-[10px]">Seçildi</span>';
-    }
-
-    // 3. FİYAT BUTONUNU GÜNCELLE
+    // Update Bottom Price Button
     const price = element.getAttribute('data-price');
     const period = pkgId === 'king' ? 'Yıl' : 'Ay';
     document.getElementById('subPriceDisplay').innerText = `${price} TL / ${period}`;
-
-    // 4. ÖZELLİK LİSTESİNİ GÜNCELLE (DİNAMİK KISIM)
-    updateFeaturesUI(pkgId);
-}
-
-function updateFeaturesUI(pkgId) {
-    const data = packageFeatures[pkgId];
-    if (!data) return;
-
-    // Başlığı güncelle
-    document.getElementById('featureTitle').innerText = data.title;
-
-    // Grid içeriğini temizle ve yeniden oluştur
-    const grid = document.getElementById('featureGrid');
-    grid.innerHTML = '';
-
-    data.features.forEach(feat => {
-        grid.innerHTML += `
-            <div class="flex items-center gap-2 animate-fadeIn">
-                <div class="${feat.bg} p-1.5 rounded-lg ${feat.color}"><i data-lucide="${feat.icon}" class="w-3 h-3"></i></div>
-                <span class="text-xs font-bold text-current opacity-70">${feat.text}</span>
-            </div>
-        `;
-    });
-    
-    // İkonları render et
-    lucide.createIcons();
 }
 
 function startSubscription() {
@@ -2547,12 +2502,26 @@ function startOnboarding() {
     
     updateGarageAnalysis(); 
     updateRadarAnalysis(); 
-            checkLoginStatus(); 
-    } // Bu parantez window.addEventListener('load'...) fonksiyonunu veya bir önceki bloğu kapatıyor olabilir, garanti olsun diye koydum.
-      // Eğer kodunda zaten kapalıysa silebilirsin ama scripti kapatmak ŞART.
-</script> 
-<div id="premiumOverlay" class="picker-overlay" style="z-index: 6000; display: none;" onclick="closePremium()">
-    <div class="picker-container h-[85%] flex flex-col relative" onclick="event.stopPropagation()">
+    checkLoginStatus(); 
+    
+    // Check for onboarding or start map
+    setTimeout(() => { 
+        const splash = document.getElementById('splash'); 
+        const content = document.getElementById('app-content'); 
+        if(splash) { 
+            splash.style.opacity = '0'; 
+            setTimeout(() => { 
+                splash.style.display = 'none'; 
+                if(content) content.style.opacity = '1'; 
+                checkOnboarding(); 
+            }, 500); 
+        } 
+    }, 2500); 
+});
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
+    </script>
+    <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000;" onclick="closePremium()">
+    <div class="picker-container h-[85%] flex flex-col" onclick="event.stopPropagation()">
         
         <div class="flex justify-between items-center mb-4 px-2">
             <button onclick="closePremium()" class="bg-zinc-500/20 p-2 rounded-full haptic-btn"><i data-lucide="x" class="w-5 h-5 text-current"></i></button>
@@ -2560,7 +2529,7 @@ function startOnboarding() {
             <div class="w-9"></div>
         </div>
 
-        <div class="overflow-y-auto no-scrollbar pb-28 flex-1">
+        <div class="overflow-y-auto no-scrollbar pb-24 flex-1">
             
             <div class="text-center mb-6 px-4">
                 <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-yellow-400 via-orange-500 to-red-500 rounded-full flex items-center justify-center mb-3 shadow-xl shadow-orange-500/40 animate-pulse">
@@ -2570,7 +2539,7 @@ function startOnboarding() {
                 <p class="text-xs opacity-60 font-bold px-6 text-current">Tek üyelik, tüm özellikler.</p>
             </div>
 
-            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300 h-48 flex flex-col justify-center">
+            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300">
                 <h4 id="featureTitle" class="font-bold text-sm mb-3 opacity-80 text-current text-center transition-all">Pro Paket</h4>
                 <div id="featureGrid" class="grid grid-cols-2 gap-y-3 gap-x-2 transition-all">
                     </div>
@@ -2578,7 +2547,7 @@ function startOnboarding() {
 
             <h3 class="font-black text-lg px-4 mb-3 text-current">Paketini Seç</h3>
             
-            <div class="flex gap-3 px-4 overflow-x-auto pb-4 pt-6 snap-x no-scrollbar" id="packageList">
+            <div class="flex gap-3 px-4 overflow-x-auto pb-4 pt-5 snap-x no-scrollbar" id="packageList">
                 
                 <div onclick="selectPackage('driver', this)" class="min-w-[30%] flex-1 bg-zinc-100 dark:bg-white/5 border-2 border-transparent rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card group snap-center text-center" data-price="29.99">
                     <div class="mb-2 w-full">
@@ -2595,7 +2564,7 @@ function startOnboarding() {
                 </div>
 
                 <div onclick="selectPackage('pro', this)" class="min-w-[35%] flex-1 bg-gradient-to-b from-blue-600 to-blue-800 text-white border-2 border-blue-400 rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card selected shadow-lg shadow-blue-500/20 snap-center text-center transform scale-105 z-10" data-price="49.99">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase shadow-sm whitespace-nowrap z-20">Popüler</div>
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-3 py-0.5 rounded-full text-[8px] font-black uppercase shadow-sm whitespace-nowrap z-20">Popüler</div>
                     <div class="mb-2 mt-1 w-full">
                         <h4 class="text-base font-black">Pro</h4>
                         <div class="w-8 h-1 bg-white/30 rounded-full mx-auto"></div>
@@ -2610,7 +2579,7 @@ function startOnboarding() {
                 </div>
 
                 <div onclick="selectPackage('king', this)" class="min-w-[30%] flex-1 bg-gradient-to-br from-yellow-400 to-orange-600 text-white border-2 border-yellow-300 rounded-2xl p-3 flex flex-col items-center justify-between relative haptic-btn transition-all package-card shadow-md snap-center text-center" data-price="499.99">
-                    <div class="absolute -top-3 right-0 bg-white/20 px-2 py-0.5 rounded-full text-[8px] font-black uppercase whitespace-nowrap">-%20</div>
+                    <div class="absolute -top-3 right-2 bg-white/20 px-2 py-0.5 rounded-full text-[8px] font-black uppercase whitespace-nowrap">-%20</div>
                     <div class="mb-2 w-full">
                         <h4 class="text-sm font-black">King</h4>
                         <div class="w-8 h-1 bg-white/30 rounded-full mx-auto"></div>
@@ -2627,7 +2596,7 @@ function startOnboarding() {
             </div>
         </div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px] z-50">
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px]">
             <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
             <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2" style="background: var(--text); color: var(--bg);">
                 <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
@@ -2636,37 +2605,5 @@ function startOnboarding() {
 
     </div>
 </div>
-
-<script>
-    // Başlangıç Ayarları
-    window.addEventListener('load', () => { 
-        initTheme(); 
-        initAppIcon(); 
-        
-        // Harita Başlatma
-        initMap(); 
-        initMiniMap(); 
-        
-        updateGarageAnalysis(); 
-        updateRadarAnalysis(); 
-        checkLoginStatus(); 
-        
-        // Splash Ekranını Kapatma
-        setTimeout(() => { 
-            const splash = document.getElementById('splash'); 
-            const content = document.getElementById('app-content'); 
-            if(splash) { 
-                splash.style.opacity = '0'; 
-                setTimeout(() => { 
-                    splash.style.display = 'none'; 
-                    if(content) content.style.opacity = '1'; 
-                    checkOnboarding(); 
-                }, 500); 
-            } 
-        }, 2500); 
-    });
-
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
-</script>
 </body>
 </html>
