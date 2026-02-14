@@ -510,7 +510,7 @@
                 <p class="text-xs opacity-60 font-bold px-6 text-current">Tek üyelik, tüm özellikler.</p>
             </div>
 
-            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300">
+            <div class="bg-zinc-500/5 rounded-3xl p-5 mx-4 mb-6 border border-current/5 transition-all duration-300 h-48 flex flex-col justify-center">
                 <h4 id="featureTitle" class="font-bold text-sm mb-3 opacity-80 text-current text-center transition-all">Pro Paket</h4>
                 <div id="featureGrid" class="grid grid-cols-2 gap-y-3 gap-x-2 transition-all">
                     </div>
@@ -566,6 +566,16 @@
 
             </div>
         </div>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px]">
+            <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
+            <button onclick="startSubscription()" class="w-full bg-current text-white/90 p-4 rounded-2xl font-black text-lg haptic-btn shadow-lg flex items-center justify-center gap-2" style="background: var(--text); color: var(--bg);">
+                <span id="subPriceDisplay">49.99 TL</span> • ABONE OL
+            </button>
+        </div>
+
+    </div>
+</div>
 
         <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-current/5 bg-card backdrop-blur-xl rounded-b-[30px]">
             <p class="text-center text-[10px] opacity-40 font-bold mb-3 text-current">İstediğin zaman iptal et. Gizli ücret yok.</p>
