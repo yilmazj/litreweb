@@ -1283,26 +1283,28 @@ function startSubscription() {
         document.getElementById('logoutBtn').classList.remove('hidden');
         document.getElementById('logoutBtn').style.display = 'flex';
         
-        // PREMIUM KONTROL
-        const localPrem = localStorage.getItem('isPremium') === 'true';
+        // --- PREMIUM KONTROLÜ (DÜZELTİLDİ) ---
+        // Artık localStorage'a bakmıyoruz, sadece mail adresini kontrol ediyoruz.
+        // Böylece test hesapları yanlışlıkla premium olmuyor.
         
-        if (user.email === 'volkan@litre.com' || localPrem) {
+        if (user.email === 'volkan@litre.com') {
             isPremiumUser = true;
             document.getElementById('profileStatus').innerText = "Premium Üye";
             document.getElementById('profileStatus').className = "mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase text-orange-500 bg-orange-500/10";
             
-            // --- PREMIUM ÜYE İÇİN KART (TASARIM AYNI, YAZI FARKLI) ---
+            // Premium Üye Kartı Görünümü
             premCard.classList.remove('hidden');
             premTitle.innerText = "Premium Aktif";
             premDesc.innerText = "Tüm özellikler açık. Üyeliğini yönetmek için tıkla.";
-            premIcon.setAttribute('data-lucide', 'check-circle'); // Tacı Tik yap
+            premIcon.setAttribute('data-lucide', 'check-circle');
             
         } else {
+            // Diğer TÜM hesaplar Free
             isPremiumUser = false;
             document.getElementById('profileStatus').innerText = "Free Hesap";
             document.getElementById('profileStatus').className = "mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase opacity-60 text-current";
             
-            // --- FREE KART ---
+            // Free Kart Görünümü
             premCard.classList.remove('hidden');
             premTitle.innerText = "Litre Premium";
             premDesc.innerText = "Aracının limitlerini kaldır. Raporlar ve daha fazlası.";
@@ -1324,7 +1326,7 @@ function startSubscription() {
     
     renderGarageUI();
     updateLockIcons(); 
-    lucide.createIcons(); // İkonları yenile
+    lucide.createIcons();
 }
 
         // --- AUTH & ACCOUNT FUNCTIONS ---
@@ -1373,13 +1375,14 @@ function startSubscription() {
                     alert("Apple girişi başarısız: " + error.message);
                 });
         }
-        function logout() { firebase.auth().signOut().then(() => { alert("Çıkış Yapıldı."); location.reload(); }); }
-        function deleteAccount() {
-            const user = firebase.auth().currentUser;
-            if (user && confirm("Hesabını ve tüm verilerini silmek istediğine emin misin?")) {
-                user.delete().then(() => { localStorage.clear(); location.reload(); }).catch(e => alert("Giriş yenilemeniz gerekebilir."));
-            }
-        }
+        function logout() { 
+    firebase.auth().signOut().then(() => { 
+        // Çıkış yapınca hafızadaki premium bilgisini sil
+        localStorage.removeItem('isPremium'); 
+        alert("Çıkış Yapıldı."); 
+        location.reload(); 
+    }); 
+}
         function openAccountSettings() { if(!firebase.auth().currentUser) { openGuestOverlay(); return; } document.getElementById('accountOverlay').style.display = 'flex'; }
         function closeAccountSettings() { document.getElementById('accountOverlay').style.display = 'none'; }
         async function updateAccountInfo() {
