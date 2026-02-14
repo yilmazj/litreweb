@@ -2547,9 +2547,11 @@ function startOnboarding() {
     
     updateGarageAnalysis(); 
     updateRadarAnalysis(); 
-    checkLoginStatus(); 
-    
-        <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000; display: none;" onclick="closePremium()">
+            checkLoginStatus(); 
+    } // Bu parantez window.addEventListener('load'...) fonksiyonunu veya bir önceki bloğu kapatıyor olabilir, garanti olsun diye koydum.
+      // Eğer kodunda zaten kapalıysa silebilirsin ama scripti kapatmak ŞART.
+</script> 
+<div id="premiumOverlay" class="picker-overlay" style="z-index: 6000; display: none;" onclick="closePremium()">
     <div class="picker-container h-[85%] flex flex-col relative" onclick="event.stopPropagation()">
         
         <div class="flex justify-between items-center mb-4 px-2">
@@ -2587,7 +2589,7 @@ function startOnboarding() {
                         <span class="text-lg font-black text-current">29.99</span>
                         <p class="text-[9px] font-bold opacity-50 text-current">TL/Ay</p>
                     </div>
-                    <div class="pkg-btn w-full py-2 rounded-xl border border-current opacity-10 flex items-center justify-center transition-all">
+                    <div class="pkg-btn w-full py-2 rounded-xl border border-current opacity-10 flex items-center justify-center transition-all group-[.selected]:bg-blue-600 group-[.selected]:opacity-100 group-[.selected]:border-transparent group-[.selected]:text-white">
                         <span class="font-bold text-[10px]">Seç</span>
                     </div>
                 </div>
@@ -2636,28 +2638,12 @@ function startOnboarding() {
 </div>
 
 <script>
-    // Buradaki checkOnboarding(); script'in içinde olmalı ama senaryo gereği
-    // dosyanın sonundaki script bloğunun düzgün kapanması lazım.
-    // Eğer yukarıda bir script etiketi açtıysan ve kapatmadıysan hata verir.
-    // Senin kodunda script yukarıda açıktı, şimdi onu burada kapatıyoruz.
-    
-    // NOT: Bu kısmı kopyalarken yukarıdaki <script> etiketini KOPYALAMA,
-    // sadece içeriği ve kapanışı al. Ya da dosyanın en altındaki
-    // window.addEventListener kısmını şununla değiştir:
-
-    /* DİKKAT: Senin kodunda <script> etiketi zaten yukarıda açık.
-       Aşağıdaki kod sadece o script bloğunun SONUNU onarır.
-    */
-</script> 
-
-<script>
-    // ... (Diğer fonksiyonların yukarıda kalmalı) ...
-
+    // Başlangıç Ayarları
     window.addEventListener('load', () => { 
         initTheme(); 
         initAppIcon(); 
         
-        // SIRALAMA ÖNEMLİ
+        // Harita Başlatma
         initMap(); 
         initMiniMap(); 
         
@@ -2665,7 +2651,7 @@ function startOnboarding() {
         updateRadarAnalysis(); 
         checkLoginStatus(); 
         
-        // Check for onboarding or start map
+        // Splash Ekranını Kapatma
         setTimeout(() => { 
             const splash = document.getElementById('splash'); 
             const content = document.getElementById('app-content'); 
