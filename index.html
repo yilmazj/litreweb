@@ -931,6 +931,8 @@
 // --- PREMIUM SİSTEMİ (DÜZELTİLMİŞ TAM KOD) ---
 
 // 1. Paket Verileri (İçerik buradan çekiliyor)
+// --- PREMIUM YÖNETİM & ABONELİK SİSTEMİ (GÜNCELLENMİŞ TAM KOD) ---
+
 const packageFeatures = {
     driver: {
         title: "Driver Paket",
@@ -961,39 +963,76 @@ const packageFeatures = {
     }
 };
 
-let selectedPkg = 'pro'; // Varsayılan
+let selectedPkg = 'pro'; 
 
-// 2. Menüyü Açma (Açılışta Pro'yu seçtiriyoruz ki kutu boş kalmasın)
+// 1. ANA GİRİŞ KAPISI (Kritik Fonksiyon Bu)
 function openPremium() {
     if (isPremiumUser) {
-        openPremiumManage(); // Üyeyse yönetim ekranını aç
+        // Eğer kullanıcı Premium ise -> YÖNETİM EKRANINI AÇ
+        openPremiumManage();
     } else {
+        // Değilse -> SATIŞ EKRANINI AÇ
         document.getElementById('premiumOverlay').style.display = 'flex';
-        // HTML yüklendikten sonra Pro paketini otomatik seçtir
+        // Varsayılan olarak Pro paketini seçtir
         setTimeout(() => {
-            // Ortadaki kartı (index 1) bul ve tetikle
             const cards = document.querySelectorAll('.package-card');
-            if(cards.length > 1) {
-                selectPackage('pro', cards[1]); 
-            }
+            if(cards.length > 1) selectPackage('pro', cards[1]);
         }, 50);
     }
 }
 
-// 3. Menüyü Kapatma
+// 2. YÖNETİM EKRANI FONKSİYONLARI (Eksik Olanlar)
+function openPremiumManage() {
+    // Tarih ve Plan Bilgisi (Gerçekte veritabanından gelir)
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const dateStr = nextMonth.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    
+    // Varsayılan olarak Pro gösteriyoruz (State'den de çekilebilir)
+    let planName = "Litre Pro";
+    let planPrice = "49.99 TL / Ay";
+    
+    document.getElementById('managePlanName').innerText = planName;
+    document.getElementById('manageDate').innerText = dateStr;
+    document.getElementById('managePrice').innerText = planPrice;
+
+    // Yönetim Ekranını Göster
+    document.getElementById('premiumManageOverlay').style.display = 'flex';
+    lucide.createIcons();
+}
+
+function closePremiumManage() {
+    document.getElementById('premiumManageOverlay').style.display = 'none';
+}
+
+function changePlan() {
+    closePremiumManage(); // Yönetimi kapat
+    setTimeout(() => {
+        document.getElementById('premiumOverlay').style.display = 'flex'; // Satışı aç
+        // Paketi sıfırla
+        const cards = document.querySelectorAll('.package-card');
+        if(cards.length > 1) selectPackage('pro', cards[1]);
+    }, 200);
+}
+
+function cancelSubscription() {
+    if(confirm("Premium ayrıcalıklarından vazgeçmek istediğine emin misin?")) {
+        alert("Üyeliğin iptal talebi alındı. Dönem sonuna kadar kullanabilirsin.");
+    }
+}
+
+// 3. SATIŞ EKRANI KAPATMA
 function closePremium() {
     document.getElementById('premiumOverlay').style.display = 'none';
 }
 
-// 4. Paket Seçim ve Özellik Güncelleme (Geçişlerin Çalıştığı Yer)
+// 4. PAKET SEÇİMİ (Görsel Efektler)
 function selectPackage(pkgId, element) {
     selectedPkg = pkgId;
     
-    // A. Görsel Sıfırlama: Tüm kartları eski haline getir
     document.querySelectorAll('.package-card').forEach(card => {
         card.classList.remove('selected', 'border-blue-400', 'bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'transform', 'scale-105', 'z-10', 'shadow-xl');
         
-        // Butonu sıfırla
         const btn = card.querySelector('.pkg-btn');
         if(btn) {
             btn.className = 'pkg-btn w-full py-1.5 rounded-lg border border-current opacity-10 flex items-center justify-center transition-all';
@@ -1001,15 +1040,12 @@ function selectPackage(pkgId, element) {
         }
     });
 
-    // B. Seçilen Kartı Süsle
     element.classList.add('selected');
     
-    // Sadece Pro ise mavi yap
     if (pkgId === 'pro') {
         element.classList.add('bg-gradient-to-b', 'from-blue-600', 'to-blue-800', 'text-white', 'border-blue-400', 'transform', 'scale-105', 'z-10', 'shadow-xl');
     }
 
-    // C. Butonu "Seçildi" Yap
     const activeBtn = element.querySelector('.pkg-btn');
     if (activeBtn) {
         if(pkgId === 'pro') {
@@ -1022,26 +1058,19 @@ function selectPackage(pkgId, element) {
         activeBtn.innerHTML = '<span class="font-bold text-[9px]">Seçildi</span>';
     }
 
-    // D. Fiyatı Güncelle (Footer'daki buton)
     const price = element.getAttribute('data-price');
     const period = pkgId === 'king' ? 'Yıl' : 'Ay';
     const priceDisplay = document.getElementById('subPriceDisplay');
     if(priceDisplay) priceDisplay.innerText = `${price} TL / ${period}`;
 
-    // E. Üstteki Özellik Listesini Doldur (Senin silinmiş dediğin yer)
     updateFeaturesUI(pkgId);
 }
 
-// 5. Özellik Listesini Çizen Fonksiyon
 function updateFeaturesUI(pkgId) {
     const data = packageFeatures[pkgId];
     if (!data) return;
 
-    // Başlığı değiştir
-    const titleEl = document.getElementById('featureTitle');
-    if(titleEl) titleEl.innerText = data.title;
-
-    // Listeyi temizle ve yeniden doldur
+    document.getElementById('featureTitle').innerText = data.title;
     const grid = document.getElementById('featureGrid');
     if(grid) {
         grid.innerHTML = '';
@@ -1053,9 +1082,33 @@ function updateFeaturesUI(pkgId) {
                 </div>
             `;
         });
-        // İkonları tekrar oluştur
         if(window.lucide) lucide.createIcons();
     }
+}
+
+// 5. SATIN ALMA İŞLEMİ
+function startSubscription() {
+    const btn = document.querySelector('#premiumOverlay button');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<div class="spinner w-5 h-5 border-2"></div>';
+    
+    setTimeout(() => {
+        isPremiumUser = true;
+        
+        // Veriyi kaydet (Admin olan volkan@litre.com için zaten checkLoginStatus'ta kontrol var)
+        localStorage.setItem('isPremium', 'true');
+        
+        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ isPremium: true });
+        }
+        
+        alert("Hoş geldin Kral! Premium özelliklerin aktif.");
+        closePremium(); 
+        checkLoginStatus(); 
+        
+        btn.innerHTML = originalText;
+    }, 1500);
 }
         // --- ICON SİSTEMİ (RENKLİ GÜNCELLEME) ---
         function initAppIcon() { 
