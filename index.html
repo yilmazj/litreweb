@@ -719,6 +719,14 @@
             </div>
             <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Şeker</span>
         </button>
+        
+        <button onclick="checkIconPremium('bjk')" id="iconBjk" class="flex flex-col items-center gap-2 group relative">
+            <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #000000 50%);">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="gray" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div id="lockBjk" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Kartal</span>
+        </button>
 
         <button onclick="checkIconPremium('fb')" id="iconFb" class="flex flex-col items-center gap-2 group relative">
             <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(90deg, #FACC15 50%, #1e3a8a 50%);">
@@ -1158,14 +1166,15 @@ function startSubscription() {
     const iconFiles = {
         'light': 'logobeyaz.png',
         'dark':  'logosiyah.png',
-        'blue':  'logomavi.png',   // Mavi logonu bu isimle kaydet
-        'green': 'logoyesil.png',  // Yeşil logonu bu isimle kaydet
-        'gold':  'logogold.png',   // Gold logonu bu isimle kaydet
-        'red':   'logokirmizi.png',// Kırmızı logonu bu isimle kaydet
-        'pink':  'logopembe.png',  // Pembe logonu bu isimle kaydet
-        'fb':    'logofb.png',     // FB logonu bu isimle kaydet
-        'gs':    'logogs.png',     // GS logonu bu isimle kaydet
-        'neon':  'logoneon.png'    // Neon logonu bu isimle kaydet
+        'blue':  'logomavi.png',   
+        'green': 'logoyesil.png',  
+        'gold':  'logogold.png',   
+        'red':   'logokirmizi.png',
+        'pink':  'logopembe.png',  
+        'fb':    'logofb.png',     
+        'gs':    'logogs.png',     
+        'bjk':   'logobjk.png',    // <-- BUNU EKLEDİN
+        'neon':  'logoneon.png'    
     };
 
     // Seçilen rengin dosyası var mı bak, yoksa beyazı al
