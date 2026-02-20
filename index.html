@@ -721,8 +721,8 @@
         </button>
         
         <button onclick="checkIconPremium('bjk')" id="iconBjk" class="flex flex-col items-center gap-2 group relative">
-            <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(135deg, #ffffff 50%, #000000 50%);">
-                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="gray" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(90deg, #000000 50%, #ffffff 50%);">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="#9ca3af" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <div id="lockBjk" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
             </div>
             <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Kartal</span>
@@ -1123,7 +1123,7 @@ function startSubscription() {
             const savedIcon = localStorage.getItem('litre_icon') || 'light'; 
             
             // Eğer premium değilse ama premium ikon (gold, fb, gs) seçiliyse sıfırla
-            if (!isPremiumUser && (savedIcon === 'gold' || savedIcon === 'fb' || savedIcon === 'gs')) {
+            if (!isPremiumUser && (savedIcon === 'gold' || savedIcon === 'bjk' || savedIcon === 'fb' || savedIcon === 'gs')) {
                 setAppIcon('light', false);
             } else {
                 setAppIcon(savedIcon, false);
