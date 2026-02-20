@@ -882,10 +882,10 @@
     <div class="flex justify-between items-center relative z-10">
         <div class="text-white">
             <div class="flex items-center gap-2 mb-1">
-                <i data-lucide="crown" class="w-5 h-5 fill-white text-white"></i>
-                <h3 class="font-black text-lg tracking-tight">Litre Premium</h3>
+                <i id="premCardIcon" data-lucide="crown" class="w-5 h-5 fill-white text-white"></i>
+                <h3 id="premCardTitle" class="font-black text-lg tracking-tight">Litre Premium</h3>
             </div>
-            <p class="text-xs font-bold opacity-90 max-w-[200px]">Aracının limitlerini kaldır. Raporlar, ikonlar ve daha fazlası.</p>
+            <p id="premCardDesc" class="text-xs font-bold opacity-90 max-w-[200px]">Aracının limitlerini kaldır. Raporlar, ikonlar ve daha fazlası.</p>
         </div>
         <div class="bg-white text-orange-600 w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
             <i data-lucide="arrow-right" class="w-5 h-5"></i>
@@ -1287,10 +1287,11 @@ function startSubscription() {
     try {
         const savedPic = localStorage.getItem('profile_pic');
         const pc = document.getElementById('profileCircle');
-        pc.style.backgroundImage = 'none';
-        
-        if(savedPic && savedPic.startsWith('data:image')) {
-            pc.style.backgroundImage = `url(${savedPic})`;
+        if (pc) {
+            pc.style.backgroundImage = 'none';
+            if(savedPic && savedPic.startsWith('data:image')) {
+                pc.style.backgroundImage = `url(${savedPic})`;
+            }
         }
     } catch(e) { console.error(e); }
 
@@ -1299,20 +1300,23 @@ function startSubscription() {
     const premDesc = document.getElementById('premCardDesc');
     const premIcon = document.getElementById('premCardIcon');
 
-    // MİSAFİR MODU
+    // MİSAFİR MODU KONTROLÜ
     if (typeof firebase === 'undefined' || !firebase.apps.length) { 
         document.getElementById('profileName').innerText = "Misafir";
         document.getElementById('profileStatus').innerText = "Giriş Yapılmadı";
         document.getElementById('guestActions').classList.remove('hidden');
         document.getElementById('logoutBtn').classList.add('hidden');
         
-        // Premium Kartı Standart Göster
-        premCard.classList.remove('hidden');
-        premTitle.innerText = "Litre Premium";
-        premDesc.innerText = "Aracının limitlerini kaldır. Raporlar ve daha fazlası.";
-        premIcon.setAttribute('data-lucide', 'crown');
+        if (premCard && premTitle && premDesc && premIcon) {
+            premCard.classList.remove('hidden');
+            premTitle.innerText = "Litre Premium";
+            premDesc.innerText = "Aracının limitlerini kaldır. Raporlar ve daha fazlası.";
+            premIcon.setAttribute('data-lucide', 'crown');
+        }
         
         isPremiumUser = false;
+        renderGarageUI();
+        if(window.lucide) lucide.createIcons();
         return; 
     }
 
@@ -1325,50 +1329,48 @@ function startSubscription() {
         document.getElementById('logoutBtn').classList.remove('hidden');
         document.getElementById('logoutBtn').style.display = 'flex';
         
-        // --- PREMIUM KONTROLÜ (DÜZELTİLDİ) ---
-        // Artık localStorage'a bakmıyoruz, sadece mail adresini kontrol ediyoruz.
-        // Böylece test hesapları yanlışlıkla premium olmuyor.
+        const localPrem = localStorage.getItem('isPremium') === 'true';
         
-        if (user.email === 'volkan@litre.com') {
+        if (user.email === 'volkan@litre.com' || localPrem) {
             isPremiumUser = true;
             document.getElementById('profileStatus').innerText = "Premium Üye";
             document.getElementById('profileStatus').className = "mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase text-orange-500 bg-orange-500/10";
             
-            // Premium Üye Kartı Görünümü
-            premCard.classList.remove('hidden');
-            premTitle.innerText = "Premium Aktif";
-            premDesc.innerText = "Tüm özellikler açık. Üyeliğini yönetmek için tıkla.";
-            premIcon.setAttribute('data-lucide', 'check-circle');
-            
+            if (premCard && premTitle && premDesc && premIcon) {
+                premCard.classList.remove('hidden');
+                premTitle.innerText = "Premium Aktif";
+                premDesc.innerText = "Tüm özellikler açık. Üyeliğini yönetmek için tıkla.";
+                premIcon.setAttribute('data-lucide', 'check-circle');
+            }
         } else {
-            // Diğer TÜM hesaplar Free
             isPremiumUser = false;
             document.getElementById('profileStatus').innerText = "Free Hesap";
             document.getElementById('profileStatus').className = "mt-2 px-5 py-1.5 glass-card rounded-full text-[9px] font-black tracking-[0.2em] uppercase opacity-60 text-current";
             
-            // Free Kart Görünümü
-            premCard.classList.remove('hidden');
-            premTitle.innerText = "Litre Premium";
-            premDesc.innerText = "Aracının limitlerini kaldır. Raporlar ve daha fazlası.";
-            premIcon.setAttribute('data-lucide', 'crown');
+            if (premCard && premTitle && premDesc && premIcon) {
+                premCard.classList.remove('hidden');
+                premTitle.innerText = "Litre Premium";
+                premDesc.innerText = "Aracının limitlerini kaldır. Raporlar ve daha fazlası.";
+                premIcon.setAttribute('data-lucide', 'crown');
+            }
         }
 
     } else {
-        // Çıkış yapılmışsa
+        // Oturum Yoksa
         document.getElementById('profileName').innerText = "Misafir";
         document.getElementById('profileStatus').innerText = "Giriş Yapılmadı";
         document.getElementById('guestActions').classList.remove('hidden');
         document.getElementById('logoutBtn').classList.add('hidden');
-        premCard.classList.remove('hidden');
         
-        selections = [];
+        if (premCard) premCard.classList.remove('hidden');
+        
         isPremiumUser = false;
-        saveGarageData();
     }
     
+    // BUNLARIN ÇALIŞMASI ŞART Kİ EKRANDA GÖRÜNSÜN
     renderGarageUI();
     updateLockIcons(); 
-    lucide.createIcons();
+    if(window.lucide) lucide.createIcons();
 }
 
         // --- AUTH & ACCOUNT FUNCTIONS ---
