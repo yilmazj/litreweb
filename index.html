@@ -1260,6 +1260,27 @@ function startSubscription() {
         let editTargetField = null; 
         let editingRecordIndex = -1;
         let stationData = [];
+        let livePrices = {};
+
+async function fetchAndUpdatePrices() {
+    try {
+        const res = await fetch("https://api.collectapi.com/gasPrice/turkeyGasoline", {
+            headers: {
+                "content-type": "application/json",
+                "authorization": "apikey 4J87CU71rXotfdhwBZSpkC:0K9S2EGxJpfHI1OB5DcK00"
+            }
+        });
+        const data = await res.json();
+        if (data.success && data.result) {
+            data.result.forEach(item => {
+                // Gelen veriyi marka bazlı kaydet
+                livePrices[item.gasType] = parseFloat(item.price.replace(',', '.'));
+            });
+        }
+    } catch(e) {
+        console.warn("API fiyatı alınamadı, simüle edilmiş fiyat kullanılıyor.");
+    }
+}
         let isCityMode = false; // Şehir seçildi mi yoksa radar (konum) modunda mıyız?
         
         // Filter States
@@ -1722,10 +1743,11 @@ function startSubscription() {
         // --- REAL STATION FETCHING (OVERPASS API) ---
         let fetchTimeout = null;
 
-        // API fiyatlarını önce çek
-await fetchAndUpdatePrices();
+        
         function fetchRealStations(customCenter) {
             // Use custom center (from geolocation) or fallback to map center
+            // API fiyatlarını önce çek
+await fetchAndUpdatePrices();
             let center;
             if (customCenter) {
                 center = L.latLng(customCenter[0], customCenter[1]);
@@ -2555,6 +2577,7 @@ function startOnboarding() {
 
         window.addEventListener('load', () => { 
     initTheme(); 
+    fetchAndUpdatePrices(); // API fiyatlarını yükle
     initAppIcon(); 
     
     // SIRALAMA ÖNEMLİ
@@ -2581,27 +2604,7 @@ function startOnboarding() {
 });
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
         
-   let livePrices = {};
-
-async function fetchAndUpdatePrices() {
-    try {
-        const res = await fetch("https://api.collectapi.com/gasPrice/turkeyGasoline", {
-            headers: {
-                "content-type": "application/json",
-                "authorization": "apikey 4J87CU71rXotfdhwBZSpkC:0K9S2EGxJpfHI1OB5DcK00"
-            }
-        });
-        const data = await res.json();
-        if (data.success && data.result) {
-            data.result.forEach(item => {
-                // Gelen veriyi marka bazlı kaydet
-                livePrices[item.gasType] = parseFloat(item.price.replace(',', '.'));
-            });
-        }
-    } catch(e) {
-        console.warn("API fiyatı alınamadı, simüle edilmiş fiyat kullanılıyor.");
-    }
-}
+   
      </script>
     <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000; display: none;" onclick="closePremium()">
     <div class="picker-container h-[85%] flex flex-col relative rounded-t-[30px] overflow-hidden" onclick="event.stopPropagation()">
