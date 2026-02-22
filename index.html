@@ -1263,7 +1263,23 @@ function startSubscription() {
         let livePrices = {};
 
 async function fetchAndUpdatePrices() {
+    // 1. Bugünü al (Örn: "2026-02-23")
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 2. Hafızadan son çekilme tarihini ve fiyatları oku
+    const lastFetchDate = localStorage.getItem('litre_last_fetch_date');
+    const cachedPrices = localStorage.getItem('litre_live_prices');
+
+    // 3. Eğer bugün zaten çektiysek, hafızadakini kullanıp API'yi yormuyoruz
+    if (lastFetchDate === today && cachedPrices) {
+        livePrices = JSON.parse(cachedPrices);
+        console.log("Fiyatlar hafızadan çekildi. API limiti korundu.");
+        return;
+    }
+
+    // 4. Yeni gün ise veya ilk defa açılıyorsa API'den çek
     try {
+        console.log("Güncel fiyatlar API'den çekiliyor...");
         const res = await fetch("https://api.collectapi.com/gasPrice/turkeyGasoline", {
             headers: {
                 "content-type": "application/json",
@@ -1271,14 +1287,21 @@ async function fetchAndUpdatePrices() {
             }
         });
         const data = await res.json();
+        
         if (data.success && data.result) {
             data.result.forEach(item => {
-                // Gelen veriyi marka bazlı kaydet
                 livePrices[item.gasType] = parseFloat(item.price.replace(',', '.'));
             });
+            
+            // 5. Başarılı olursa bugünün tarihini ve güncel fiyatları hafızaya kazı
+            localStorage.setItem('litre_last_fetch_date', today);
+            localStorage.setItem('litre_live_prices', JSON.stringify(livePrices));
         }
     } catch(e) {
-        console.warn("API fiyatı alınamadı, simüle edilmiş fiyat kullanılıyor.");
+        console.warn("API çöktü kanka. Hafızadaki eski fiyatlarla idare ediyoruz.");
+        if (cachedPrices) {
+            livePrices = JSON.parse(cachedPrices);
+        }
     }
 }
         let isCityMode = false; // Şehir seçildi mi yoksa radar (konum) modunda mıyız?
@@ -1746,8 +1769,6 @@ async function fetchAndUpdatePrices() {
         
         function fetchRealStations(customCenter) {
             // Use custom center (from geolocation) or fallback to map center
-            // API fiyatlarını önce çek
-await fetchAndUpdatePrices();
             let center;
             if (customCenter) {
                 center = L.latLng(customCenter[0], customCenter[1]);
