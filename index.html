@@ -1722,6 +1722,8 @@ function startSubscription() {
         // --- REAL STATION FETCHING (OVERPASS API) ---
         let fetchTimeout = null;
 
+        // API fiyatlarını önce çek
+await fetchAndUpdatePrices();
         function fetchRealStations(customCenter) {
             // Use custom center (from geolocation) or fallback to map center
             let center;
@@ -1844,7 +1846,7 @@ function startSubscription() {
 
              displayBrands.forEach(brand => {
                  // Simulate generic price
-                 let priceBase = basePrices[brand.name] || 42.00;
+                 let priceBase = livePrices['Benzin'] || basePrices[brand] || 42.00;
                  let benzin = (priceBase).toFixed(2);
                  let motorin = (priceBase + 1.2).toFixed(2);
                  let lpg = (25.50).toFixed(2);
@@ -2578,7 +2580,29 @@ function startOnboarding() {
     }, 2500); 
 });
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
-    </script>
+        
+   let livePrices = {};
+
+async function fetchAndUpdatePrices() {
+    try {
+        const res = await fetch("https://api.collectapi.com/gasPrice/turkeyGasoline", {
+            headers: {
+                "content-type": "application/json",
+                "authorization": "apikey 4J87CU71rXotfdhwBZSpkC:0K9S2EGxJpfHI1OB5DcK00"
+            }
+        });
+        const data = await res.json();
+        if (data.success && data.result) {
+            data.result.forEach(item => {
+                // Gelen veriyi marka bazlı kaydet
+                livePrices[item.gasType] = parseFloat(item.price.replace(',', '.'));
+            });
+        }
+    } catch(e) {
+        console.warn("API fiyatı alınamadı, simüle edilmiş fiyat kullanılıyor.");
+    }
+}
+     </script>
     <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000; display: none;" onclick="closePremium()">
     <div class="picker-container h-[85%] flex flex-col relative rounded-t-[30px] overflow-hidden" onclick="event.stopPropagation()">
         
