@@ -721,24 +721,12 @@
         </button>
         
         <button onclick="checkIconPremium('bjk')" id="iconBjk" class="flex flex-col items-center gap-2 group relative">
-    <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" 
-         style="background: linear-gradient(90deg, #000000 50%, #ffffff 50%);">
-        
-        <svg width="24" height="30" viewBox="0 0 100 120" style="mix-blend-mode: difference;">
-            <path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" 
-                  fill="none" 
-                  stroke="#ffffff" 
-                  stroke-width="8" 
-                  stroke-linecap="round" 
-                  stroke-linejoin="round"/>
-        </svg>
-
-        <div id="lockBjk" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
-            <i data-lucide="lock" class="text-white w-5 h-5"></i>
-        </div>
-    </div>
-    <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Kartal</span>
-</button>
+            <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(90deg, #000000 50%, #ffffff 50%);">
+                <svg width="24" height="30" viewBox="0 0 100 120"><path d="M50 25 C 50 25, 15 70, 15 90 A 35 35 0 0 0 85 90 C 85 70, 50 25, 50 25 Z" fill="none" stroke="#9ca3af" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div id="lockBjk" class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]"><i data-lucide="lock" class="text-white w-5 h-5"></i></div>
+            </div>
+            <span class="text-[10px] font-bold opacity-60 group-[.active]:text-blue-500 group-[.active]:opacity-100">Kartal</span>
+        </button>
 
         <button onclick="checkIconPremium('fb')" id="iconFb" class="flex flex-col items-center gap-2 group relative">
             <div class="w-14 h-14 rounded-2xl border-2 border-transparent group-[.active]:border-blue-500 shadow-sm flex items-center justify-center transition-all relative overflow-hidden" style="background: linear-gradient(90deg, #FACC15 50%, #1e3a8a 50%);">
@@ -1260,50 +1248,6 @@ function startSubscription() {
         let editTargetField = null; 
         let editingRecordIndex = -1;
         let stationData = [];
-        let livePrices = {};
-
-async function fetchAndUpdatePrices() {
-    // 1. Bugünü al (Örn: "2026-02-23")
-    const today = new Date().toISOString().split('T')[0];
-    
-    // 2. Hafızadan son çekilme tarihini ve fiyatları oku
-    const lastFetchDate = localStorage.getItem('litre_last_fetch_date');
-    const cachedPrices = localStorage.getItem('litre_live_prices');
-
-    // 3. Eğer bugün zaten çektiysek, hafızadakini kullanıp API'yi yormuyoruz
-    if (lastFetchDate === today && cachedPrices) {
-        livePrices = JSON.parse(cachedPrices);
-        console.log("Fiyatlar hafızadan çekildi. API limiti korundu.");
-        return;
-    }
-
-    // 4. Yeni gün ise veya ilk defa açılıyorsa API'den çek
-    try {
-        console.log("Güncel fiyatlar API'den çekiliyor...");
-        const res = await fetch("https://api.collectapi.com/gasPrice/turkeyGasoline", {
-            headers: {
-                "content-type": "application/json",
-                "authorization": "apikey 4J87CU71rXotfdhwBZSpkC:0K9S2EGxJpfHI1OB5DcK00"
-            }
-        });
-        const data = await res.json();
-        
-        if (data.success && data.result) {
-            data.result.forEach(item => {
-                livePrices[item.gasType] = parseFloat(item.price.replace(',', '.'));
-            });
-            
-            // 5. Başarılı olursa bugünün tarihini ve güncel fiyatları hafızaya kazı
-            localStorage.setItem('litre_last_fetch_date', today);
-            localStorage.setItem('litre_live_prices', JSON.stringify(livePrices));
-        }
-    } catch(e) {
-        console.warn("API çöktü kanka. Hafızadaki eski fiyatlarla idare ediyoruz.");
-        if (cachedPrices) {
-            livePrices = JSON.parse(cachedPrices);
-        }
-    }
-}
         let isCityMode = false; // Şehir seçildi mi yoksa radar (konum) modunda mıyız?
         
         // Filter States
@@ -1766,7 +1710,6 @@ async function fetchAndUpdatePrices() {
         // --- REAL STATION FETCHING (OVERPASS API) ---
         let fetchTimeout = null;
 
-        
         function fetchRealStations(customCenter) {
             // Use custom center (from geolocation) or fallback to map center
             let center;
@@ -1889,7 +1832,7 @@ async function fetchAndUpdatePrices() {
 
              displayBrands.forEach(brand => {
                  // Simulate generic price
-                 let priceBase = livePrices['Benzin'] || basePrices[brand] || 42.00;
+                 let priceBase = basePrices[brand.name] || 42.00;
                  let benzin = (priceBase).toFixed(2);
                  let motorin = (priceBase + 1.2).toFixed(2);
                  let lpg = (25.50).toFixed(2);
@@ -2598,7 +2541,6 @@ function startOnboarding() {
 
         window.addEventListener('load', () => { 
     initTheme(); 
-    fetchAndUpdatePrices(); // API fiyatlarını yükle
     initAppIcon(); 
     
     // SIRALAMA ÖNEMLİ
@@ -2624,9 +2566,7 @@ function startOnboarding() {
     }, 2500); 
 });
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
-        
-   
-     </script>
+    </script>
     <div id="premiumOverlay" class="picker-overlay" style="z-index: 6000; display: none;" onclick="closePremium()">
     <div class="picker-container h-[85%] flex flex-col relative rounded-t-[30px] overflow-hidden" onclick="event.stopPropagation()">
         
