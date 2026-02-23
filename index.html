@@ -2059,85 +2059,102 @@ function startSubscription() {
         console.log("Okunan Metin:\n", text); 
         const cleanText = text.toUpperCase(); 
         
-        // Fişte en azından bu anahtar kelimelerden biri varsa işleme devam et
-        if (cleanText.includes('TOPLAM') || cleanText.includes('KDV') || cleanText.includes('LT')) { 
-            
-            // 1. TOPLAM TUTARI BULMAK
-            // Sadece "TOPLAM" yazısından sonraki ilk virgüllü/noktalı sayıyı alır. İlk gördüğü sayıya atlamaz.
-            const priceRegex = /TOPLAM[^\d]*(\d+[.,]\d{2})/; 
-            const priceMatch = cleanText.match(priceRegex); 
-            
-            let foundPrice = "0,00", rawPrice = 0; 
-            if (priceMatch) { 
-                foundPrice = priceMatch[1]; 
-                // Binlik ayracı olan noktayı sil, kuruş ayracı olan virgülü noktaya çevir
-                rawPrice = parseFloat(foundPrice.replace(/\./g, '').replace(',', '.')); 
-            } 
+        // 1. TOPLAM TUTARI BULMAK (Daha Akıllı ve Esnek Arama)
+        // Olası kelimeler: TOPLAM, TUTAR, K.KARTI, KREDİ, NAKİT, TOP
+        const priceRegex = /(?:TOPLAM|TUTAR|K\.KARTI|KRED[Iİ]|NAK[Iİ]T|TOP)[^\d]*(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})(?!\d)/g;
+        let priceMatches = [...cleanText.matchAll(priceRegex)];
+        
+        let rawPrice = 0;
+        let foundPrice = "0,00";
 
-            // 2. LİTREYİ FİŞTEN OKUMAK (Kafadan sallamak yok)
-            // Fişteki "15,520 LT" veya "15.52 LT" kısmını bulur.
-            const literRegex = /(\d+[.,]\d+)\s*LT/;
-            const literMatch = cleanText.match(literRegex);
+        if (priceMatches.length > 0) {
+            // Genelde fişin en altındaki veya son eşleşen değer doğru olandır (KDV tutarından sonra gelir)
+            let lastMatch = priceMatches[priceMatches.length - 1][1];
+            foundPrice = lastMatch;
+            rawPrice = parseFloat(foundPrice.replace(/\./g, '').replace(',', '.'));
+        } else {
+            // B PLANI: Kelimeleri okuyamadıysa metindeki formatı "XXX,XX" olan EN BÜYÜK sayıyı bul
+            const allNumbersRegex = /(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})(?!\d)/g;
+            let allNumbers = [...cleanText.matchAll(allNumbersRegex)];
+            let maxNum = 0;
+            let maxStr = "0,00";
             
-            let rawLiters = 0;
-            if (literMatch) {
-                // Virgülü noktaya çevirip küsuratlı sayıyı alıyoruz
-                rawLiters = parseFloat(literMatch[1].replace(',', '.'));
+            for (let match of allNumbers) {
+                let val = parseFloat(match[1].replace(/\./g, '').replace(',', '.'));
+                // Saçma sapan barkod sayılarını elemek için makul bir üst sınır koyuyoruz
+                if (val > maxNum && val < 100000) { 
+                    maxNum = val;
+                    maxStr = match[1];
+                }
             }
-
-            const dateRegex = /(\d{2}[-./]\d{2}[-./]\d{4})/; 
-            const dateMatch = text.match(dateRegex); 
-            const foundDate = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('tr-TR'); 
-            
-            const lines = text.split('\n').filter(line => line.trim().length > 3); 
-            let foundStation = lines.length > 0 ? lines[0].replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '').trim() : "Bilinmiyor"; 
-            
-            if (rawPrice === 0) { 
-                document.getElementById('scanProcessing').style.display = 'none'; 
-                document.getElementById('scanError').style.display = 'flex'; 
-                return; 
-            } 
-            
-            document.getElementById('scanProcessing').style.display = 'none'; 
-            document.getElementById('scanSuccess').style.display = 'flex'; 
-            document.getElementById('resStation').innerText = foundStation; 
-            document.getElementById('resDate').innerText = foundDate; 
-            document.getElementById('resTotal').innerText = foundPrice + " TL"; 
-            
-            // Eğer OCR çok kötü okur da litreyi bulamazsa boş kalmasın diye fallback koyduk (ortalama 42 TL'den)
-            let finalLiters = rawLiters > 0 ? rawLiters.toFixed(2) : (rawPrice / 42).toFixed(2);
-
-            const newRec = { 
-                station: foundStation, 
-                date: foundDate, 
-                amount: rawPrice, 
-                liters: finalLiters, 
-                plate: tempScanCarPlate, 
-                details: `Yakıt Alımı · ${foundPrice} TL` 
-            }; 
-            
-            fuelRecords.unshift(newRec); 
-            tempScanCarPlate = null; 
-            updateGarageAnalysis(); 
-            renderGarageUI(); 
-            updateRadarAnalysis();
-            localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
-            
-            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
-                firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ fuelRecords: fuelRecords });
+            if (maxNum > 0) {
+                rawPrice = maxNum;
+                foundPrice = maxStr;
             }
+        }
 
-            setTimeout(() => { 
-                closeScan(); 
-                document.getElementById('scanSuccess').style.display = 'none'; 
-                document.getElementById('scanUI').style.display = 'flex'; 
-                showTab('radar', document.querySelector('.nav-item:nth-child(4)')); 
-            }, 3000); 
-        } else { 
+        // 2. LİTREYİ BULMAK (Varyasyonları içerir)
+        // LT, LİTRE, LTR veya L harflerini arar
+        const literRegex = /(\d{1,3}[.,]\d{2,3})\s*(?:LT|L[Iİ]TRE|LTR|L\b)/g;
+        let literMatches = [...cleanText.matchAll(literRegex)];
+        
+        let rawLiters = 0;
+        if (literMatches.length > 0) {
+            rawLiters = parseFloat(literMatches[0][1].replace(',', '.'));
+        }
+
+        // 3. TARİH BULMAK
+        const dateRegex = /(\d{2}[-./]\d{2}[-./]\d{4})/; 
+        const dateMatch = cleanText.match(dateRegex); 
+        const foundDate = dateMatch ? dateMatch[0] : new Date().toLocaleDateString('tr-TR'); 
+        
+        // 4. İSTASYON İSMİ
+        const lines = text.split('\n').filter(line => line.trim().length > 3); 
+        let foundStation = lines.length > 0 ? lines[0].replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, '').trim() : "Bilinmiyor"; 
+        
+        // Eğer hiçbir şekilde tutar bulamadıysa hata ver
+        if (rawPrice === 0) { 
             document.getElementById('scanProcessing').style.display = 'none'; 
             document.getElementById('scanError').style.display = 'flex'; 
-            lucide.createIcons(); 
+            return; 
         } 
+        
+        document.getElementById('scanProcessing').style.display = 'none'; 
+        document.getElementById('scanSuccess').style.display = 'flex'; 
+        document.getElementById('resStation').innerText = foundStation; 
+        document.getElementById('resDate').innerText = foundDate; 
+        document.getElementById('resTotal').innerText = foundPrice + " TL"; 
+        
+        // Litreyi fişten okuyamadıysa uygulamayı çökertmemek için son çare tahmini litre (42 TL'den)
+        let finalLiters = rawLiters > 0 ? rawLiters.toFixed(2) : (rawPrice / 42).toFixed(2);
+
+        const newRec = { 
+            station: foundStation, 
+            date: foundDate, 
+            amount: rawPrice, 
+            liters: finalLiters, 
+            plate: tempScanCarPlate, 
+            details: `Yakıt Alımı · ${foundPrice} TL` 
+        }; 
+        
+        fuelRecords.unshift(newRec); 
+        tempScanCarPlate = null; 
+        updateGarageAnalysis(); 
+        renderGarageUI(); 
+        updateRadarAnalysis();
+        localStorage.setItem('fuelRecords', JSON.stringify(fuelRecords));
+        
+        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).update({ fuelRecords: fuelRecords });
+        }
+
+        setTimeout(() => { 
+            closeScan(); 
+            document.getElementById('scanSuccess').style.display = 'none'; 
+            document.getElementById('scanUI').style.display = 'flex'; 
+            showTab('radar', document.querySelector('.nav-item:nth-child(4)')); 
+        }, 3000); 
+        
     }).catch(err => { 
         console.error(err); 
         document.getElementById('scanProcessing').style.display = 'none'; 
